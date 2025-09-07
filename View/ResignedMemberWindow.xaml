@@ -1,0 +1,50 @@
+﻿<Window x:Class="library_management_system.View.ResignedMemberWindow"
+            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:library_management_system"
+    xmlns:mdi="http://materialdesigninxaml.net/winfx/xaml/themes"
+    WindowStyle="None"
+    mc:Ignorable="d"
+    Title="새 도서 추가" 
+    Height="500" 
+    Width="750"
+    WindowStartupLocation="CenterOwner"
+    ResizeMode="NoResize"
+    TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+    Background="White"
+    TextElement.FontWeight="Regular"
+    TextElement.FontSize="13"
+    TextElement.FontFamily="{StaticResource DefaultFontFamily}"
+    TextOptions.TextFormattingMode="Ideal"
+    TextOptions.TextRenderingMode="Auto">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <local:ImagePathConverter x:Key="ImagePathConverter"/>
+            <ResourceDictionary.MergedDictionaries>
+
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.Teal.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TextBox.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DatePicker.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ComboBox.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="69*"/>
+            <RowDefinition Height="369*"/>
+            <RowDefinition Height="62*"/>
+        </Grid.RowDefinitions>
+        <mdi:Card Grid.Row="0" Padding="16" mdi:ElevationAssist.Elevation="Dp2" HorizontalAlignment="Left" Margin="10,10,0,0" Width="274">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Width="178">
+                <mdi:PackIcon Kind="AccountCircle" Width="32" Height="32" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                <TextBlock Text="탈퇴 회원 조회" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
+            </StackPanel>
+        </mdi:Card>
+    </Grid>
+</Window>

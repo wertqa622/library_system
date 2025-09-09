@@ -7,10 +7,11 @@
         xmlns:mdi="http://materialdesigninxaml.net/winfx/xaml/themes"
         WindowStyle="None"
         mc:Ignorable="d"
+        
         Title="새 도서 추가" 
         Height="600" 
         Width="500"
-        WindowStartupLocation="CenterOwner"
+        WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         Background="White"

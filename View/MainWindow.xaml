@@ -485,10 +485,9 @@
                                         Margin="0,0,8,0"
                                         mdi:ButtonAssist.CornerRadius="4" />
                                 <Button Content="도서 반납"
-                                        Background="#FFFF8787"
-                                        BorderBrush="#FFFF8787"
+                                        Background="Red"
                                         Foreground="White"
-                                        Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                        Style="{DynamicResource MaterialDesignRaisedButton}"
                                         Width="120"
                                         Height="36"
                                         Margin="0,0,8,0"

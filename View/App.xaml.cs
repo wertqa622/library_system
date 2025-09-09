@@ -4,11 +4,11 @@ using library_management_system.DataBase;
 using library_management_system.Services;
 using library_management_system.View;
 using library_management_system.ViewModels;
+using library_management_system.Repository;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic.Logging;
 using Application = System.Windows.Application;
 
 namespace library_management_system
@@ -19,7 +19,6 @@ namespace library_management_system
 
         public App()
         {
-            // 호스트 빌더 생성 및 DI, 로깅, 설정 구성
             AppHost = Host.CreateDefaultBuilder()
                 .ConfigureAppConfiguration((context, config) =>
                 {
@@ -28,51 +27,33 @@ namespace library_management_system
                 })
                 .ConfigureServices((context, services) =>
                 {
-                    // Dapper Helper 등록 (Scoped)
                     services.AddScoped<OracleDapperHelper>(provider =>
                     {
-                        var config = provider.GetRequiredService<IConfiguration>();
                         var logger = provider.GetRequiredService<ILogger<OracleDapperHelper>>();
-                        string connectionString = GetConnectionStringFromConfig(config);
+                        string connectionString = Data.Global.GetConnectionString();
                         return new OracleDapperHelper(connectionString, logger);
                     });
 
-                    // Repository 등록
-                    services.AddScoped<BookRepository>();
-                    //services.AddScoped<ILoanRepository, LoanRepository>();
-                    //services.AddScoped<IMemberRepository, MemberRepository>();
+                    services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-                    // Service 등록(비즈니스 로직 계층)
                     services.AddScoped<IBookService, BookService>();
                     services.AddScoped<ILoanService, LoanService>();
                     services.AddScoped<IMemberService, MemberService>();
 
-                    // 메모리 캐시 추가
                     services.AddMemoryCache();
 
-                    // 최적화된 서비스 등록
                     services.AddScoped<OptimizedBookService>();
 
-                    // ViewModel 등록
-                    //services.AddTransient<MainViewModel>();
-                    //services.AddTransient<BookViewModel>();
-                    //services.AddTransient<MemberViewModel>();
-                    //services.AddTransient<LoanViewModel>();
+                    services.AddTransient<MainViewModel>();
 
-                    // View 등록
                     services.AddTransient<MainWindow>();
-                    //services.AddTransient<BookView>();
-                    //services.AddTransient<MemberView>();
-                    //services.AddTransient<LoanView>();
 
-                    // 로깅(Serilog)
                     services.AddLogging(loggingBuilder =>
                     {
                         loggingBuilder.ClearProviders();
-                        //loggingBuilder.AddSerilog(dispose: true);
+                        loggingBuilder.AddConsole();
                     });
                 })
-
                 .Build();
         }
 
@@ -80,28 +61,22 @@ namespace library_management_system
         {
             try
             {
-                // Global 클래스에서 환경 변수 로드
-                Data.Global.LoadFromEnvironmentVariables();
-
                 await AppHost!.StartAsync();
 
                 var logger = AppHost.Services.GetRequiredService<ILogger<App>>();
-                logger.LogInformation("Library Management System Starting...");
 
-                // 데이터베이스 연결 테스트
                 var dbTestResult = await TestDatabaseConnection();
                 if (dbTestResult)
                 {
-                    logger.LogInformation("Database connection test successful");
+                    logger.LogInformation("DB 접속 성공");
                 }
                 else
                 {
-                    logger.LogWarning("Database connection test failed - using in-memory data");
+                    logger.LogError("DB 접속 실패");
                 }
 
                 base.OnStartup(e);
 
-                // DI로 MainWindow 생성 및 표시
                 var mainWindow = AppHost.Services.GetRequiredService<MainWindow>();
                 mainWindow.Show();
             }
@@ -115,25 +90,19 @@ namespace library_management_system
         protected override async void OnExit(ExitEventArgs e)
         {
             var logger = AppHost!.Services.GetRequiredService<ILogger<App>>();
-            logger.LogInformation("시스템종료");
+            logger.LogInformation("시스템 종료");
 
             await AppHost!.StopAsync();
-            //Log.CloseAndFlush();
             base.OnExit(e);
-        }
-
-        private static string GetConnectionStringFromConfig(IConfiguration config)
-        {
-            // Global 클래스에서 연결 정보를 가져옴
-            return Data.Global.GetConnectionString();
         }
 
         public static async Task<bool> TestDatabaseConnection()
         {
             try
             {
-                using var helper = AppHost!.Services.GetRequiredService<OracleDapperHelper>();
-                var result = helper.QuerySingle<int>("SELECT 1 FROM DUAL");
+                using var scope = AppHost!.Services.CreateScope();
+                var helper = scope.ServiceProvider.GetRequiredService<OracleDapperHelper>();
+                var result = await helper.QuerySingleAsync<int>("SELECT 1 FROM DUAL");
                 return result == 1;
             }
             catch (Exception ex)

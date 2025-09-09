@@ -60,7 +60,6 @@ namespace library_management_system.Services
                 MemberId = memberId,
                 LoanDate = DateTime.Now,
                 DueDate = DateTime.Now.AddDays(loanDays),
-                IsReturned = false,
                 FineAmount = 0
             };
 
@@ -73,14 +72,13 @@ namespace library_management_system.Services
             var loan = _loans.FirstOrDefault(l => l.Id == loanId);
             if (loan != null)
             {
-                loan.IsReturned = true;
                 loan.ReturnDate = DateTime.Now;
-                
+
                 // 연체료 계산
                 if (loan.ReturnDate > loan.DueDate)
                 {
                     var overdueDays = (loan.ReturnDate.Value - loan.DueDate).Days;
-                    
+                    loan.FineAmount = overdueDays * 1000m; // 하루당 1000원
                 }
             }
             return Task.FromResult(loan);
@@ -105,7 +103,7 @@ namespace library_management_system.Services
         {
             // 현재 대여 중인 책 수 계산
             var currentLoans = _loans.Count(l => l.MemberId == memberId && !l.IsReturned);
-            
+
             // 기본적으로 5권까지 대여 가능 (실제로는 Member의 MaxBooksAllowed를 확인해야 함)
             return Task.FromResult(currentLoans < 5);
         }
@@ -126,7 +124,6 @@ namespace library_management_system.Services
                 MemberId = 1,
                 LoanDate = new DateTime(2024, 1, 15),
                 DueDate = new DateTime(2024, 2, 15),
-                IsReturned = false,
                 FineAmount = 0
             });
 
@@ -137,7 +134,6 @@ namespace library_management_system.Services
                 MemberId = 2,
                 LoanDate = new DateTime(2024, 1, 10),
                 DueDate = new DateTime(2024, 2, 10),
-                IsReturned = true,
                 ReturnDate = new DateTime(2024, 2, 5),
                 FineAmount = 0
             });
@@ -149,9 +145,8 @@ namespace library_management_system.Services
                 MemberId = 1,
                 LoanDate = new DateTime(2024, 1, 1),
                 DueDate = new DateTime(2024, 2, 1),
-                IsReturned = false,
                 FineAmount = 5000 // 연체료
             });
         }
     }
-} 
+}

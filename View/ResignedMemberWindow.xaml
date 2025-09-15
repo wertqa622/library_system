@@ -23,6 +23,39 @@
     <Window.Resources>
         <ResourceDictionary>
             <local:ImagePathConverter x:Key="ImagePathConverter"/>
+
+            <Style x:Key="CustomDataGridStyle" TargetType="DataGrid">
+                <Setter Property="Background" Value="White" />
+                <Setter Property="BorderBrush" Value="#E0E0E0" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="GridLinesVisibility" Value="Horizontal" />
+                <Setter Property="HorizontalGridLinesBrush" Value="#F0F0F0" />
+                <Setter Property="RowBackground" Value="White" />
+                <Setter Property="AlternatingRowBackground" Value="#FAFAFA" />
+                <Setter Property="SelectionMode" Value="Single" />
+                <Setter Property="CanUserResizeRows" Value="False" />
+                <Setter Property="CanUserSortColumns" Value="True" />
+                <Setter Property="AutoGenerateColumns" Value="False" />
+                <Setter Property="HeadersVisibility" Value="Column" />
+                <Setter Property="RowHeight" Value="48" />
+                <Setter Property="ColumnHeaderHeight" Value="56" />
+                <Setter Property="SelectionUnit" Value="FullRow" />
+            </Style>
+
+            <Style x:Key="CustomDataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
+                <Setter Property="Background" Value="#F5F5F5" />
+                <Setter Property="Foreground" Value="#333333" />
+                <Setter Property="FontWeight" Value="Medium" />
+                <Setter Property="Padding" Value="12,8" />
+                <Setter Property="HorizontalContentAlignment" Value="Left" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+            </Style>
+
+            <Style x:Key="CustomDataGridTextColumnStyle" TargetType="TextBlock">
+                <Setter Property="Padding" Value="12,8" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            </Style>
             <ResourceDictionary.MergedDictionaries>
 
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
@@ -32,6 +65,8 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DatePicker.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ComboBox.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
@@ -40,11 +75,67 @@
             <RowDefinition Height="369*"/>
             <RowDefinition Height="62*"/>
         </Grid.RowDefinitions>
-        <mdi:Card Grid.Row="0" Padding="16" mdi:ElevationAssist.Elevation="Dp2" HorizontalAlignment="Left" Margin="10,10,0,0" Width="274">
+        <mdi:Card Grid.Row="0" Padding="16" mdi:ElevationAssist.Elevation="Dp2" HorizontalAlignment="Center" Margin="0,4,0,4" Width="240">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Width="178">
-                <mdi:PackIcon Kind="AccountCircle" Width="32" Height="32" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                <mdi:PackIcon Kind="AccountCircle" Width="32" Height="32" VerticalAlignment="Center" Margin="0,0,0,0"/>
                 <TextBlock Text="탈퇴 회원 조회" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
             </StackPanel>
         </mdi:Card>
+        <!-- 탈퇴 회원 조회 컬럼 -->
+
+        <DataGrid
+          ItemsSource="{Binding Books}"
+          SelectedItem="{Binding SelectedBook}"
+          AutoGenerateColumns="False"
+          CanUserAddRows="False"
+          CanUserDeleteRows="False"
+          IsReadOnly="True"
+          Style="{DynamicResource CustomDataGridStyle}"
+          ColumnHeaderStyle="{DynamicResource CustomDataGridColumnHeaderStyle}" Margin="0,0,0,5" Grid.Row="1">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="사진" Width="150">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="LightGray" BorderThickness="1" Margin="2">
+                                <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}"
+                               Height="60"
+                               Stretch="Uniform"
+                               RenderOptions.BitmapScalingMode="HighQuality" />
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="이름"
+                    Binding="{Binding Name}"
+                    Width="100"
+                    ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                <DataGridTextColumn Header="생년월일"
+                        Binding="{Binding brithdate}"
+                        Width="120"
+                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                <DataGridTextColumn Header="이메일"
+                        Binding="{Binding Email}"
+                        Width="140"
+                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                <DataGridTextColumn Header="전화면호"
+                        Binding="{Binding PhoneNumber}"
+                        Width="140"
+                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                <DataGridTextColumn Header="성별"
+                        Binding="{Binding gender}"
+                        Width="100"
+                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+            </DataGrid.Columns>
+        </DataGrid>
+        <mdi:Card Grid.Row="2" Padding="1" Margin="0,10,0,0" mdi:ElevationAssist.Elevation="Dp2">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="닫기"
+                Style="{DynamicResource MaterialDesignRaisedButton}"
+                Click="ResignedMember_close"
+                Width="100"
+                Height="40"/>
+            </StackPanel>
+        </mdi:Card>
+
     </Grid>
 </Window>

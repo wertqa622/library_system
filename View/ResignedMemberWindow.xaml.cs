@@ -23,5 +23,9 @@ namespace library_management_system.View
         {
             InitializeComponent();
         }
+        private void ResignedMember_close(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
     }
 }

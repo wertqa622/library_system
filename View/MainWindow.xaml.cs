@@ -129,5 +129,10 @@ namespace library_management_system
         {
 
         }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

@@ -8,9 +8,9 @@
     WindowStyle="None"
     mc:Ignorable="d"
     Title="새 도서 추가" 
-    Height="500" 
-    Width="750"
-    WindowStartupLocation="CenterOwner"
+    Height="530" 
+    Width="1000"
+    WindowStartupLocation="CenterScreen"
     ResizeMode="NoResize"
     TextElement.Foreground="{DynamicResource MaterialDesignBody}"
     Background="White"
@@ -50,11 +50,31 @@
                 <Setter Property="HorizontalContentAlignment" Value="Left" />
                 <Setter Property="VerticalContentAlignment" Value="Center" />
             </Style>
-
-            <Style x:Key="CustomDataGridTextColumnStyle" TargetType="TextBlock">
+            <Style x:Key="CustomDataGridCellStyle" TargetType="DataGridCell">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderBrush" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="Padding" Value="12,8" />
                 <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="DataGridCell">
+                            <Border Background="{TemplateBinding Background}"
+                         BorderBrush="{TemplateBinding BorderBrush}"
+                         BorderThickness="{TemplateBinding BorderThickness}"
+                         Padding="{TemplateBinding Padding}">
+                                <ContentPresenter VerticalAlignment="{TemplateBinding VerticalAlignment}" />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="CustomDataGridTextColumnStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="#212529" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="Margin" Value="0" />
             </Style>
             <ResourceDictionary.MergedDictionaries>
 
@@ -69,13 +89,13 @@
 
         </ResourceDictionary>
     </Window.Resources>
-    <Grid>
+    <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="69*"/>
             <RowDefinition Height="369*"/>
             <RowDefinition Height="62*"/>
         </Grid.RowDefinitions>
-        <mdi:Card Grid.Row="0" Padding="16" mdi:ElevationAssist.Elevation="Dp2" HorizontalAlignment="Center" Margin="0,4,0,4" Width="240">
+        <mdi:Card Grid.Row="0" Padding="16" mdi:ElevationAssist.Elevation="Dp2" HorizontalAlignment="Center" Margin="0,-4,0,13" Width="241">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Width="178">
                 <mdi:PackIcon Kind="AccountCircle" Width="32" Height="32" VerticalAlignment="Center" Margin="0,0,0,0"/>
                 <TextBlock Text="탈퇴 회원 조회" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
@@ -83,17 +103,17 @@
         </mdi:Card>
         <!-- 탈퇴 회원 조회 컬럼 -->
 
-        <DataGrid
-          ItemsSource="{Binding Books}"
-          SelectedItem="{Binding SelectedBook}"
+        <DataGrid Grid.Row="1"
+          ItemsSource="{Binding ResignedMember}"
+          SelectedItem="{Binding SelectedResignedMember}"
           AutoGenerateColumns="False"
           CanUserAddRows="False"
           CanUserDeleteRows="False"
           IsReadOnly="True"
           Style="{DynamicResource CustomDataGridStyle}"
-          ColumnHeaderStyle="{DynamicResource CustomDataGridColumnHeaderStyle}" Margin="0,0,0,5" Grid.Row="1">
+          ColumnHeaderStyle="{DynamicResource CustomDataGridColumnHeaderStyle}">
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="사진" Width="150">
+                <DataGridTemplateColumn Header="사진" Width="200">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Border BorderBrush="LightGray" BorderThickness="1" Margin="2">
@@ -111,15 +131,15 @@
                     ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTextColumn Header="생년월일"
                         Binding="{Binding brithdate}"
-                        Width="120"
+                        Width="150"
                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTextColumn Header="이메일"
                         Binding="{Binding Email}"
-                        Width="140"
+                        Width="200"
                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTextColumn Header="전화면호"
                         Binding="{Binding PhoneNumber}"
-                        Width="140"
+                        Width="150"
                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTextColumn Header="성별"
                         Binding="{Binding gender}"

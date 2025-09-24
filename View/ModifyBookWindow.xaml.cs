@@ -6,6 +6,7 @@ using Microsoft.Win32;
 using library_management_system.Models;
 using library_management_system.Services;
 using library_management_system.ViewModels;
+using Application = System.Windows.Application;
 
 namespace library_management_system
 {
@@ -199,6 +200,10 @@ namespace library_management_system
         }
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
+            if (Application.Current.MainWindow is MainWindow main)
+            {
+                main.hdgd();
+            }
             DialogResult = false;
             Close();
         }

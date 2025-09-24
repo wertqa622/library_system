@@ -165,7 +165,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-
+        <Grid x:Name="hiddengd" Grid.RowSpan="2" Background="#FFAFAFAF" Visibility="Collapsed" Panel.ZIndex="2"/>
         <!-- Header -->
         <mdi:ColorZone Grid.Row="0"
                                   Mode="PrimaryMid"
@@ -204,9 +204,7 @@
             <mdi:Card Padding="0" mdi:ElevationAssist.Elevation="Dp2">
                 <TabControl Style="{DynamicResource CustomTabControlStyle}">
                     <TabItem Header="HOME" Style="{DynamicResource CustomTabItemStyle}">
-                        <Grid Margin="16">
-                            <Image Source="/source/download.jpg" />
-                        </Grid>
+                        <Grid Margin="16" VerticalAlignment="Center"/>
                     </TabItem>
                     <TabItem Header="도서 관리" Style="{DynamicResource CustomTabItemStyle}">
                         <Grid Margin="16">
@@ -483,10 +481,8 @@
                                         Width="120"
                                         Height="36"
                                         Margin="0,0,8,0"
-                                        mdi:ButtonAssist.CornerRadius="4" />
-                                <Button Content="도서 반납"
-                                        Background="Red"
-                                        Foreground="White"
+                                        mdi:ButtonAssist.CornerRadius="4" Cursor="Hand"/>
+                                <Button Content="도서 반납"                                        
                                         Style="{DynamicResource MaterialDesignRaisedButton}"
                                         Width="120"
                                         Height="36"

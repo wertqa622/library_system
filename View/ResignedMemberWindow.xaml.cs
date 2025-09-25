@@ -14,15 +14,13 @@ using System.Windows.Shapes;
 
 namespace library_management_system.View
 {
-    /// <summary>
-    /// ResignedMemberWindow.xaml에 대한 상호 작용 논리
-    /// </summary>
     public partial class ResignedMemberWindow : Window
     {
         public ResignedMemberWindow()
         {
             InitializeComponent();
         }
+
         private void ResignedMember_close(object sender, RoutedEventArgs e)
         {
             this.Close();

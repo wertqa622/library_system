@@ -114,25 +114,24 @@ namespace library_management_system
 
         private void Add_Member(object sender, RoutedEventArgs e)
         {
-            AddBookWindow addbook = new AddBookWindow(_bookService, _mainViewModel);
-            addbook.ShowDialog();
+            AddMemberWindow addMember = new AddMemberWindow();
+            addMember.ShowDialog();
         }
+
         private void ResignedMember_Click(object sender, RoutedEventArgs e)
         {
             ResignedMemberWindow aaa = new ResignedMemberWindow();
             aaa.ShowDialog();
-
         }
+
         #endregion 고객 관리
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-
         }
     }
 }

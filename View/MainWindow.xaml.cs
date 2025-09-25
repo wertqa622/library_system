@@ -54,6 +54,7 @@ namespace library_management_system
         {
             var addBookWindow = new AddBookWindow(_bookService, _mainViewModel);
             addBookWindow.Owner = this;
+            vbgd();
             addBookWindow.ShowDialog();
         }
 
@@ -66,6 +67,7 @@ namespace library_management_system
             }
             var modedifyBookWindow = new ModifyBookWindow(_bookService, _mainViewModel, _mainViewModel.SelectedBook);
             modedifyBookWindow.Owner = this;
+            vbgd();
             modedifyBookWindow.ShowDialog();
         }
 
@@ -114,13 +116,15 @@ namespace library_management_system
 
         private void Add_Member(object sender, RoutedEventArgs e)
         {
-            AddMemberWindow addMember = new AddMemberWindow();
-            addMember.ShowDialog();
+            AddBookWindow addbook = new AddBookWindow(_bookService, _mainViewModel);
+            vbgd();
+            addbook.ShowDialog();
         }
 
         private void ResignedMember_Click(object sender, RoutedEventArgs e)
         {
             ResignedMemberWindow aaa = new ResignedMemberWindow();
+            vbgd();
             aaa.ShowDialog();
         }
 
@@ -133,5 +137,19 @@ namespace library_management_system
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
         }
+
+        #region 화면 부가적 기능 메서드
+
+        public void vbgd()
+        {
+            hiddengd.Opacity = 0.5;
+            hiddengd.Visibility = Visibility.Visible;
+        }
+        public void hdgd()
+        {
+            hiddengd.Visibility = Visibility.Collapsed;
+        }
+
+        #endregion 화면 부가적 기능 메서드
     }
 }

@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Windows;
 using System;
 using Microsoft.Win32;
+using library_management_system.View;
 using library_management_system.Models;
 using library_management_system.Services;
 using library_management_system.ViewModels;
+using Application = System.Windows.Application;
 
 namespace library_management_system
 {
@@ -175,6 +177,10 @@ namespace library_management_system
 
                 System.Windows.MessageBox.Show("도서가 성공적으로 추가되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
                 DialogResult = true;
+                if (Application.Current.MainWindow is MainWindow main)
+                {
+                    main.hdgd();
+                }
                 Close();
             }
             catch (Exception ex)
@@ -194,8 +200,13 @@ namespace library_management_system
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
-            DialogResult = false;
-            Close();
+            if (Application.Current.MainWindow is MainWindow main)
+            {
+                main.hdgd();
+            }
+            DialogResult = false;            
+            this.Close();           
+            
         }
 
         // ESC 키로 창 닫기
@@ -204,6 +215,8 @@ namespace library_management_system
             if (e.Key == System.Windows.Input.Key.Escape)
             {
                 DialogResult = false;
+                MainWindow main = new MainWindow();
+                main.hdgd();
                 Close();
             }
             base.OnKeyDown(e);

@@ -14,6 +14,7 @@
         ResizeMode="NoResize"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         Background="White"
+        Topmost="True"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
         TextElement.FontFamily="{StaticResource DefaultFontFamily}"

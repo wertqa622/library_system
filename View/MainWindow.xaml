@@ -46,7 +46,7 @@
                     <DataGrid AutoGenerateColumns="True" IsReadOnly="True" />
                 </Grid>
             </TabItem>
-            <TabItem Header="회원 관리">
+            <TabItem Header="회원 관리" HorizontalAlignment="Right" Margin="0,-2,-2,0" Width="69">
                 <Grid Margin="16">
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                         <Button Content="새 회원 추가" Width="120" Height="36" Margin="0,0,8,0" Click="Add_Member"/>

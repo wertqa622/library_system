@@ -19,7 +19,7 @@ namespace library_management_system
 
             string imagePath = value.ToString();
             System.Diagnostics.Debug.WriteLine($"이미지 경로: {imagePath}");
-
+            
             try
             {
                 // 상대 경로 처리
@@ -28,7 +28,7 @@ namespace library_management_system
                     // 현재 실행 디렉토리 기준으로 상대 경로 처리
                     string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, imagePath);
                     System.Diagnostics.Debug.WriteLine($"전체 경로: {fullPath}");
-
+                    
                     if (File.Exists(fullPath))
                     {
                         System.Diagnostics.Debug.WriteLine($"이미지 파일 발견: {fullPath}");
@@ -84,7 +84,7 @@ namespace library_management_system
             }
 
             string imagePath = value.ToString();
-
+            
             try
             {
                 if (!imagePath.StartsWith("/") && !Path.IsPathRooted(imagePath))
@@ -120,4 +120,4 @@ namespace library_management_system
             throw new NotImplementedException();
         }
     }
-}
+} 

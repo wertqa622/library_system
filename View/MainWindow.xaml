@@ -1,71 +1,504 @@
 ﻿<Window x:Class="library_management_system.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:library_management_system"
+        xmlns:mdi="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
         Title="도서 관리 시스템"
         Height="900"
         Width="1600"
         WindowStartupLocation="CenterScreen"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
         Background="White">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DatePicker.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ToggleButton.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.Teal.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TabControl.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ComboBox.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <local:ImagePathConverter x:Key="ImagePathConverter" />
+            <!-- 토글 버튼 스타일-->
+            <!--<Style TargetType="{x:Type ToggleButton}">
+                <Setter Property="Background" Value="#111111" />
+            </Style>-->
+            <!-- 커스텀 TabControl 스타일 -->
+            <Style x:Key="CustomTabControlStyle" TargetType="TabControl">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TabControl">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                <TabPanel Grid.Row="0"
+                                         Panel.ZIndex="1"
+                                         Background="Transparent"
+                                         IsItemsHost="True" />
+                                <Border Grid.Row="1"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}">
+                                    <ContentPresenter ContentSource="SelectedContent" />
+                                </Border>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- 커스텀 TabItem 스타일 -->
+            <Style x:Key="CustomTabItemStyle" TargetType="TabItem">
+                <Setter Property="Height" Value="60" />
+                <Setter Property="Padding" Value="24,16" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontWeight" Value="Medium" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TabItem">
+                            <Grid>
+                                <Border x:Name="Border"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="8,8,0,0"
+                                        Margin="4,0,4,0">
+                                    <ContentPresenter x:Name="ContentSite"
+                                                    ContentSource="Header"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Margin="{TemplateBinding Padding}" />
+                                </Border>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter TargetName="Border" Property="Background" Value="#F5F5F5" />
+                                    <Setter Property="Foreground" Value="#333333" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- 커스텀 DataGrid 스타일 -->
+            <Style x:Key="CustomDataGridStyle" TargetType="DataGrid">
+                <Setter Property="Background" Value="White" />
+
+                <Setter Property="BorderBrush" Value="#E0E0E0" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="GridLinesVisibility" Value="Horizontal" />
+                <Setter Property="HorizontalGridLinesBrush" Value="#F0F0F0" />
+                <Setter Property="RowBackground" Value="White" />
+                <Setter Property="AlternatingRowBackground" Value="#FAFAFA" />
+                <Setter Property="SelectionMode" Value="Single" />
+                <Setter Property="CanUserResizeRows" Value="False" />
+                <Setter Property="CanUserSortColumns" Value="True" />
+                <Setter Property="AutoGenerateColumns" Value="False" />
+                <Setter Property="HeadersVisibility" Value="Column" />
+                <Setter Property="RowHeight" Value="48" />
+                <Setter Property="ColumnHeaderHeight" Value="56" />
+                <Setter Property="SelectionUnit" Value="FullRow" />
+            </Style>
+
+            <!-- 커스텀 DataGridColumnHeader 스타일 -->
+            <Style x:Key="CustomDataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
+                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                <Setter Property="Background" Value="#F8F9FA" />
+                <Setter Property="BorderBrush" Value="#E0E0E0" />
+                <Setter Property="BorderThickness" Value="0,0,1,0" />
+                <Setter Property="Foreground" Value="#495057" />
+                <Setter Property="FontWeight" Value="Medium" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="Padding" Value="12,16" />
+                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+            </Style>
+
+            <!-- 커스텀 DataGridCell 스타일 -->
+            <Style x:Key="CustomDataGridCellStyle" TargetType="DataGridCell">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderBrush" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Padding" Value="12,8" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="DataGridCell">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter VerticalAlignment="{TemplateBinding VerticalAlignment}" />
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- 커스텀 DataGridTextColumn 스타일 -->
+            <Style x:Key="CustomDataGridTextColumnStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="#212529" />
+                <Setter Property="FontSize" Value="14" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="Margin" Value="0" />
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-
+        <Grid x:Name="hiddengd" Grid.RowSpan="2" Background="#FFAFAFAF" Visibility="Collapsed" Panel.ZIndex="2" />
         <!-- Header -->
-        <Border Background="#00796B" Padding="16">
+        <mdi:ColorZone Grid.Row="0"
+                                  Mode="PrimaryMid"
+                                  Padding="16"
+                                  mdi:ElevationAssist.Elevation="Dp4">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="📚" FontSize="32" VerticalAlignment="Center" Margin="0,0,16,0"/>
-                <TextBlock Grid.Column="1" Text="도서 관리 시스템" FontSize="24" FontWeight="Medium" VerticalAlignment="Center" Foreground="White"/>
-                <TextBlock Grid.Column="2" Text="{Binding Source={x:Static sys:DateTime.Now}, StringFormat='yyyy-MM-dd'}"
-                           VerticalAlignment="Center" FontSize="14" Foreground="White" Opacity="0.7"/>
-            </Grid>
-        </Border>
 
-        <!-- Main Content -->
-        <TabControl Grid.Row="1" Margin="16">
-            <TabItem Header="HOME">
-                <Grid Margin="16" />
-            </TabItem>
-            <TabItem Header="도서 관리">
-                <Grid Margin="16">
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                        <Button Content="새 도서 추가" Width="120" Height="36" Margin="0,0,8,0" Click="Add_book"/>
-                        <Button Content="도서 수정" Width="100" Height="36" Margin="0,0,8,0" Click="Modify_book"/>
-                        <Button Content="도서 삭제" Width="100" Height="36" Margin="0,0,16,0" Click="Delete_book"/>
-                        <TextBox Width="300" Height="36" Margin="0,0,8,0" />
-                        <Button Content="검색" Width="75" Height="36" Click="Search_book"/>
-                        <Button Content="새로고침" Width="75" Height="36" Margin="8,0,0,0" Click="Refresh"/>
-                    </StackPanel>
-                    <DataGrid AutoGenerateColumns="True" IsReadOnly="True" />
-                </Grid>
-            </TabItem>
-            <TabItem Header="회원 관리" HorizontalAlignment="Right" Margin="0,-2,-2,0" Width="69">
-                <Grid Margin="16">
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                        <Button Content="새 회원 추가" Width="120" Height="36" Margin="0,0,8,0" Click="Add_Member"/>
-                        <Button Content="회원 수정" Width="100" Height="36" Margin="0,0,8,0"/>
-                        <Button Content="회원 삭제" Width="100" Height="36" Margin="0,0,16,0"/>
-                        <Button Content="탈퇴 회원 조회" Width="144" Height="36" Foreground="Red" BorderBrush="Red" Click="ResignedMember_Click"/>
-                    </StackPanel>
-                    <DataGrid AutoGenerateColumns="True" IsReadOnly="True"/>
-                </Grid>
-            </TabItem>
-            <TabItem Header="대출 관리">
-                <Grid Margin="16">
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                        <Button Content="도서 대출" Width="120" Height="36" Margin="0,0,8,0" Click="loan_book"/>
-                        <Button Content="도서 반납" Width="120" Height="36" Background="Red" Foreground="White"/>
-                    </StackPanel>
-                    <DataGrid AutoGenerateColumns="True" IsReadOnly="True"/>
-                </Grid>
-            </TabItem>
-        </TabControl>
+                <mdi:PackIcon Grid.Column="0"
+                                         Kind="Library"
+                                         Width="32"
+                                         Height="32"
+                                         VerticalAlignment="Center"
+                                         Margin="0,0,16,0" />
+
+                <TextBlock Grid.Column="1"
+                           Text="도서 관리 시스템"
+                           FontSize="24"
+                           FontWeight="Medium"
+                           VerticalAlignment="Center" />
+
+                <TextBlock Grid.Column="2"
+                           Text="{Binding Source={x:Static sys:DateTime.Now}, StringFormat='yyyy-MM-dd'}"
+                           VerticalAlignment="Center"
+                           FontSize="14"
+                           Opacity="0.7"
+                           xmlns:sys="clr-namespace:System;assembly=mscorlib" />
+            </Grid>
+        </mdi:ColorZone>
+
+        <Grid Grid.Row="1" Margin="16">
+            <mdi:Card Padding="0" mdi:ElevationAssist.Elevation="Dp2">
+                <TabControl Style="{DynamicResource CustomTabControlStyle}">
+                    <TabItem Header="HOME" Style="{DynamicResource CustomTabItemStyle}">
+                        <Grid Margin="16" VerticalAlignment="Center" />
+                    </TabItem>
+                    <TabItem Header="도서 관리" Style="{DynamicResource CustomTabItemStyle}">
+                        <Grid Margin="16">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" MinHeight="72" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0"
+                                        Orientation="Horizontal"
+                                        Margin="0,0,0,16">
+                                <Button Content="새 도서 추가"
+                                        Click="Add_book"
+                                        Style="{DynamicResource MaterialDesignRaisedButton}"
+                                        Width="120"
+                                        Height="36"
+                                        Margin="0,0,8,0"
+                                        mdi:ButtonAssist.CornerRadius="4" />
+                                <Button Content="도서 수정"
+                                        Click="Modify_book"
+                                        Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                        Width="100"
+                                        Height="36"
+                                        Margin="0,0,8,0"
+                                        mdi:ButtonAssist.CornerRadius="4" />
+                                <Button Content="도서 삭제"
+                                        Click="Delete_book"
+                                        Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                        Width="100"
+                                        Height="36"
+                                        Margin="0,0,16,0"
+                                        mdi:ButtonAssist.CornerRadius="4" />
+
+                                <mdi:Card Padding="8"
+                                   mdi:ElevationAssist.Elevation="Dp1">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <ComboBox Grid.Column="0"
+                                                 x:Name="text_combobox"
+                                                 Style="{DynamicResource MaterialDesignOutlinedComboBox}"
+                                                 Width="120"
+                                                 Height="40"
+                                                 FontSize="16"
+                                                 Padding="8,0"
+                                                 VerticalContentAlignment="Center"
+                                                 ItemsSource="{Binding SearchFilters}"
+                                                 SelectedItem="{Binding SelectedSearchFilter}"
+                                                 mdi:ButtonAssist.CornerRadius="4" />
+                                        <TextBox Grid.Column="1"
+                                                 Style="{DynamicResource MaterialDesignOutlinedTextBox}"
+                                                 Width="250"
+                                                 Height="40"
+                                                 FontSize="16"
+                                                 Padding="8,0"
+                                                 VerticalAlignment="Center"
+                                                 Foreground="Black"
+                                                 mdi:HintAssist.Hint="{Binding HintText}"
+                                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+                                        <Button Grid.Column="2"
+                                                Click="Search_book"
+                                                Style="{DynamicResource MaterialDesignIconButton}"
+                                                Width="36"
+                                                Height="36"
+                                                Margin="8,0,0,0">
+                                            <mdi:PackIcon Kind="Magnify" Width="20" Height="20" />
+                                        </Button>
+                                    </Grid>
+                                </mdi:Card>
+                                <Button Grid.Column="2"
+                                    Style="{DynamicResource MaterialDesignIconButton}"
+                                    Click="Refresh"
+                                    Width="36"
+                                    Height="36"
+                                    Margin="300,0,0,0">
+                                    <mdi:PackIcon Kind="Refresh" Width="20" Height="20" />
+                                </Button>
+                            </StackPanel>
+                            <DataGrid Grid.Row="1"
+                                      ItemsSource="{Binding Books}"
+                                      SelectedItem="{Binding SelectedBook}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      IsReadOnly="True"
+                                      Style="{DynamicResource CustomDataGridStyle}"
+                                      ColumnHeaderStyle="{DynamicResource CustomDataGridColumnHeaderStyle}">
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Header="사진" Width="150">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="LightGray" BorderThickness="1" Margin="2">
+                                                    
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="ISBN"
+                                        Binding="{Binding ISBN}"
+                                        Width="180"
+                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    <DataGridTextColumn Header="도서명"
+                                        Binding="{Binding Title}"
+                                        Width="150"
+                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    <DataGridTextColumn Header="저자"
+                                        Binding="{Binding Author}"
+                                        Width="100"
+                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    <DataGridTextColumn Header="가격"
+                                        Binding="{Binding Price}"
+                                        Width="120"
+                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    <DataGridTextColumn Header="Url"
+                                        Binding="{Binding Description}"
+                                        Width="150"
+                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    <DataGridTextColumn Header="출판사"
+                                        Binding="{Binding Publisher}"
+                                        Width="120"
+                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    <DataGridTextColumn Header="대출 여부"
+                                        Binding="{Binding IsAvailable}"
+                                        Width="100"
+                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    <DataGridTemplateColumn Header="정보">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button
+
+                                                    Style="{DynamicResource MaterialDesignRaisedButton}"
+                                                    Margin="10,10,10,10"
+                                                    Click="Info_click" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="회원 관리" Style="{DynamicResource CustomTabItemStyle}" HorizontalAlignment="Right" Width="125">
+                        <Grid Margin="16,23,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0"
+                                        Orientation="Horizontal"
+                                        Margin="0,0,0,16">
+                                <Button Content="새 회원 추가"
+                                        Click="Add_Member"
+                                        Style="{DynamicResource MaterialDesignRaisedButton}"
+                                        Width="120"
+                                        Height="36"
+                                        Margin="0,0,8,0"
+                                        mdi:ButtonAssist.CornerRadius="4" />
+                                <Button Content="회원 수정"
+                                        Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                        Click="Modify_Member"
+                                        Width="100"
+                                        Height="36"
+                                        Margin="0,0,8,0"
+                                        mdi:ButtonAssist.CornerRadius="4" />
+                                <Button Content="회원 삭제"
+                                        Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                        Width="100"
+                                        Height="36"
+                                        Margin="0,0,16,0"
+                                        mdi:ButtonAssist.CornerRadius="4" />
+                                <Button Content="탈퇴 회원 조회"
+                                    Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                    Click="ResignedMember_Click"
+                                    Foreground="Red"
+                                    BorderBrush="red"
+                                    Width="144"
+                                    Height="36"
+                                    mdi:ButtonAssist.CornerRadius="4" />
+                                <mdi:Card Padding="8"
+   mdi:ElevationAssist.Elevation="Dp1"></mdi:Card>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox Grid.Column="0"
+                                              x:Name="Person_Combo"
+                                              Style="{DynamicResource MaterialDesignOutlinedComboBox}"
+                                              Width="120"
+                                              Height="40"
+                                              FontSize="16"
+                                              Padding="8,0"
+                                              VerticalContentAlignment="Center"
+                                              ItemsSource="{Binding SearchFilters_Person}"
+                                              SelectedItem="{Binding SelectedSearchFilter}"
+                                              mdi:ButtonAssist.CornerRadius="4" />
+                                    <TextBox Grid.Column="1"
+                                             Style="{DynamicResource MaterialDesignOutlinedTextBox}"
+                                             Width="250"
+                                             Height="40"
+                                             FontSize="16"
+                                             Padding="8,0"
+                                             VerticalAlignment="Center"
+                                             Foreground="Black"
+                                             mdi:HintAssist.Hint="{Binding HintText}"
+                                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" />
+                                    <Button Grid.Column="2"
+                                            Click="Search_member"
+                                            Style="{DynamicResource MaterialDesignIconButton}"
+                                            Width="36"
+                                            Height="36"
+                                            Margin="8,0,0,0">
+                                        <mdi:PackIcon Kind="Magnify" Width="20" Height="20" />
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+
+                            <DataGrid Grid.Row="1"
+                                      ItemsSource="{Binding Members}"
+                                      SelectedItem="{Binding SelectedMember}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      IsReadOnly="True"
+                                      Style="{DynamicResource CustomDataGridStyle}"
+                                      ColumnHeaderStyle="{DynamicResource CustomDataGridColumnHeaderStyle}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="사진"
+                                                        Binding="{Binding PersonImage}"
+                                                        Width="60"
+                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    <DataGridTextColumn Header="이름"
+                                                        Binding="{Binding Name}"
+                                                        Width="150"
+                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    <DataGridTextColumn Header="생년월일"
+                                                        Binding="{Binding brithdate}"
+                                                        Width="200"
+                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    <DataGridTextColumn Header="이메일"
+                                                        Binding="{Binding Email}"
+                                                        Width="120"
+                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    <DataGridTextColumn Header="전화면호"
+                                                        Binding="{Binding PhoneNumber}"
+                                                        Width="250"
+                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    <DataGridTextColumn Header="성별"
+                                                        Binding="{Binding gender}"
+                                                        Width="250"
+                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </TabItem>
+
+                    <TabItem  Style="{DynamicResource CustomTabItemStyle}" HorizontalAlignment="Center" Width="130">
+                        <TabItem.Header>
+                            <Label Content="대출 관리" Width="78" MouseLeftButtonDown="LoanHeader_Click" />
+                        </TabItem.Header>
+                        <Grid Margin="16,23,0,0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0"
+                                        Orientation="Horizontal"
+                                        Margin="0,0,0,16">
+                                <ToggleButton Content="도서 대출"
+                                        Click="loan_book"
+                                        Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                        Width="120"
+                                        Height="36"
+                                        Margin="0,0,8,0"
+                                        mdi:ButtonAssist.CornerRadius="4" Cursor="Hand" />
+                                <ToggleButton Content="도서 반납"
+                                        Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                        Width="120"
+                                        Height="36"
+                                        Margin="0,0,8,0"
+                                        mdi:ButtonAssist.CornerRadius="4" Cursor="Hand" />
+                            </StackPanel>
+                            <Grid x:Name="loangd" Grid.Row="1" Margin="0,0,20,0">
+                            </Grid>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </mdi:Card>
+        </Grid>
     </Grid>
 </Window>

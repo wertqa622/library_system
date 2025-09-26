@@ -10,25 +10,19 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace library_management_system.View
 {
-    public partial class ResignedMemberWindow : Window
+    /// <summary>
+    /// LoanBookUserControl.xaml에 대한 상호 작용 논리
+    /// </summary>
+    public partial class LoanBookUserControl : System.Windows.Controls.UserControl
     {
-        public ResignedMemberWindow()
+        public LoanBookUserControl()
         {
             InitializeComponent();
-        }
-
-        private void ResignedMember_close(object sender, RoutedEventArgs e)
-        {
-            if (System.Windows.Application.Current.MainWindow is MainWindow main)
-            {
-                main.hdgd();
-            }
-            DialogResult = false;
-            this.Close();
         }
     }
 }

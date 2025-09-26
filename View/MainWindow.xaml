@@ -15,13 +15,13 @@
         TextElement.FontSize="13"
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="Auto"
-        Background="White"
-        Cursor="Hand">
+        Background="White">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.DatePicker.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.ToggleButton.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.Teal.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.TabControl.xaml" />
@@ -29,7 +29,10 @@
             </ResourceDictionary.MergedDictionaries>
 
             <local:ImagePathConverter x:Key="ImagePathConverter" />
-
+            <!-- 토글 버튼 스타일-->
+            <!--<Style TargetType="{x:Type ToggleButton}">
+                <Setter Property="Background" Value="#111111" />
+            </Style>-->
             <!-- 커스텀 TabControl 스타일 -->
             <Style x:Key="CustomTabControlStyle" TargetType="TabControl">
                 <Setter Property="Background" Value="Transparent" />
@@ -125,7 +128,7 @@
                 <Setter Property="FontWeight" Value="Medium" />
                 <Setter Property="FontSize" Value="14" />
                 <Setter Property="Padding" Value="12,16" />
-                <Setter Property="HorizontalContentAlignment" Value="Left" />
+                <Setter Property="HorizontalContentAlignment" Value="Center" />
                 <Setter Property="VerticalContentAlignment" Value="Center" />
             </Style>
 
@@ -165,7 +168,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid x:Name="hiddengd" Grid.RowSpan="2" Background="#FFAFAFAF" Visibility="Collapsed" Panel.ZIndex="2"/>
+        <Grid x:Name="hiddengd" Grid.RowSpan="2" Background="#FFAFAFAF" Visibility="Collapsed" Panel.ZIndex="2" />
         <!-- Header -->
         <mdi:ColorZone Grid.Row="0"
                                   Mode="PrimaryMid"
@@ -204,7 +207,7 @@
             <mdi:Card Padding="0" mdi:ElevationAssist.Elevation="Dp2">
                 <TabControl Style="{DynamicResource CustomTabControlStyle}">
                     <TabItem Header="HOME" Style="{DynamicResource CustomTabItemStyle}">
-                        <Grid Margin="16" VerticalAlignment="Center"/>
+                        <Grid Margin="16" VerticalAlignment="Center" />
                     </TabItem>
                     <TabItem Header="도서 관리" Style="{DynamicResource CustomTabItemStyle}">
                         <Grid Margin="16">
@@ -368,6 +371,7 @@
                                         mdi:ButtonAssist.CornerRadius="4" />
                                 <Button Content="회원 수정"
                                         Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                        Click="Modify_Member"
                                         Width="100"
                                         Height="36"
                                         Margin="0,0,8,0"
@@ -465,7 +469,10 @@
                         </Grid>
                     </TabItem>
 
-                    <TabItem Header="대출 관리" Style="{DynamicResource CustomTabItemStyle}" HorizontalAlignment="Right" Width="125">
+                    <TabItem  Style="{DynamicResource CustomTabItemStyle}" HorizontalAlignment="Center" Width="130">
+                        <TabItem.Header>
+                            <Label Content="대출 관리" Width="78" MouseLeftButtonDown="LoanHeader_Click" />
+                        </TabItem.Header>
                         <Grid Margin="16,23,0,0">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -475,58 +482,22 @@
                             <StackPanel Grid.Row="0"
                                         Orientation="Horizontal"
                                         Margin="0,0,0,16">
-                                <Button Content="도서 대출"
+                                <ToggleButton Content="도서 대출"
                                         Click="loan_book"
-                                        Style="{DynamicResource MaterialDesignRaisedButton}"
+                                        Style="{DynamicResource MaterialDesignOutlinedButton}"
                                         Width="120"
                                         Height="36"
                                         Margin="0,0,8,0"
-                                        mdi:ButtonAssist.CornerRadius="4" Cursor="Hand"/>
-                                <Button Content="도서 반납"                                        
-                                        Style="{DynamicResource MaterialDesignRaisedButton}"
+                                        mdi:ButtonAssist.CornerRadius="4" Cursor="Hand" />
+                                <ToggleButton Content="도서 반납"
+                                        Style="{DynamicResource MaterialDesignOutlinedButton}"
                                         Width="120"
                                         Height="36"
                                         Margin="0,0,8,0"
                                         mdi:ButtonAssist.CornerRadius="4" Cursor="Hand" />
                             </StackPanel>
-
-                            <DataGrid Grid.Row="1"
-                                      ItemsSource="{Binding Loans}"
-                                      SelectedItem="{Binding SelectedLoan}"
-                                      AutoGenerateColumns="False"
-                                      CanUserAddRows="False"
-                                      CanUserDeleteRows="False"
-                                      IsReadOnly="True"
-                                      Style="{DynamicResource CustomDataGridStyle}"
-                                      ColumnHeaderStyle="{DynamicResource CustomDataGridColumnHeaderStyle}">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="이름"
-                                                        Binding="{Binding Name}"
-                                                        Width="120"
-                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
-                                    <DataGridTextColumn Header="ISBN"
-                                                        Binding="{Binding ISBN}"
-                                                        Width="250"
-                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
-                                    <DataGridTextColumn Header="대여일"
-                                                        Binding="{Binding MemberId}"
-                                                        Width="220"
-                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
-                                    <DataGridTextColumn Header="반납예정일"
-                                                        Binding="{Binding LoanDate, StringFormat=yyyy-MM-dd}"
-                                                        Width="220"
-                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
-                                    <DataGridTextColumn Header="반납일"
-                                                        Binding="{Binding DueDate, StringFormat=yyyy-MM-dd}"
-                                                        Width="220"
-                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
-
-                                    <DataGridTextColumn Header="반납 완료"
-                                                        Binding="{Binding IsOverdue}"
-                                                        Width="100"
-                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
-                                </DataGrid.Columns>
-                            </DataGrid>
+                            <Grid x:Name="loangd" Grid.Row="1" Margin="0,0,20,0">
+                            </Grid>
                         </Grid>
                     </TabItem>
                 </TabControl>

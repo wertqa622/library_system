@@ -54,7 +54,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="appsettings.json" />
-    <None Remove="source\download.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Remove="Images\books\132.png" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.json">
@@ -62,7 +64,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="source\download.jpg" />
+    <Folder Include="source\" />
   </ItemGroup>
 
 </Project>

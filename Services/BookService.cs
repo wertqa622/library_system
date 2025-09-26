@@ -15,20 +15,24 @@ namespace library_management_system.Services
             // 샘플 데이터 추가
             InitializeSampleData();
         }
+
         public Task<Book> GetBookByPriceAsync(int Price)
         {
             var book = _books.FirstOrDefault(b => b.Id == Price);
             return Task.FromResult(book);
         }
+
         public Task<IEnumerable<Book>> GetAllBooksAsync()
         {
             return Task.FromResult(_books.AsEnumerable());
         }
+
         public Task<Book> GetBookByImageAsync(string imagePath)
         {
             var book = _books.FirstOrDefault(b => b.ImagePath == imagePath);
             return Task.FromResult(book);
         }
+
         public Task<Book> GetBookByIdAsync(int id)
         {
             var book = _books.FirstOrDefault(b => b.Id == id);
@@ -40,18 +44,17 @@ namespace library_management_system.Services
             var book = _books.FirstOrDefault(b => b.ISBN == isbn);
             return Task.FromResult(book);
         }
-        
 
         public Task<IEnumerable<Book>> SearchBooksAsync(string searchTerm)
         {
             if (string.IsNullOrWhiteSpace(searchTerm))
                 return GetAllBooksAsync();
 
-            var results = _books.Where(b => 
+            var results = _books.Where(b =>
                 b.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                 b.Author.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                 b.ISBN.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                b.Publisher.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||               
+                b.Publisher.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                 b.Category.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
 
             return Task.FromResult(results);
@@ -106,7 +109,7 @@ namespace library_management_system.Services
                 IsAvailable = true,
                 Description = "C# 언어의 기초부터 고급까지 다루는 책",
                 Price = 35000,
-                ImagePath = "Images/books/06김수훈2.jpg"
+                ImagePath = "Images/books/132.png"
             });
 
             _books.Add(new Book
@@ -121,7 +124,7 @@ namespace library_management_system.Services
                 IsAvailable = true,
                 Description = "WPF를 이용한 데스크톱 애플리케이션 개발",
                 Price = 28000,
-                ImagePath = "Images/books/06김수훈2.jpg"
+                ImagePath = "Images/books/132.png"
             });
 
             _books.Add(new Book
@@ -136,8 +139,8 @@ namespace library_management_system.Services
                 IsAvailable = false,
                 Description = "효율적인 데이터베이스 설계 방법론",
                 Price = 32000,
-                ImagePath = "Images/books/06김수훈2.jpg"
+                ImagePath = "Images/books/132.png"
             });
         }
     }
-} 
+}

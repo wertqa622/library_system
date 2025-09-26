@@ -22,6 +22,11 @@ namespace library_management_system.View
         public ModifyMemberWindow()
         {
             InitializeComponent();
+            Window_Loaded();
+        }
+
+        private void Window_Loaded()
+        {
         }
 
         private void wndqhr_click(object sender, RoutedEventArgs e)
@@ -34,6 +39,12 @@ namespace library_management_system.View
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
+            if (System.Windows.Application.Current.MainWindow is MainWindow main)
+            {
+                main.hdgd();
+            }
+            DialogResult = false;
+            Close();
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)

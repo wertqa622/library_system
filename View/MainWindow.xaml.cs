@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using System;
-
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -46,6 +45,9 @@ namespace library_management_system
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            //LoanManagementUsercontrol LMU = new LoanManagementUsercontrol();
+            //loangd.Children.Clear();
+            //loangd.Children.Add(LMU);
         }
 
         #region 도서 관리
@@ -107,7 +109,9 @@ namespace library_management_system
 
         private void loan_book(object sender, RoutedEventArgs e)
         {
-            System.Windows.MessageBox.Show("대출이 되었습니다.", "대출 완료");
+            var loan = new LoanBookUserControl();
+            loangd.Children.Clear();
+            loangd.Children.Add(loan);
         }
 
         #endregion 대출관리
@@ -130,6 +134,17 @@ namespace library_management_system
 
         #endregion 고객 관리
 
+        #region 대출관리
+
+        private void LoanHeader_Click(object sender, RoutedEventArgs e)
+        {
+            LoanManagementUsercontrol LMU = new LoanManagementUsercontrol();
+            loangd.Children.Clear();
+            loangd.Children.Add(LMU);
+        }
+
+        #endregion 대출관리
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
         }
@@ -145,9 +160,22 @@ namespace library_management_system
             hiddengd.Opacity = 0.5;
             hiddengd.Visibility = Visibility.Visible;
         }
+
         public void hdgd()
         {
             hiddengd.Visibility = Visibility.Collapsed;
+        }
+
+        private void Modify_Member(object sender, RoutedEventArgs e)
+        {
+            if (_mainViewModel.SelectedMember == null)
+            {
+                System.Windows.MessageBox.Show("수정할 회원을 먼저 선택하세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            var modedifyMemberWindow = new ModifyMemberWindow();
+            vbgd();
+            modedifyMemberWindow.ShowDialog();
         }
 
         #endregion 화면 부가적 기능 메서드

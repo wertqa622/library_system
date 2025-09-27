@@ -33,7 +33,7 @@
             </ResourceDictionary.MergedDictionaries>
 
             <local:ImagePathConverter x:Key="ImagePathConverter" />
-            
+            <!--디자인-->
             <Style x:Key="CustomDataGridStyle" TargetType="DataGrid">
                 <Setter Property="Background" Value="White" />
                 <Setter Property="BorderBrush" Value="#E0E0E0" />

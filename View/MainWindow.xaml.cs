@@ -179,5 +179,10 @@ namespace library_management_system
         }
 
         #endregion 화면 부가적 기능 메서드
+
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+
+        }
     }
 }

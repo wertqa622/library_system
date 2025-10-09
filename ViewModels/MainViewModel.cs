@@ -3,6 +3,9 @@ using System.Windows.Input;
 using library_management_system.Models;
 using library_management_system.Services;
 using library_management_system;
+using System.Linq;
+using System.Collections.Generic;
+using System; // For StringComparison
 
 namespace library_management_system.ViewModels
 {
@@ -13,16 +16,25 @@ namespace library_management_system.ViewModels
         private readonly IMemberService _memberService;
         private readonly ILoanService _loanService;
 
+        // --- 도서 관련 변수 ---
         private ObservableCollection<Book> _books;
-        private ObservableCollection<Member> _members;
-        private ObservableCollection<Loan> _loans;
         private Book _selectedBook;
-        private Member _selectedMember;
-        private Loan _selectedLoan;
         private string _searchText;
         private string _selectedSearchFilter;
         private string _hintText;
+        private List<Book> _allBooks;
+
+        // --- 회원 관련 변수 ---
+        private ObservableCollection<Member> _members;
+        private Member _selectedMember;
+        private List<Member> _allMembers;
+        private string _searchText_Person;
+        private string _selectedSearchFilter_Person;
         private string _hintText_1;
+
+        // --- 대출 관련 변수 ---
+        private ObservableCollection<Loan> _loans;
+        private Loan _selectedLoan;
 
         public MainViewModel(OptimizedBookService optimizedBookService, IBookService bookService, IMemberService memberService, ILoanService loanService)
         {
@@ -34,60 +46,44 @@ namespace library_management_system.ViewModels
             Books = new ObservableCollection<Book>();
             Members = new ObservableCollection<Member>();
             Loans = new ObservableCollection<Loan>();
-            //책 제목조회 콤보박스 아이템 목록
-            SearchFilters = new ObservableCollection<string> {"제목","ISBN"};
+
+            SearchFilters = new ObservableCollection<string> { "제목", "ISBN" };
             SearchFilters_Person = new ObservableCollection<string> { "이름", "전화번호" };
+
             SelectedSearchFilter = "제목";
             SelectedSearchFilter_Person = "이름";
             HintText = "제목 검색...";
             HintText_1 = "이름 검색...";
+
             // 커맨드 초기화
             AddBookCommand = new RelayCommand(AddBook);
             EditBookCommand = new RelayCommand(EditBook, CanEditBook);
             DeleteBookCommand = new RelayCommand(DeleteBook, CanDeleteBook);
+            SearchBookCommand = new RelayCommand(SearchBooks);
+            SearchMemberCommand = new RelayCommand(SearchMembers);
 
             LoadData();
         }
 
-        // 커맨드들
+        // --- 커맨드 속성 ---
         public ICommand AddBookCommand { get; }
         public ICommand EditBookCommand { get; }
         public ICommand DeleteBookCommand { get; }
+        public ICommand SearchBookCommand { get; }
+        public ICommand SearchMemberCommand { get; }
 
+        // --- Public 속성들 ---
+        #region Public Properties
         public ObservableCollection<Book> Books
         {
             get => _books;
             set => SetProperty(ref _books, value);
         }
 
-        public ObservableCollection<Member> Members
-        {
-            get => _members;
-            set => SetProperty(ref _members, value);
-        }
-
-        public ObservableCollection<Loan> Loans
-        {
-            get => _loans;
-            set => SetProperty(ref _loans, value);
-        }
-
         public Book SelectedBook
         {
             get => _selectedBook;
             set => SetProperty(ref _selectedBook, value);
-        }
-
-        public Member SelectedMember
-        {
-            get => _selectedMember;
-            set => SetProperty(ref _selectedMember, value);
-        }
-
-        public Loan SelectedLoan
-        {
-            get => _selectedLoan;
-            set => SetProperty(ref _selectedLoan, value);
         }
 
         public string SearchText
@@ -107,50 +103,118 @@ namespace library_management_system.ViewModels
                 }
             }
         }
-        public string SelectedSearchFilter_Person
-        {
-            get => _selectedSearchFilter;
-            set
-            {
-                if (SetProperty(ref _selectedSearchFilter, value))
-                {
-                    HintText_1 = $"{value} 검색...";
-                }
-            }
-        }
-        public ObservableCollection<string> SearchFilters { get; }
 
-        public ObservableCollection<string> SearchFilters_Person { get; }
         public string HintText
         {
             get => _hintText;
             set => SetProperty(ref _hintText, value);
         }
+
+        public ObservableCollection<string> SearchFilters { get; }
+
+        public ObservableCollection<Member> Members
+        {
+            get => _members;
+            set => SetProperty(ref _members, value);
+        }
+
+        public Member SelectedMember
+        {
+            get => _selectedMember;
+            set => SetProperty(ref _selectedMember, value);
+        }
+
+        public ObservableCollection<string> SearchFilters_Person { get; }
+
         public string HintText_1
         {
             get => _hintText_1;
             set => SetProperty(ref _hintText_1, value);
         }
+
+        public string SearchText_Person
+        {
+            get => _searchText_Person;
+            set => SetProperty(ref _searchText_Person, value);
+        }
+
+        public string SelectedSearchFilter_Person
+        {
+            get => _selectedSearchFilter_Person;
+            set
+            {
+                if (SetProperty(ref _selectedSearchFilter_Person, value))
+                {
+                    HintText_1 = $"{value} 검색...";
+                }
+            }
+        }
+
+        public ObservableCollection<Loan> Loans
+        {
+            get => _loans;
+            set => SetProperty(ref _loans, value);
+        }
+
+        public Loan SelectedLoan
+        {
+            get => _selectedLoan;
+            set => SetProperty(ref _selectedLoan, value);
+        }
+        #endregion Public Properties
+
+        // --- 메서드 ---
         private async void LoadData()
         {
-            // 최적화된 서비스 사용
             var books = await _optimizedBookService.GetAllBooksWithCache();
             var members = await _memberService.GetAllMembersAsync();
             var loans = await _loanService.GetAllLoansAsync();
 
+            _allBooks = new List<Book>(books);
+            _allMembers = new List<Member>(members);
+
             Books.Clear();
+            foreach (var book in _allBooks) Books.Add(book);
+
             Members.Clear();
+            foreach (var member in _allMembers) Members.Add(member);
+
             Loans.Clear();
+            foreach (var loan in loans) Loans.Add(loan);
+        }
 
-            // LINQ 최적화된 변환
-            foreach (var book in books)
-                Books.Add(book);
+        private void SearchBooks()
+        {
+            if (string.IsNullOrWhiteSpace(SearchText))
+            {
+                Books.Clear();
+                foreach (var book in _allBooks) Books.Add(book);
+                return;
+            }
 
-            foreach (var member in members)
-                Members.Add(member);
+            var filteredBooks = SelectedSearchFilter == "제목"
+                ? _allBooks.Where(b => b.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+                : _allBooks.Where(b => b.ISBN.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
 
-            foreach (var loan in loans)
-                Loans.Add(loan);
+            Books.Clear();
+            foreach (var book in filteredBooks) Books.Add(book);
+        }
+
+        private void SearchMembers()
+        {
+            if (string.IsNullOrWhiteSpace(SearchText_Person))
+            {
+                Members.Clear();
+                foreach (var member in _allMembers) Members.Add(member);
+                return;
+            }
+            //회원 정보 조회 추후 구현
+           /* var filteredMembers = SelectedSearchFilter_Person == "이름"
+                ? _allMembers.Where(m => m.Name.Contains(SearchText_Person, StringComparison.OrdinalIgnoreCase))
+                : _allMembers.Where(m => m.PhoneNumber.Contains(SearchText_Person));
+
+            Members.Clear();
+            foreach (var member in filteredMembers) Members.Add(member);*/
         }
 
         // 도서 추가
@@ -193,6 +257,7 @@ namespace library_management_system.ViewModels
                 {
                     await _bookService.DeleteBookAsync(SelectedBook.Id);
                     Books.Remove(SelectedBook);
+                    _allBooks.Remove(SelectedBook); // 원본 리스트에서도 제거
                     System.Windows.MessageBox.Show("도서가 성공적으로 삭제되었습니다.", "성공", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
                 }
                 catch (System.Exception ex)
@@ -207,4 +272,4 @@ namespace library_management_system.ViewModels
             return SelectedBook != null;
         }
     }
-} 
+}

@@ -314,7 +314,7 @@
                                                         Width="180"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="도서명"
-                                                        Binding="{Binding Title}"
+                                                        Binding="{Binding BookName}"
                                                         Width="150"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="저자"
@@ -326,7 +326,7 @@
                                                         Width="120"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="Url"
-                                                        Binding="{Binding Description}"
+                                                        Binding="{Binding BookUrl}"
                                                         Width="150"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="출판사"

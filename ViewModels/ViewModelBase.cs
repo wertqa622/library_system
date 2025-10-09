@@ -1,4 +1,4 @@
-using System.ComponentModel;
+ï»¿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace library_management_system.ViewModels
@@ -12,7 +12,7 @@ namespace library_management_system.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        /// ÇÁ·ÎÆÛÆ¼ º¯°æ ¾Ë¸²À» À§ÇÑ ¸Ş¼­µå
+        /// í”„ë¡œí¼í‹° ë³€ê²½ ì•Œë¦¼ì„ ìœ„í•œ ë©”ì„œë“œ
         protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (Equals(field, value)) return false;
@@ -21,4 +21,4 @@ namespace library_management_system.ViewModels
             return true;
         }
     }
-} 
+}

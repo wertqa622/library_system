@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using library_management_system.Models;
-using library_management_system.Services;
+using library_management_system.Repository;
 using library_management_system;
 using System.Linq;
 using System.Collections.Generic;
@@ -11,10 +11,9 @@ namespace library_management_system.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
-        private readonly OptimizedBookService _optimizedBookService;
-        private readonly IBookService _bookService;
-        private readonly IMemberService _memberService;
-        private readonly ILoanService _loanService;
+        private readonly IBookRepository _bookRepository;
+        private readonly IMemberRepository _memberRepository;
+        private readonly ILoanRepository _loanRepository;
 
         // --- 도서 관련 변수 ---
         private ObservableCollection<Book> _books;
@@ -36,12 +35,11 @@ namespace library_management_system.ViewModels
         private ObservableCollection<Loan> _loans;
         private Loan _selectedLoan;
 
-        public MainViewModel(OptimizedBookService optimizedBookService, IBookService bookService, IMemberService memberService, ILoanService loanService)
+        public MainViewModel(IBookRepository bookRepository, IMemberRepository memberRepository, ILoanRepository loanRepository)
         {
-            _optimizedBookService = optimizedBookService;
-            _bookService = bookService;
-            _memberService = memberService;
-            _loanService = loanService;
+            _bookRepository = bookRepository;
+            _memberRepository = memberRepository;
+            _loanRepository = loanRepository;
 
             Books = new ObservableCollection<Book>();
             Members = new ObservableCollection<Member>();
@@ -166,9 +164,9 @@ namespace library_management_system.ViewModels
         // --- 메서드 ---
         private async void LoadData()
         {
-            var books = await _optimizedBookService.GetAllBooksWithCache();
-            var members = await _memberService.GetAllMembersAsync();
-            var loans = await _loanService.GetAllLoansAsync();
+            var books = await _bookRepository.GetAllBooksAsync();
+            var members = await _memberRepository.GetAllMembersAsync();
+            var loans = await _loanRepository.GetAllLoansAsync();
 
             _allBooks = new List<Book>(books);
             _allMembers = new List<Member>(members);
@@ -193,7 +191,7 @@ namespace library_management_system.ViewModels
             }
 
             var filteredBooks = SelectedSearchFilter == "제목"
-                ? _allBooks.Where(b => b.Title.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
+                ? _allBooks.Where(b => b.BookName.Contains(SearchText, StringComparison.OrdinalIgnoreCase))
                 : _allBooks.Where(b => b.ISBN.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
 
             Books.Clear();
@@ -220,7 +218,7 @@ namespace library_management_system.ViewModels
         // 도서 추가
         private void AddBook()
         {
-            var addBookWindow = new AddBookWindow(_bookService, this);
+            var addBookWindow = new AddBookWindow(_bookRepository, this);
             addBookWindow.Owner = System.Windows.Application.Current.MainWindow;
             addBookWindow.ShowDialog();
         }
@@ -230,7 +228,7 @@ namespace library_management_system.ViewModels
         {
             if (SelectedBook == null) return;
 
-            var modifyBookWindow = new ModifyBookWindow(_bookService, this, SelectedBook);
+            var modifyBookWindow = new ModifyBookWindow(_bookRepository, this, SelectedBook);
             modifyBookWindow.Owner = System.Windows.Application.Current.MainWindow;
             modifyBookWindow.ShowDialog();
         }
@@ -246,7 +244,7 @@ namespace library_management_system.ViewModels
             if (SelectedBook == null) return;
 
             var result = System.Windows.MessageBox.Show(
-                $"정말로 '{SelectedBook.Title}' 도서를 삭제하시겠습니까?",
+                $"정말로 '{SelectedBook.BookName}' 도서를 삭제하시겠습니까?",
                 "도서 삭제 확인",
                 System.Windows.MessageBoxButton.YesNo,
                 System.Windows.MessageBoxImage.Question);
@@ -255,7 +253,7 @@ namespace library_management_system.ViewModels
             {
                 try
                 {
-                    await _bookService.DeleteBookAsync(SelectedBook.Id);
+                    await _bookRepository.DeleteBookAsync(SelectedBook.ISBN);
                     Books.Remove(SelectedBook);
                     _allBooks.Remove(SelectedBook); // 원본 리스트에서도 제거
                     System.Windows.MessageBox.Show("도서가 성공적으로 삭제되었습니다.", "성공", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);

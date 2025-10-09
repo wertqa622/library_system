@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Windows;
 using library_management_system.DataBase;
-using library_management_system.Services;
 using library_management_system.View;
 using library_management_system.ViewModels;
 using library_management_system.Repository;
@@ -36,13 +35,9 @@ namespace library_management_system
 
                     services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-                    services.AddScoped<IBookService, BookService>();
-                    services.AddScoped<ILoanService, LoanService>();
-                    services.AddScoped<IMemberService, MemberService>();
-
-                    services.AddMemoryCache();
-
-                    services.AddScoped<OptimizedBookService>();
+                    services.AddScoped<IBookRepository, BookRepository>();
+                    services.AddScoped<IMemberRepository, MemberRepository>();
+                    services.AddScoped<ILoanRepository, LoanRepository>();
 
                     services.AddTransient<MainViewModel>();
 

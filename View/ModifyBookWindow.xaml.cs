@@ -4,23 +4,22 @@ using System.Windows;
 using System.Windows.Forms;
 using Microsoft.Win32;
 using library_management_system.Models;
-using library_management_system.Services;
 using library_management_system.ViewModels;
 using Application = System.Windows.Application;
+using library_management_system.Repository;
 
 namespace library_management_system
 {
     public partial class ModifyBookWindow : Window
     {
-        private readonly IBookService _bookService;
+        private readonly IBookRepository _bookRepository;
         private readonly MainViewModel _mainViewModel;
         private readonly Book _originalBook;
         private ModifyBookViewModel _viewModel;
 
-        public ModifyBookWindow(IBookService bookService, MainViewModel mainViewModel, Book bookToEdit)
+        public ModifyBookWindow(IBookRepository bookRepository, MainViewModel mainViewModel, Book bookToEdit)
         {
-            InitializeComponent();
-            _bookService = bookService;
+            InitializeComponent();            
             _mainViewModel = mainViewModel;
             _originalBook = bookToEdit;
             
@@ -109,6 +108,7 @@ namespace library_management_system
 
         private async void UpdateButton_Click(object sender, RoutedEventArgs e)
         {
+            
             try
             {
                 // 버튼 비활성화 (중복 클릭 방지)
@@ -153,21 +153,20 @@ namespace library_management_system
                 // 수정된 도서 객체 생성
                 var updatedBook = new Book
                 {
-                    Id = _originalBook.Id, // 원본 ID 유지
-                    Title = _viewModel.Title.Trim(),
+                    ISBN = _viewModel.ISBN.Trim(),
+                    BookName = _viewModel.Title.Trim(),
                     Author = _viewModel.Author.Trim(),
                     Publisher = _viewModel.Publisher.Trim(),
-                    ISBN = _viewModel.ISBN.Trim(),
                     Price = _viewModel.Price,
-                    ImagePath = _viewModel.ImagePath?.Trim() ?? "",
+                    BookImage = new byte[0], // 이미지 파일을 바이트 배열로 변환 필요
                     Description = _viewModel.Description?.Trim() ?? "",
-                    PublishDate = _originalBook.PublishDate, // 원본 출판일 유지
-                    Category = _originalBook.Category, // 원본 카테고리 유지
-                    IsAvailable = _originalBook.IsAvailable // 원본 대여가능 여부 유지
+                    BookUrl = _viewModel.ImagePath?.Trim() ?? "",
+                    ImagePath = _viewModel.ImagePath?.Trim() ?? "", // UI용
+                    IsAvailable = true // 기본값으로 대여 가능 설정
                 };
 
                 // 도서 수정
-                var result = await _bookService.UpdateBookAsync(updatedBook);
+                var result = await _bookRepository.UpdateBookAsync(updatedBook);
                 
                 // 메인 뷰모델에서 해당 도서 업데이트
                 var index = _mainViewModel.Books.IndexOf(_originalBook);

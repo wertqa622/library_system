@@ -48,9 +48,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Repositories\**" />
+    <Compile Remove="source\**" />
     <EmbeddedResource Remove="Repositories\**" />
+    <EmbeddedResource Remove="source\**" />
     <None Remove="Repositories\**" />
+    <None Remove="source\**" />
     <Page Remove="Repositories\**" />
+    <Page Remove="source\**" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="appsettings.json" />
@@ -62,9 +66,6 @@
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="source\" />
   </ItemGroup>
 
 </Project>

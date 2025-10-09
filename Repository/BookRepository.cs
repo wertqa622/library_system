@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using library_management_system.DataBase;
+using library_management_system.Models;
 
 namespace library_management_system.Repository
 {
@@ -15,5 +15,78 @@ namespace library_management_system.Repository
         {
             _dbHelper = dbHelper ?? throw new ArgumentNullException(nameof(dbHelper));
         }
+        public async Task<IEnumerable<Book>> GetAllBooksAsync()
+        {
+            const string sql = @"
+                SELECT 
+                    ISBN,
+                    BOOKIMAGE,
+                    BOOKNAME,
+                    PUBLISHER,
+                    AUTHOR,
+                    DESCRIPTION,
+                    PRICE,
+                    BOOKURL
+                FROM BOOK 
+                ORDER BY BOOKNAME";
+            var books = await _dbHelper.QueryAsync<Book>(sql);
+            return books;
+        }
+
+       
+
+        public async Task<Book> AddBookAsync(Book book)
+        {
+            const string sql = @"
+                INSERT INTO BOOK (
+                    ISBN,
+                    BOOKIMAGE,
+                    BOOKNAME,
+                    PUBLISHER,
+                    AUTHOR,
+                    DESCRIPTION,
+                    PRICE,
+                    BOOKURL
+                ) VALUES (
+                    :ISBN,
+                    :BookImage,
+                    :BookName,
+                    :Publisher,
+                    :Author,
+                    :Description,
+                    :Price,
+                    :BookUrl
+                )";
+
+            await _dbHelper.ExecuteAsync(sql, book);
+
+            return book;
+        }
+
+        public async Task<Book> UpdateBookAsync(Book book)
+        {
+            const string sql = @"
+                UPDATE BOOK SET
+                    BOOKIMAGE = :BookImage,
+                    BOOKNAME = :BookName,
+                    PUBLISHER = :Publisher,
+                    AUTHOR = :Author,
+                    DESCRIPTION = :Description,
+                    PRICE = :Price,
+                    BOOKURL = :BookUrl
+                WHERE ISBN = :ISBN";
+            
+            await _dbHelper.ExecuteAsync(sql, book);
+            return book;
+        }
+
+        public async Task<bool> DeleteBookAsync(string isbn)
+        {
+            const string sql = "DELETE FROM BOOK WHERE ISBN = :ISBN";
+            var result = await _dbHelper.ExecuteAsync(sql, new { ISBN = isbn });
+            return result > 0;
+        }
+
+        
     }
 }

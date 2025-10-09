@@ -17,7 +17,7 @@ namespace library_management_system.ViewModels
         public ModifyBookViewModel(Book book)
         {
             // 기존 도서 정보로 초기화
-            Title = book.Title;
+            Title = book.BookName;
             Author = book.Author;
             Publisher = book.Publisher;
             ISBN = book.ISBN;
@@ -26,46 +26,20 @@ namespace library_management_system.ViewModels
             Description = book.Description;
         }
 
-        public string Title
-        {
-            get => _title;
-            set => SetProperty(ref _title, value);
-        }
+        public string Title { get; set; }
+        
 
-        public string Author
-        {
-            get => _author;
-            set => SetProperty(ref _author, value);
-        }
+        public string Author{ get; set; }
 
-        public string Publisher
-        {
-            get => _publisher;
-            set => SetProperty(ref _publisher, value);
-        }
+        public string Publisher{ get; set; }
+        
 
-        public string ISBN
-        {
-            get => _isbn;
-            set => SetProperty(ref _isbn, value);
-        }
+        public string ISBN{ get; set; }
 
-        public int Price
-        {
-            get => _price;
-            set => SetProperty(ref _price, value);
-        }
+        public decimal Price  { get; set; }
 
-        public string ImagePath
-        {
-            get => _imagePath;
-            set => SetProperty(ref _imagePath, value);
-        }
+        public string ImagePath{ get; set; }
 
-        public string Description
-        {
-            get => _description;
-            set => SetProperty(ref _description, value);
-        }
+        public string Description{ get; set; }
     }
 }

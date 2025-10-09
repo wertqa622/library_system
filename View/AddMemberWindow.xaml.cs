@@ -1,5 +1,5 @@
 ﻿using library_management_system.Models;
-using library_management_system.Services;
+using library_management_system.Repository;
 using library_management_system.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -22,7 +22,7 @@ namespace library_management_system.View
     /// </summary>
     public partial class AddMemberWindow : Window
     {
-        private readonly IMemberService _MemberService;
+        private readonly MemberRepository _MemberRepository;
         private AddMemberViewModel _viewModel;
         private readonly MainViewModel _mainViewModel;
 
@@ -71,7 +71,7 @@ namespace library_management_system.View
                 };
 
                 // 멤버 추가
-                var addedmember = await _MemberService.AddMemberAsync(newmember);
+                var addedmember = await _MemberRepository.AddMemberAsync(newmember);
 
                 // 메인 뷰모델에 새 도서 추가
                 _mainViewModel.Members.Add(addedmember);

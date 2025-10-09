@@ -9,11 +9,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using library_management_system.Services;
+using library_management_system.Repository;
 using library_management_system;
 using library_management_system.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using library_management_system.View;
+using System.Threading.Tasks;
 
 namespace library_management_system
 {
@@ -23,38 +24,31 @@ namespace library_management_system
     public partial class MainWindow : Window
     {
         private MainViewModel _mainViewModel;
-        private IBookService _bookService;
-        private IMemberService _memberService;
-        private ILoanService _loanService;
-        private OptimizedBookService _optimizedBookService;
+        private IBookRepository _bookRepository;
+        private IMemberRepository _memberRepository;
+        private ILoanRepository _loanRepository;
 
         public MainWindow()
         {
             InitializeComponent();
 
             // DI 컨테이너에서 서비스 가져오기
-            _optimizedBookService = App.AppHost!.Services.GetRequiredService<OptimizedBookService>();
-            _bookService = App.AppHost!.Services.GetRequiredService<IBookService>();
-            _memberService = App.AppHost!.Services.GetRequiredService<IMemberService>();
-            _loanService = App.AppHost!.Services.GetRequiredService<ILoanService>();
+            _bookRepository = App.AppHost!.Services.GetRequiredService<IBookRepository>();
+            _memberRepository = App.AppHost!.Services.GetRequiredService<IMemberRepository>();
+            _loanRepository = App.AppHost!.Services.GetRequiredService<ILoanRepository>();
 
             // ViewModel 초기화 및 DataContext 설정
-            _mainViewModel = new MainViewModel(_optimizedBookService, _bookService, _memberService, _loanService);
-            DataContext = _mainViewModel;
+            _mainViewModel = new MainViewModel(_bookRepository, _memberRepository, _loanRepository);
+            DataContext = _mainViewModel;            
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            //LoanManagementUsercontrol LMU = new LoanManagementUsercontrol();
-            //loangd.Children.Clear();
-            //loangd.Children.Add(LMU);
-        }
+        
 
         #region 도서 관리
 
         private void Add_book(object sender, RoutedEventArgs e)
         {
-            var addBookWindow = new AddBookWindow(_bookService, _mainViewModel);
+            var addBookWindow = new AddBookWindow(_bookRepository, _mainViewModel);
             addBookWindow.Owner = this;
             vbgd();
             addBookWindow.ShowDialog();
@@ -67,8 +61,7 @@ namespace library_management_system
                 System.Windows.MessageBox.Show("수정할 도서를 먼저 선택하세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-            var modedifyBookWindow = new ModifyBookWindow(_bookService, _mainViewModel, _mainViewModel.SelectedBook);
-            modedifyBookWindow.Owner = this;
+            var modedifyBookWindow = new ModifyBookWindow(_bookRepository, _mainViewModel, _mainViewModel.SelectedBook);
             vbgd();
             modedifyBookWindow.ShowDialog();
         }
@@ -120,7 +113,7 @@ namespace library_management_system
 
         private void Add_Member(object sender, RoutedEventArgs e)
         {
-            AddBookWindow addbook = new AddBookWindow(_bookService, _mainViewModel);
+            AddBookWindow addbook = new AddBookWindow(_bookRepository, _mainViewModel);
             vbgd();
             addbook.ShowDialog();
         }

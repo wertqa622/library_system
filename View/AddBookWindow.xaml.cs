@@ -5,7 +5,7 @@ using System;
 using Microsoft.Win32;
 using library_management_system.View;
 using library_management_system.Models;
-using library_management_system.Services;
+using library_management_system.Repository;
 using library_management_system.ViewModels;
 using Application = System.Windows.Application;
 
@@ -13,14 +13,14 @@ namespace library_management_system
 {
     public partial class AddBookWindow : Window
     {
-        private readonly IBookService _bookService;
+        private readonly IBookRepository _bookRepository;
         private readonly MainViewModel _mainViewModel;
         private AddBookViewModel _viewModel;
 
-        public AddBookWindow(IBookService bookService, MainViewModel mainViewModel)
+        public AddBookWindow(IBookRepository bookRepository, MainViewModel mainViewModel)
         {
             InitializeComponent();
-            _bookService = bookService;
+            _bookRepository = bookRepository;
             _mainViewModel = mainViewModel;
 
             _viewModel = new AddBookViewModel();
@@ -35,10 +35,7 @@ namespace library_management_system
             };
         }
 
-        public AddBookWindow(IBookService bookService)
-        {
-            _bookService = bookService;
-        }
+        
 
         private void SelectImage_Click(object sender, RoutedEventArgs e)
         {
@@ -157,20 +154,20 @@ namespace library_management_system
                 // 새 도서 객체 생성
                 var newBook = new Book
                 {
-                    Title = _viewModel.Title.Trim(),
+                    ISBN = _viewModel.ISBN.Trim(),
+                    BookName = _viewModel.Title.Trim(),
                     Author = _viewModel.Author.Trim(),
                     Publisher = _viewModel.Publisher.Trim(),
-                    ISBN = _viewModel.ISBN.Trim(),
                     Price = _viewModel.Price,
-                    ImagePath = _viewModel.ImagePath?.Trim() ?? "",
+                    BookImage = new byte[0], // 이미지 파일을 바이트 배열로 변환 필요
                     Description = _viewModel.Description?.Trim() ?? "",
-                    PublishDate = DateTime.Now, // 기본값으로 현재 날짜 설정
-                    Category = "기타", // 기본값으로 "기타" 설정
+                    BookUrl = _viewModel.ImagePath?.Trim() ?? "",
+                    ImagePath = _viewModel.ImagePath?.Trim() ?? "", // UI용
                     IsAvailable = true // 기본값으로 대여 가능 설정
                 };
 
                 // 도서 추가
-                var addedBook = await _bookService.AddBookAsync(newBook);
+                var addedBook = await _bookRepository.AddBookAsync(newBook);
 
                 // 메인 뷰모델에 새 도서 추가
                 _mainViewModel.Books.Add(addedBook);

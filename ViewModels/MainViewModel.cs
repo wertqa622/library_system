@@ -10,7 +10,7 @@ using System; // For StringComparison
 namespace library_management_system.ViewModels
 {
     public class MainViewModel : ViewModelBase
-    {
+    {           
         private readonly IBookRepository _bookRepository;
         private readonly IMemberRepository _memberRepository;
         private readonly ILoanRepository _loanRepository;
@@ -217,9 +217,11 @@ namespace library_management_system.ViewModels
 
         // 도서 추가
         private void AddBook()
-        {
+        {   
+            MainWindow mainWindow = (MainWindow)System.Windows.Application.Current.MainWindow;
             var addBookWindow = new AddBookWindow(_bookRepository, this);
             addBookWindow.Owner = System.Windows.Application.Current.MainWindow;
+            mainWindow.vbgd();
             addBookWindow.ShowDialog();
         }
 
@@ -269,5 +271,6 @@ namespace library_management_system.ViewModels
         {
             return SelectedBook != null;
         }
+        
     }
 }

@@ -1,23 +1,26 @@
 using System;
 using System.Collections.Generic;
 using System.Windows;
+
 using System;
+
 using Microsoft.Win32;
 using library_management_system.View;
 using library_management_system.Models;
 
 using library_management_system.ViewModels;
 using Application = System.Windows.Application;
+using library_management_system.Repository;
 
 namespace library_management_system
 {
     public partial class AddBookWindow : Window
     {
-
         private readonly MainViewModel _mainViewModel;
         private AddBookViewModel _viewModel;
+        private IBookRepository bookRepository;
 
-        public AddBookWindow( MainViewModel mainViewModel)
+        public AddBookWindow(MainViewModel mainViewModel)
         {
             InitializeComponent();
 
@@ -35,7 +38,11 @@ namespace library_management_system
             };
         }
 
-
+        public AddBookWindow(IBookRepository bookRepository, MainViewModel mainViewModel)
+        {
+            this.bookRepository = bookRepository;
+            _mainViewModel = mainViewModel;
+        }
 
         private void SelectImage_Click(object sender, RoutedEventArgs e)
         {
@@ -161,10 +168,7 @@ namespace library_management_system
                     Price = _viewModel.Price,
                     ImagePath = _viewModel.ImagePath?.Trim() ?? "",
                     Description = _viewModel.Description?.Trim() ?? "",
-
                 };
-
-
 
                 System.Windows.MessageBox.Show("도서가 성공적으로 추가되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
                 DialogResult = true;
@@ -195,9 +199,8 @@ namespace library_management_system
             {
                 main.hdgd();
             }
-            DialogResult = false;            
-            this.Close();           
-            
+            DialogResult = false;
+            this.Close();
         }
 
         // ESC 키로 창 닫기
@@ -212,9 +215,10 @@ namespace library_management_system
             }
             base.OnKeyDown(e);
         }
+
         private void wndqhr_click(object sender, RoutedEventArgs e)
         {
             System.Windows.MessageBox.Show("이미 등록된 도서입니다", "오류");
         }
     }
-} 
+}

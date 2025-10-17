@@ -17,7 +17,7 @@ namespace library_management_system
         private readonly Book _originalBook;
         private ModifyBookViewModel _viewModel;
 
-        public ModifyBookWindow( MainViewModel mainViewModel, Book bookToEdit)
+        public ModifyBookWindow(Repository.IBookRepository bookRepository, MainViewModel mainViewModel, Book bookToEdit)
         {
             InitializeComponent();
 

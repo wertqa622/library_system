@@ -1,12 +1,28 @@
-namespace library_management_system
+using System;
+
+namespace library_management_system.Models
 {
     public class Loan
     {
-        public string Name { get; set; }
-        public string ISBN { get; set; }
-        public string MemberId { get; set; } // 대여일로 사용됨
-        public string LoanDate { get; set; } // 실제로는 반납예정일로 사용됨
-        public string DueDate { get; set; }  // 반납일로 사용됨
-        public string IsOverdue { get; set; }
+        public int Id { get; set; }
+        public int BookId { get; set; }
+        public int MemberId { get; set; }
+        public DateTime LoanDate { get; set; }
+        public DateTime DueDate { get; set; }
+        public DateTime? ReturnDate { get; set; }
+        public string Status { get; set; } = "Active";
+
+        public decimal FineAmount { get; set; }
+
+        // Navigation Properties
+        public Book? Book { get; set; }
+
+        public Member? Member { get; set; }
+
+        // 계산된 속성들
+        public bool IsReturned => ReturnDate.HasValue;
+
+        public bool IsOverdue => !IsReturned && DateTime.Now > DueDate;
+        public int DaysOverdue => IsOverdue ? (DateTime.Now - DueDate).Days : 0;
     }
 }

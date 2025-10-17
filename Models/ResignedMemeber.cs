@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace library_management_system.Models
 {
-    class ResignedMemeber
+    internal class ResignedMemeber
     {
         public int Id { get; set; }
         public string ImagePath { get; set; } = string.Empty;
@@ -15,6 +15,5 @@ namespace library_management_system.Models
         public string Email { get; set; } = string.Empty;
         public string Phone { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
-
     }
 }

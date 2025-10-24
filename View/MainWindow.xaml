@@ -492,6 +492,7 @@
                                               Margin="0,0,8,0"
                                               mdi:ButtonAssist.CornerRadius="4" Cursor="Hand" />
                                 <ToggleButton Content="도서 반납"
+                                              Click="return_member"
                                               Style="{DynamicResource MaterialDesignOutlinedButton}"
                                               Width="120"
                                               Height="36"

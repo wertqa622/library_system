@@ -23,14 +23,12 @@ namespace library_management_system
     public partial class MainWindow : Window
     {
         private MainViewModel _mainViewModel;
- 
 
         public MainWindow()
         {
             InitializeComponent();
 
             // DI 컨테이너에서 서비스 가져오기
-         
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -44,17 +42,14 @@ namespace library_management_system
 
         private void Add_book(object sender, RoutedEventArgs e)
         {
-          
         }
 
         private void Modify_book(object sender, RoutedEventArgs e)
         {
-           
         }
 
         private void Delete_book(object sender, RoutedEventArgs e)
         {
-        
         }
 
         private void Search_book(object sender, RoutedEventArgs e)
@@ -86,13 +81,19 @@ namespace library_management_system
             loangd.Children.Add(loan);
         }
 
+        private void return_member(object sender, RoutedEventArgs e)
+        {
+            var returnmem = new ReturnMemberUserControl();
+            loangd.Children.Clear();
+            loangd.Children.Add(returnmem);
+        }
+
         #endregion 대출관리
 
         #region 고객 관리
 
         private void Add_Member(object sender, RoutedEventArgs e)
         {
-          
         }
 
         private void ResignedMember_Click(object sender, RoutedEventArgs e)
@@ -138,7 +139,6 @@ namespace library_management_system
 
         private void Modify_Member(object sender, RoutedEventArgs e)
         {
-           
         }
 
         #endregion 화면 부가적 기능 메서드

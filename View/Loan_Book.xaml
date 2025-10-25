@@ -85,7 +85,8 @@
         </mdi:Card>
 
         <!-- Book Information DataGrid -->
-        <DataGrid Grid.Row="1"
+        <DataGrid x:Name="LoanBooksGrid"
+                  Grid.Row="1"
                   ItemsSource="{Binding Books}"
                   SelectedItem="{Binding SelectedBook}"
                   AutoGenerateColumns="False"

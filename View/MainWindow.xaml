@@ -30,6 +30,7 @@
 
             <local:ImagePathConverter x:Key="ImagePathConverter" />
             <local:ImageByteArrayConverter x:Key="ImageByteArrayConverter" />
+            <local:BooleanToLoanStatusConverter x:Key="BooleanToLoanStatusConverter" />
 
             <!-- 커스텀 TabControl 스타일 -->
             <Style x:Key="CustomTabControlStyle" TargetType="TabControl">
@@ -333,7 +334,6 @@
                                 </mdi:Card>
                                 <Button Grid.Column="2"
                                         Style="{DynamicResource MaterialDesignIconButton}"
-                                        Click="Refresh"
                                         Command="{Binding RefrashBookCommand}"
                                         Width="36"
                                         Height="36"
@@ -419,7 +419,7 @@
                                         Orientation="Horizontal"
                                         Margin="0,0,0,16">
                                 <Button Content="새 회원 추가"
-                                        Click="Add_Member"
+                                        Command="{Binding AddMemberCommand}"
                                         Style="{DynamicResource MaterialDesignRaisedButton}"
                                         Width="120"
                                         Height="36"
@@ -427,12 +427,13 @@
                                         mdi:ButtonAssist.CornerRadius="4" />
                                 <Button Content="회원 수정"
                                         Style="{DynamicResource MaterialDesignOutlinedButton}"
-                                        Click="Modify_Member"
+                                        Command="{Binding EditMemberCommand}"
                                         Width="100"
                                         Height="36"
                                         Margin="0,0,8,0"
                                         mdi:ButtonAssist.CornerRadius="4" />
-                                <Button Content="회원 삭제"
+                                <Button Content="회원 탈퇴"
+                                        Command="{Binding WithdrawMemberCommand}"
                                         Style="{DynamicResource MaterialDesignOutlinedButton}"
                                         Width="100"
                                         Height="36"
@@ -440,7 +441,7 @@
                                         mdi:ButtonAssist.CornerRadius="4" />
                                 <Button Content="탈퇴 회원 조회"
                                         Style="{DynamicResource MaterialDesignOutlinedButton}"
-                                        Click="ResignedMember_Click"
+                                        Command="{Binding ViewResignedMembersCommand}"
                                         Foreground="Red"
                                         BorderBrush="red"
                                         Width="144"
@@ -489,6 +490,14 @@
                                         </Button>
                                     </Grid>
                                 </mdi:Card>
+                                <Button Grid.Column="2"
+                                                Style="{DynamicResource MaterialDesignIconButton}"
+                                                Command="{Binding RefrashBookCommand}"
+                                                Width="36"
+                                                Height="36"
+                                                Margin="300,0,0,0">
+                                    <mdi:PackIcon Kind="Refresh" Width="20" Height="20" />
+                                </Button>
                             </StackPanel>
 
                             <DataGrid Grid.Row="1"
@@ -503,28 +512,41 @@
                                       RowStyle="{DynamicResource CustomDataGridRowStyle}"
                                       CellStyle="{DynamicResource CustomDataGridCellStyle}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="사진"
-                                                        Binding="{Binding PersonImage}"
-                                                        Width="60"
-                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    <DataGridTemplateColumn Header="사진" Width="100">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="LightGray" BorderThickness="1">
+                                                    <Image Source="{Binding Photo, Converter={StaticResource ImageByteArrayConverter}}"
+                                                           Height="100"
+                                                           Width="80"
+                                                           Stretch="Uniform"
+                                                           RenderOptions.BitmapScalingMode="HighQuality" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
                                     <DataGridTextColumn Header="이름"
                                                         Binding="{Binding Name}"
-                                                        Width="150"
+                                                        Width="228"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="생년월일"
-                                                        Binding="{Binding brithdate}"
+                                                        Binding="{Binding Birthdaydate}"
                                                         Width="200"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="이메일"
                                                         Binding="{Binding Email}"
-                                                        Width="120"
+                                                        Width="300"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="전화번호"
-                                                        Binding="{Binding PhoneNumber}"
-                                                        Width="250"
+                                                        Binding="{Binding Phone}"
+                                                        Width="270"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="성별"
-                                                        Binding="{Binding gender}"
+                                                        Binding="{Binding Gender}"
+                                                        Width="200"
+                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    <DataGridTextColumn Header="대출 가능 여부"
+                                                        Binding="{Binding LoanStatus, Converter={StaticResource BooleanToLoanStatusConverter}}"
                                                         Width="250"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                 </DataGrid.Columns>

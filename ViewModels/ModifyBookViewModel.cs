@@ -76,6 +76,13 @@ namespace library_management_system.ViewModels
             }
         }
 
+        // PhotoBytes는 BookImageBytes의 별칭
+        public byte[] PhotoBytes
+        {
+            get => BookImageBytes;
+            set => BookImageBytes = value;
+        }
+
         private async void UpdateBook(object parameter)
         {
             try

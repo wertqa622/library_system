@@ -2,19 +2,10 @@
 using library_management_system.Repository;
 using library_management_system.ViewModels;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using System.IO;
+using MessageBox = System.Windows.MessageBox;
 
 namespace library_management_system.View
 {
@@ -29,76 +20,104 @@ namespace library_management_system.View
         public AddMemberWindow(ObservableCollection<Member> existingMembers, IMemberRepository memberRepository)
         {
             InitializeComponent();
-            
+
             _MemberRepository = memberRepository ?? throw new ArgumentNullException(nameof(memberRepository));
-            
+
             // AddMemberViewModel 생성 시 기존 멤버 컬렉션과 Repository를 전달
             _viewModel = new AddMemberViewModel(existingMembers, _MemberRepository);
             DataContext = _viewModel;
+
+            // ViewModel의 RequestClose 이벤트 구독
+            _viewModel.RequestClose += OnRequestClose;
+        }
+
+        private void OnRequestClose()
+        {
+            this.DialogResult = true; // 성공적으로 추가됨을 표시
+            this.Close();
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            if (_viewModel != null)
+            {
+                _viewModel.RequestClose -= OnRequestClose;
+            }
+            base.OnClosed(e);
         }
 
         private void wndqhr_click(object sender, RoutedEventArgs e)
         {
         }
 
-        private void SelectImage_Click(object sender, RoutedEventArgs e)
+        private void SelectPhoto_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
+                openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif|All Files|*.*";
+                openFileDialog.Title = "사진 선택";
+
+                if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    string selectedFilePath = openFileDialog.FileName;
+
+                    // 선택된 이미지를 Images/members 폴더로 복사
+                    string destinationPath = CopyImageToProjectFolder(selectedFilePath);
+
+                    // ViewModel에 경로 설정
+                    _viewModel.ImagePath = destinationPath;
+
+                    // 이미지 파일을 바이트 배열로 변환하여 저장
+                    try
+                    {
+                        byte[] imageBytes = System.IO.File.ReadAllBytes(selectedFilePath);
+                        _viewModel.PhotoBytes = imageBytes;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"이미지 로드 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"사진 선택 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private string CopyImageToProjectFolder(string sourceFilePath)
+        {
+            try
+            {
+                // 프로젝트의 Images/members 폴더 경로
+                string projectImagesFolder = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "members");
+
+                // 폴더가 없으면 생성
+                if (!System.IO.Directory.Exists(projectImagesFolder))
+                {
+                    System.IO.Directory.CreateDirectory(projectImagesFolder);
+                }
+
+                // 파일 이름과 확장자 추출
+                string fileName = System.IO.Path.GetFileName(sourceFilePath);
+                string destinationPath = System.IO.Path.Combine(projectImagesFolder, fileName);
+
+                // 파일 복사 (덮어쓰기)
+                System.IO.File.Copy(sourceFilePath, destinationPath, true);
+
+                return destinationPath;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"이미지 복사 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                return sourceFilePath;
+            }
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
-        }
-
-        private async void AddButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                // 버튼 비활성화 (중복 클릭 방지)
-                var addButton = sender as System.Windows.Controls.Button;
-                var cancelButton = this.FindName("CancelButton") as System.Windows.Controls.Button;
-
-                if (addButton != null) addButton.IsEnabled = false;
-                if (cancelButton != null) cancelButton.IsEnabled = false;
-
-                // 입력 검증
-                if (string.IsNullOrWhiteSpace(_viewModel.Name))
-                {
-                    System.Windows.MessageBox.Show("회원명을 입력해주세요.", "입력 오류", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                // 새 멤버 객체 생성
-                var newmember = new Member
-                {
-                    Name = _viewModel.Name.Trim(),
-                    Birthdaydate = _viewModel.Birthdaydate.Trim(),
-                    Email = _viewModel.Email.Trim()
-                };
-
-                // 멤버 추가
-                var addedmember = await _MemberRepository.AddMemberAsync(newmember);
-
-                // ViewModel의 멤버 컬렉션에 새 멤버 추가
-                _viewModel.Members.Add(addedmember);
-
-                System.Windows.MessageBox.Show("도서가 성공적으로 추가되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
-                DialogResult = true;
-                Close();
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show($"도서 추가 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                // 버튼 다시 활성화
-                var addButton = sender as System.Windows.Controls.Button;
-                var cancelButton = this.FindName("CancelButton") as System.Windows.Controls.Button;
-
-                if (addButton != null) addButton.IsEnabled = true;
-                if (cancelButton != null) cancelButton.IsEnabled = true;
-            }
         }
     }
 }

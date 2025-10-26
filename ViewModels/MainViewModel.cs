@@ -1,11 +1,14 @@
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows;
 using System.Windows.Input;
+using library_management_system;
 using library_management_system.Models;
 using library_management_system.Repository;
-using library_management_system;
-using System.Linq;
-using System.Collections.Generic;
-using System; // For StringComparison
+using library_management_system.View;
+using MessageBox = System.Windows.MessageBox; // For StringComparison
 
 namespace library_management_system.ViewModels
 {
@@ -65,6 +68,11 @@ namespace library_management_system.ViewModels
             SearchBookCommand = new RelayCommand(SearchBooks);
             SearchMemberCommand = new RelayCommand(SearchMembers);
             RefrashBookCommand = new RelayCommand(RefrashBook);
+            AddMemberCommand = new RelayCommand(AddMember);
+            EditMemberCommand = new RelayCommand(EditMember, CanEditMember);
+            DeleteMemberCommand = new RelayCommand(DeleteMember, CanDeleteMember);
+            WithdrawMemberCommand = new RelayCommand(WithdrawMember, CanWithdrawMember);
+            ViewResignedMembersCommand = new RelayCommand(ViewResignedMembers);
 
             LoadData();
         }
@@ -76,10 +84,52 @@ namespace library_management_system.ViewModels
         public ICommand DeleteBookCommand { get; }
         public ICommand SearchBookCommand { get; }
         public ICommand SearchMemberCommand { get; }
-
         public ICommand RefrashBookCommand { get; }
+        public ICommand AddMemberCommand { get; }
+        public ICommand EditMemberCommand { get; }
+        public ICommand DeleteMemberCommand { get; }
+        public ICommand ViewResignedMembersCommand { get; }
+        public ICommand WithdrawMemberCommand { get; }
 
         // --- Public 속성들 ---
+
+        private async void WithdrawMember()
+        {
+            if (SelectedMember == null) return;
+
+            if (SelectedMember.LoanStatus)
+            {
+                var result = MessageBox.Show(
+                    "정말로 탈퇴 처리하시겠습니까?",
+                    "회원 탈퇴 확인",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        await _memberRepository.UpdateWithdrawalStatusAsync(SelectedMember.MemberID, true);
+                        SelectedMember.WithdrawalStatus = true;
+
+                        MessageBox.Show("회원이 성공적으로 탈퇴 처리되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        MessageBox.Show($"회원 탈퇴 처리 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("회원의 대출 상태가 비활성화되어 있어 탈퇴 처리가 불가능합니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private bool CanWithdrawMember()
+        {
+            return SelectedMember != null && !SelectedMember.WithdrawalStatus;
+        }
 
         #region Public Properties
 
@@ -130,7 +180,13 @@ namespace library_management_system.ViewModels
         public Member SelectedMember
         {
             get => _selectedMember;
-            set => SetProperty(ref _selectedMember, value);
+            set
+            {
+                SetProperty(ref _selectedMember, value);
+                // Command 상태 업데이트
+                (EditMemberCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (DeleteMemberCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            }
         }
 
         public ObservableCollection<string> SearchFilters_Person { get; }
@@ -223,6 +279,13 @@ namespace library_management_system.ViewModels
                 foreach (var member in _allMembers) Members.Add(member);
                 return;
             }
+
+            var filteredMembers = SelectedSearchFilter_Person == "이름"
+                ? _allMembers.Where(m => m.Name.Contains(SearchText_Person, StringComparison.OrdinalIgnoreCase))
+                : _allMembers.Where(m => m.Phone.Contains(SearchText_Person, StringComparison.OrdinalIgnoreCase));
+
+            Members.Clear();
+            foreach (var member in filteredMembers) Members.Add(member);
         }
 
         // DB에서 모든 도서를 다시 로드하는 메서드
@@ -370,6 +433,112 @@ namespace library_management_system.ViewModels
         {
             var loans = await _loanRepository.GetAllLoansAsync();
             return new ObservableCollection<Loan>(loans);
+        }
+
+        // 회원 추가
+        private async void AddMember()
+        {
+            var addMemberWindow = new AddMemberWindow(Members, _memberRepository);
+            addMemberWindow.Owner = System.Windows.Application.Current.MainWindow;
+            mainWindow.vbgd();
+
+            bool? result = addMemberWindow.ShowDialog();
+
+            // 창이 닫힌 후 DB에서 다시 로드
+            if (result == true)
+            {
+                await RefreshMembersFromDatabase();
+            }
+
+            mainWindow.hdgd();
+        }
+
+        // DB에서 모든 회원을 다시 로드하는 메서드
+        private async Task RefreshMembersFromDatabase()
+        {
+            try
+            {
+                var members = await _memberRepository.GetAllMembersAsync();
+                Members.Clear();
+                foreach (var member in members)
+                {
+                    Members.Add(member);
+                }
+                _allMembers = members.ToList();
+                System.Diagnostics.Debug.WriteLine($"회원 목록 갱신 완료: {Members.Count}명 회원");
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"회원 목록 갱신 중 오류가 발생했습니다: {ex.Message}", "오류", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+
+        // 회원 수정
+        private async void EditMember()
+        {
+            if (SelectedMember == null) return;
+
+            var modifyMemberWindow = new ModifyMemberWindow(SelectedMember, _memberRepository);
+            modifyMemberWindow.Owner = System.Windows.Application.Current.MainWindow;
+            mainWindow.vbgd();
+
+            bool? result = modifyMemberWindow.ShowDialog();
+
+            // 창이 닫힌 후 DB에서 다시 로드
+            if (result == true)
+            {
+                await RefreshMembersFromDatabase();
+            }
+            mainWindow.hdgd();
+        }
+
+        private bool CanEditMember()
+        {
+            return SelectedMember != null;
+        }
+
+        // 회원 삭제
+        private async void DeleteMember()
+        {
+            if (SelectedMember == null) return;
+
+            var result = System.Windows.MessageBox.Show(
+                $"정말로 '{SelectedMember.Name}' 회원을 삭제하시겠습니까?",
+                "회원 삭제 확인",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Question);
+
+            if (result == System.Windows.MessageBoxResult.Yes)
+            {
+                try
+                {
+                    await _memberRepository.DeleteMemberAsync(SelectedMember.MemberID);
+
+                    // DB에서 다시 로드하여 데이터 그리드 갱신
+                    await RefreshMembersFromDatabase();
+
+                    System.Windows.MessageBox.Show("회원이 성공적으로 삭제되었습니다.", "성공", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+                }
+                catch (System.Exception ex)
+                {
+                    System.Windows.MessageBox.Show($"회원 삭제 중 오류가 발생했습니다: {ex.Message}", "오류", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private bool CanDeleteMember()
+        {
+            return SelectedMember != null;
+        }
+
+        // 탈퇴 회원 조회
+        private void ViewResignedMembers()
+        {
+            var resignedMemberWindow = new ResignedMemberWindow();
+            resignedMemberWindow.Owner = System.Windows.Application.Current.MainWindow;
+            mainWindow.vbgd();
+            resignedMemberWindow.ShowDialog();
+            mainWindow.hdgd();
         }
     }
 }

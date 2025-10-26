@@ -15,6 +15,7 @@ namespace library_management_system
         private IBookRepository _bookRepository;
         private IMemberRepository _memberRepository;
         private ILoanRepository _loanRepository;
+        private ReturnMemberUserControl _returnMemberControl;
 
         public MainWindow()
         {
@@ -28,6 +29,8 @@ namespace library_management_system
             // ViewModel 초기화 및 DataContext 설정
             _mainViewModel = new MainViewModel(_bookRepository, _memberRepository, _loanRepository);
             DataContext = _mainViewModel;
+
+            _returnMemberControl = new ReturnMemberUserControl();
         }
 
         #region 도서 관리
@@ -61,6 +64,14 @@ namespace library_management_system
             var loan = new LoanBookUserControl();
             loangd.Children.Clear();
             loangd.Children.Add(loan);
+        }
+
+        private void return_member(object sender, RoutedEventArgs e)
+        {
+            // loangd의 컨텐츠를 모두 지우고
+            loangd.Children.Clear();
+            // 도서 반납 UserControl을 추가
+            loangd.Children.Add(_returnMemberControl);
         }
 
         #endregion 대출관리

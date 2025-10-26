@@ -3,9 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:library_management_system.View"
+             xmlns:local="clr-namespace:library_management_system.View" xmlns:viewmodels="clr-namespace:library_management_system.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:LoanManagementViewModel, IsDesignTimeCreatable=False}"
              mc:Ignorable="d"
-             d:DesignHeight="653" d:DesignWidth="1532">
+             xmlns:mdi="http://materialdesigninxaml.net/winfx/xaml/themes"
+             d:DesignHeight="653" d:DesignWidth="1532"
+             Loaded="UserControl_Loaded">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -83,25 +85,89 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <DataGrid ItemsSource="{Binding Loans}"
-      SelectedItem="{Binding SelectedLoan}"
-      AutoGenerateColumns="False"
-      CanUserAddRows="False"
-      CanUserDeleteRows="False"
-      IsReadOnly="True"
-      Style="{DynamicResource CustomDataGridStyle}"
-      ColumnHeaderStyle="{DynamicResource CustomDataGridColumnHeaderStyle}" HorizontalAlignment="Center" Width="1532" Height="653" VerticalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
+            <ToggleButton Content="도서 대출"
+                  Click="loan_book"
+                  Style="{DynamicResource MaterialDesignOutlinedButton}"
+                  Width="120"
+                  Height="36"
+                  Margin="0,0,8,0"
+                  mdi:ButtonAssist.CornerRadius="4" Cursor="Hand" />
+            <ToggleButton Content="도서 반납"
+                  Click="return_member"
+                  Style="{DynamicResource MaterialDesignOutlinedButton}"
+                  Width="120"
+                  Height="36"
+                  Margin="0,0,8,0"
+                  mdi:ButtonAssist.CornerRadius="4" Cursor="Hand" />
+            <mdi:Card Padding="8" Margin="0,0,16,0" mdi:ElevationAssist.Elevation="Dp1" xmlns:mdi="http://materialdesigninxaml.net/winfx/xaml/themes">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <ComboBox Grid.Column="0"
+                          Style="{DynamicResource MaterialDesignOutlinedComboBox}"
+                          Width="120" Height="40" FontSize="16"
+                          Padding="8,0" VerticalContentAlignment="Center"
+                          ItemsSource="{Binding LoanSearchFilters}"
+                          SelectedItem="{Binding SelectedLoanSearchFilter}"
+                          mdi:ButtonAssist.CornerRadius="4" />
+
+                    <TextBox Grid.Column="1"
+                         Style="{DynamicResource MaterialDesignOutlinedTextBox}"
+                         Width="250" Height="40" FontSize="16"
+                         Padding="8,0" VerticalAlignment="Center"
+                         Foreground="Black"
+                         mdi:HintAssist.Hint="검색어를 입력하세요"
+                         Text="{Binding LoanSearchText, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding SearchLoanCommand}" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+
+                    <Button Grid.Column="2"
+                        Command="{Binding SearchLoanCommand}"
+                        Style="{DynamicResource MaterialDesignIconButton}"
+                        Width="36" Height="36" Margin="8,0,0,0">
+                        <mdi:PackIcon Kind="Magnify" Width="20" Height="20" />
+                    </Button>
+                </Grid>
+            </mdi:Card>
+
+            <Button Style="{DynamicResource MaterialDesignIconButton}"
+                Command="{Binding RefreshLoanCommand}"
+                Width="36" Height="36">
+                <mdi:PackIcon Kind="Refresh" Width="20" Height="20" />
+            </Button>
+        </StackPanel>
+        <DataGrid Grid.Row="1"
+                    ItemsSource="{Binding Loans}"
+                  SelectedItem="{Binding SelectedLoan}"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  IsReadOnly="True"
+                  Style="{DynamicResource CustomDataGridStyle}"
+                  ColumnHeaderStyle="{DynamicResource CustomDataGridColumnHeaderStyle}">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="이름"
                         Binding="{Binding Name}"
                         Width="190"
                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTextColumn Header="전화번호"
-                        Binding="{Binding Number}"
+                        Binding="{Binding PhoneNumber}"
                         Width="250"
                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTextColumn Header="ISBN"
-                        Binding="{Binding ISBN}"
+                        Binding="{Binding Isbn}"
                         Width="350"
                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTextColumn Header="대여일"
@@ -116,11 +182,10 @@
                         Binding="{Binding ReturnDate, StringFormat=yyyy-MM-dd}"
                         Width="200"
                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
-
-                <DataGridTextColumn Header="반납 완료"
-                        Binding="{Binding IsOverdue}"
-                        Width="100"
-                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                <DataGridTextColumn Header="반납 상태"
+                          Binding="{Binding LoanStatus}"
+                          Width="100"
+                          ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

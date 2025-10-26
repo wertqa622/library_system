@@ -10,146 +10,156 @@ namespace library_management_system.Repository
     public class LoanRepository : ILoanRepository
     {
         private readonly OracleDapperHelper _dbHelper;
-        private readonly List<Loan> _loans = new List<Loan>();
-        private int _nextId = 1;
 
         public LoanRepository(OracleDapperHelper dbHelper)
         {
             _dbHelper = dbHelper ?? throw new ArgumentNullException(nameof(dbHelper));
-            InitializeSampleData();
         }
 
-        public Task<IEnumerable<Loan>> GetAllLoansAsync()
+        // 모든 대출 기록 조회
+        public async Task<IEnumerable<Loan>> GetAllLoansAsync()
         {
-            return Task.FromResult(_loans.AsEnumerable());
+            const string sql = @"
+                   SELECT
+                        m.NAME,
+                        l.PHONENUMBER,
+                        l.ISBN,
+                        l.LOANDATE,
+                        l.DUEDATE,
+                        l.RETURNDATE,
+                        CASE
+                            WHEN l.RETURNDATE IS NULL THEN '대출 중'
+                            ELSE '반납 완료'
+                    END AS LoanStatus
+                    FROM LOAN l
+                    LEFT JOIN
+                    MEMBER m ON l.PHONENUMBER = m.PHONENUMBER";
+
+            var loan = await _dbHelper.QueryAsync<Loan>(sql);
+            return loan;
         }
 
-        public Task<Loan> GetLoanByIdAsync(int id)
+        // 특정 회원의 대출 기록 조회
+        public async Task<IEnumerable<Loan>> GetLoansByPhoneNumberAsync(string phoneNumber)
         {
-            var loan = _loans.FirstOrDefault(l => l.Id == id);
-            return Task.FromResult(loan);
+            const string sql = @"
+                SELECT
+                    LOAN_ID,
+                    PHONENUMBER,
+                    ISBN,
+                    LOANDATE,
+                    DUEDATE,
+                    RETURNDATE
+                FROM LOAN
+                WHERE PHONENUMBER = :PhoneNumber";
+
+            return await _dbHelper.QueryAsync<Loan>(sql, new { PhoneNumber = phoneNumber });
         }
 
-        public Task<IEnumerable<Loan>> GetLoansByMemberIdAsync(int memberId)
+        // 새로운 대출 기록 추가
+        public async Task<Loan> AddLoanAsync(Loan loan)
         {
-            var loans = _loans.Where(l => l.MemberId == memberId);
-            return Task.FromResult(loans);
+            // LOAN_ID는 시퀀스(Sequence)를 통해 자동으로 생성하는 것을 권장합니다.
+            // 예: LOAN_SEQ.NEXTVAL
+            const string sql = @"
+                INSERT INTO LOAN (LOAN_ID, PHONENUMBER, ISBN, LOANDATE, DUEDATE)
+                VALUES (LOAN_SEQ.NEXTVAL, :PhoneNumber, :Isbn, :LoanDate, :DueDate)";
+
+            await _dbHelper.ExecuteAsync(sql, loan);
+            return loan; // 실제로는 시퀀스로 생성된 ID를 다시 조회해서 반환하는 것이 더 좋습니다.
         }
 
-        public Task<IEnumerable<Loan>> GetLoansByBookIdAsync(int bookId)
+        // 반납 처리 (대출 기록 업데이트)
+        public async Task<Loan> UpdateLoanAsync(Loan loan)
         {
-            var loans = _loans.Where(l => l.BookId == bookId);
-            return Task.FromResult(loans);
+            const string sql = @"
+                UPDATE LOAN SET
+                    RETURNDATE = :ReturnDate
+                WHERE LOAN_ID = :LoanId";
+
+            await _dbHelper.ExecuteAsync(sql, loan);
+            return loan;
         }
 
-        public Task<IEnumerable<Loan>> GetActiveLoansAsync()
+        // 연체된 대출 기록 조회 (반납일이 비어있고, 반납예정일이 오늘보다 이전인 경우)
+        public async Task<IEnumerable<Loan>> GetOverdueLoansAsync()
         {
-            var activeLoans = _loans.Where(l => !l.IsReturned);
-            return Task.FromResult(activeLoans);
+            // SYSDATE는 Oracle에서 현재 날짜와 시간을 의미합니다.
+            const string sql = @"
+                SELECT
+                    LOAN_ID,
+                    PHONENUMBER,
+                    ISBN,
+                    LOANDATE,
+                    DUEDATE,
+                    RETURNDATE
+                FROM LOAN
+                WHERE RETURNDATE IS NULL AND DUEDATE < SYSDATE";
+
+            return await _dbHelper.QueryAsync<Loan>(sql);
         }
 
-        public Task<IEnumerable<Loan>> GetOverdueLoansAsync()
+        // 특정 책이 현재 대출 가능한지 확인
+        public async Task<bool> IsBookAvailableAsync(string isbn)
         {
-            var overdueLoans = _loans.Where(l => !l.IsReturned && l.DueDate < DateTime.Now);
-            return Task.FromResult(overdueLoans);
+            const string sql = "SELECT COUNT(*) FROM LOAN WHERE ISBN = :Isbn AND RETURNDATE IS NULL";
+            var loanCount = await _dbHelper.ExecuteAsync(sql, new { Isbn = isbn });
+            return loanCount == 0; // 대출 기록이 없으면(0) 대출 가능(true)
         }
 
-        public Task<Loan> CreateLoanAsync(int bookId, int memberId, int loanDays)
+        // --- 여기에 누락된 메서드 3개 추가 ---
+
+        // 특정 책의 대출 기록 조회
+        public async Task<IEnumerable<Loan>> GetLoansByIsbnAsync(string isbn)
         {
-            var loan = new Loan
-            {
-                Id = _nextId++,
-                BookId = bookId,
-                MemberId = memberId,
-                LoanDate = DateTime.Now,
-                DueDate = DateTime.Now.AddDays(loanDays),
-                FineAmount = 0
-            };
+            const string sql = @"
+                SELECT
+                    LOAN_ID,
+                    PHONENUMBER,
+                    ISBN,
+                    LOANDATE,
+                    DUEDATE,
+                    RETURNDATE
+                FROM LOAN
+                WHERE ISBN = :Isbn";
 
-            _loans.Add(loan);
-            return Task.FromResult(loan);
+            return await _dbHelper.QueryAsync<Loan>(sql, new { Isbn = isbn });
         }
 
-        public Task<Loan> ReturnBookAsync(int loanId)
+        // 현재 대출 중인 모든 기록 가져오기 (반납되지 않은 것)
+        public async Task<IEnumerable<Loan>> GetActiveLoansAsync()
         {
-            var loan = _loans.FirstOrDefault(l => l.Id == loanId);
-            if (loan != null)
-            {
-                loan.ReturnDate = DateTime.Now;
+            const string sql = @"
+                SELECT
+                    LOAN_ID,
+                    PHONENUMBER,
+                    ISBN,
+                    LOANDATE,
+                    DUEDATE,
+                    RETURNDATE
+                FROM LOAN
+                WHERE RETURNDATE IS NULL";
 
-                // 연체료 계산
-                if (loan.ReturnDate > loan.DueDate)
-                {
-                    var overdueDays = (loan.ReturnDate.Value - loan.DueDate).Days;
-                    loan.FineAmount = overdueDays * 1000m; // 하루당 1000원
-                }
-            }
-            return Task.FromResult(loan);
+            return await _dbHelper.QueryAsync<Loan>(sql);
         }
 
-        public Task<decimal> CalculateFineAsync(int loanId)
+        // 특정 회원이 더 대출할 수 있는지 확인
+        public async Task<bool> CanMemberBorrowAsync(string phoneNumber)
         {
-            var loan = _loans.FirstOrDefault(l => l.Id == loanId);
-            if (loan == null || loan.IsReturned)
-                return Task.FromResult(0m);
+            // 한 사람이 최대 5권까지 빌릴 수 있다고 가정
+            const int maxLoans = 5;
 
-            if (DateTime.Now > loan.DueDate)
-            {
-                var overdueDays = (DateTime.Now - loan.DueDate).Days;
-                return Task.FromResult(overdueDays * 1000m); // 하루당 1000원
-            }
+            const string sql = @"
+                SELECT COUNT(*)
+                FROM LOAN
+                WHERE PHONENUMBER = :PhoneNumber AND RETURNDATE IS NULL";
 
-            return Task.FromResult(0m);
+            var currentLoanCount = await _dbHelper.ExecuteAsync(sql, new { PhoneNumber = phoneNumber });
+
+            return currentLoanCount < maxLoans;
         }
 
-        public Task<bool> CanMemberBorrowAsync(int memberId)
-        {
-            // 현재 대여 중인 책 수 계산
-            var currentLoans = _loans.Count(l => l.MemberId == memberId && !l.IsReturned);
-
-            // 기본적으로 5권까지 대여 가능 (실제로는 Member의 MaxBooksAllowed를 확인해야 함)
-            return Task.FromResult(currentLoans < 5);
-        }
-
-        public Task<bool> IsBookAvailableAsync(int bookId)
-        {
-            // 해당 책이 현재 대여 중인지 확인
-            var isLoaned = _loans.Any(l => l.BookId == bookId && !l.IsReturned);
-            return Task.FromResult(!isLoaned);
-        }
-
-        private void InitializeSampleData()
-        {
-            _loans.Add(new Loan
-            {
-                Id = _nextId++,
-                BookId = 1,
-                MemberId = 1,
-                LoanDate = new DateTime(2024, 1, 15),
-                DueDate = new DateTime(2024, 2, 15),
-                FineAmount = 0
-            });
-
-            _loans.Add(new Loan
-            {
-                Id = _nextId++,
-                BookId = 2,
-                MemberId = 2,
-                LoanDate = new DateTime(2024, 1, 10),
-                DueDate = new DateTime(2024, 2, 10),
-                ReturnDate = new DateTime(2024, 2, 5),
-                FineAmount = 0
-            });
-
-            _loans.Add(new Loan
-            {
-                Id = _nextId++,
-                BookId = 3,
-                MemberId = 1,
-                LoanDate = new DateTime(2024, 1, 1),
-                DueDate = new DateTime(2024, 2, 1),
-                FineAmount = 5000 // 연체료
-            });
-        }
+        // ILoanRepository 인터페이스에 정의된 다른 메서드들도
+        // 위와 같은 방식으로 SQL 쿼리를 사용하여 구현해야 합니다.
     }
 }

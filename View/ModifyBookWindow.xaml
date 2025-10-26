@@ -33,6 +33,7 @@
 
             <!-- 이미지 경로 변환기 -->
             <local:ImagePathConverter x:Key="ImagePathConverter" />
+            <local:ImageByteArrayConverter x:Key="ImageByteArrayConverter" />
         </ResourceDictionary>
     </Window.Resources>
 
@@ -53,7 +54,7 @@
 
         <!-- Form -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel Height="893">
+            <StackPanel Height="auto">
                 <!-- 제목 -->
                 <TextBox x:Name="TitleTextBox"
                          Style="{DynamicResource MaterialDesignOutlinedTextBox}"
@@ -89,7 +90,7 @@
                 <!-- URL -->
                 <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                          mdi:HintAssist.Hint="도서 URL"
-                         Text="{Binding BookURL, UpdateSourceTrigger=PropertyChanged}"
+                         Text="{Binding BookUrl, UpdateSourceTrigger=PropertyChanged}"
                          Margin="0,0,0,16"
                          FontSize="16" />
                 <!-- 가격 -->
@@ -131,7 +132,7 @@
                         Background="LightGray"
                         Height="150"
                         Margin="0,0,0,16">
-                    <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}"
+                    <Image Source="{Binding BookImageBytes, Converter={StaticResource ImageByteArrayConverter}}"
                            Stretch="Uniform"
                            RenderOptions.BitmapScalingMode="HighQuality" />
                 </Border>
@@ -152,7 +153,7 @@
                         Style="{DynamicResource MaterialDesignRaisedButton}"
                         Width="100"
                         Height="40"
-                        Click="UpdateButton_Click" />
+                        Command="{Binding UpdateBookCommand}" />
             </StackPanel>
         </mdi:Card>
     </Grid>

@@ -71,7 +71,17 @@
                  Text="{Binding BookName}"
                  Margin="0,10,0,16"
                  FontSize="16" />
-
+                    <!-- 설명 -->
+                    <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
+                mdi:HintAssist.Hint="도서 설명"
+                Text="{Binding Description}"
+                Height="100"
+                TextWrapping="Wrap"
+                AcceptsReturn="True"
+                VerticalScrollBarVisibility="Auto"
+                Margin="0,0,0,16"
+                IsReadOnly="True"
+                FontSize="16" />
                     <!-- 저자 -->
                     <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                  mdi:HintAssist.Hint="저자"
@@ -112,18 +122,6 @@
                  Text="{Binding BookUrl}"
                  IsReadOnly="True"
                  Margin="0,0,0,16"
-                 FontSize="16" />
-
-                    <!-- 설명 -->
-                    <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
-                 mdi:HintAssist.Hint="도서 설명"
-                 Text="{Binding Description}"
-                 Height="100"
-                 TextWrapping="Wrap"
-                 AcceptsReturn="True"
-                 VerticalScrollBarVisibility="Auto"
-                 Margin="0,0,0,16"
-                 IsReadOnly="True"
                  FontSize="16" />
                 </StackPanel>
             </ScrollViewer>

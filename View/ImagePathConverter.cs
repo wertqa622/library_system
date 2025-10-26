@@ -19,7 +19,7 @@ namespace library_management_system
 
             string imagePath = value.ToString();
             System.Diagnostics.Debug.WriteLine($"이미지 경로: {imagePath}");
-            
+
             try
             {
                 // 상대 경로 처리
@@ -28,7 +28,7 @@ namespace library_management_system
                     // 현재 실행 디렉토리 기준으로 상대 경로 처리
                     string fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, imagePath);
                     System.Diagnostics.Debug.WriteLine($"전체 경로: {fullPath}");
-                    
+
                     if (File.Exists(fullPath))
                     {
                         System.Diagnostics.Debug.WriteLine($"이미지 파일 발견: {fullPath}");
@@ -80,33 +80,27 @@ namespace library_management_system
         {
             if (value == null)
             {
-                System.Diagnostics.Debug.WriteLine("이미지 바이트 배열이 null");
                 return null;
             }
 
             byte[] imageBytes = value as byte[];
             if (imageBytes == null || imageBytes.Length == 0)
             {
-                System.Diagnostics.Debug.WriteLine("이미지 바이트 배열이 비어있음");
                 return null;
             }
 
             try
             {
-                System.Diagnostics.Debug.WriteLine($"이미지 바이트 배열 길이: {imageBytes.Length}");
-                
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
                 bitmap.CacheOption = BitmapCacheOption.OnLoad;
                 bitmap.StreamSource = new MemoryStream(imageBytes);
                 bitmap.EndInit();
-                
-                System.Diagnostics.Debug.WriteLine("이미지 바이트 배열 변환 성공");
+
                 return bitmap;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"이미지 바이트 배열 변환 실패: {ex.Message}");
                 return null;
             }
         }
@@ -127,7 +121,7 @@ namespace library_management_system
             }
 
             string imagePath = value.ToString();
-            
+
             try
             {
                 if (!imagePath.StartsWith("/") && !Path.IsPathRooted(imagePath))
@@ -163,4 +157,4 @@ namespace library_management_system
             throw new NotImplementedException();
         }
     }
-} 
+}

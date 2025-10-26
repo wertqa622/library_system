@@ -37,6 +37,8 @@ namespace library_management_system.View
 
         private void bookinfo_close(object sender, RoutedEventArgs e)
         {
+            MainWindow main = System.Windows.Application.Current.MainWindow as MainWindow;
+            main.hdgd();
             this.Close();
         }
     }

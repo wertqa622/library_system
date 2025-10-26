@@ -51,9 +51,9 @@ namespace library_management_system
                 System.Windows.MessageBox.Show("도서를 선택해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
-
+            vbgd();
             Book_Info bookInfoWindow = new Book_Info(_mainViewModel.SelectedBook);
-            bookInfoWindow.Show();
+            bookInfoWindow.ShowDialog();
         }
 
         #endregion 도서 관리

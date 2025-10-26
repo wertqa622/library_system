@@ -70,6 +70,10 @@ namespace library_management_system.Repository
 
         public async Task<Book> UpdateBookAsync(Book book)
         {
+            if (book == null)
+                throw new ArgumentNullException(nameof(book));
+
+            
             const string sql = @"
                 UPDATE BOOK SET
                     BOOKIMAGE = :BookImage,
@@ -80,6 +84,12 @@ namespace library_management_system.Repository
                     PRICE = :Price,
                     BOOKURL = :BookUrl
                 WHERE ISBN = :ISBN";
+            
+            // BookImage가 null이면 빈 배열로 설정
+            if (book.BookImage == null)
+            {
+                book.BookImage = new byte[0];
+            }
             
             await _dbHelper.ExecuteAsync(sql, book);
             return book;

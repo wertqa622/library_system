@@ -74,6 +74,49 @@ namespace library_management_system
         }
     }
 
+    public class ImageByteArrayConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value == null)
+            {
+                System.Diagnostics.Debug.WriteLine("이미지 바이트 배열이 null");
+                return null;
+            }
+
+            byte[] imageBytes = value as byte[];
+            if (imageBytes == null || imageBytes.Length == 0)
+            {
+                System.Diagnostics.Debug.WriteLine("이미지 바이트 배열이 비어있음");
+                return null;
+            }
+
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"이미지 바이트 배열 길이: {imageBytes.Length}");
+                
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.StreamSource = new MemoryStream(imageBytes);
+                bitmap.EndInit();
+                
+                System.Diagnostics.Debug.WriteLine("이미지 바이트 배열 변환 성공");
+                return bitmap;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"이미지 바이트 배열 변환 실패: {ex.Message}");
+                return null;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class ImageVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

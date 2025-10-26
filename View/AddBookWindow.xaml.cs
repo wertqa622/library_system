@@ -1,12 +1,13 @@
 using System;
-using System.Collections.Generic;
-using System.Windows;
 using System;
-using Microsoft.Win32;
-using library_management_system.View;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Windows;
 using library_management_system.Models;
 using library_management_system.Repository;
+using library_management_system.View;
 using library_management_system.ViewModels;
+using Microsoft.Win32;
 using Application = System.Windows.Application;
 
 namespace library_management_system
@@ -17,25 +18,32 @@ namespace library_management_system
         private readonly MainViewModel _mainViewModel;
         private AddBookViewModel _viewModel;
 
-        public AddBookWindow(IBookRepository bookRepository, MainViewModel mainViewModel)
+        public AddBookWindow(ObservableCollection<Book> existingBooks, IBookRepository bookRepository)
         {
             InitializeComponent();
-            _bookRepository = bookRepository;
-            _mainViewModel = mainViewModel;
 
-            _viewModel = new AddBookViewModel();
+            _bookRepository = bookRepository ?? throw new ArgumentNullException(nameof(bookRepository));
+
+            // AddBookViewModel 생성 시 기존 도서 컬렉션과 Repository를 전달
+            _viewModel = new AddBookViewModel(existingBooks, _bookRepository);
             DataContext = _viewModel;
 
-            // 창이 로드될 때 첫 번째 입력 필드에 포커스
-            Loaded += (s, e) =>
-            {
-                // 제목 TextBox에 포커스
-                var titleTextBox = this.FindName("TitleTextBox") as System.Windows.Controls.TextBox;
-                titleTextBox?.Focus();
-            };
+            // ViewModel의 RequestClose 이벤트 구독
+            _viewModel.RequestClose += OnRequestClose;
         }
-
-        
+        private void OnRequestClose()
+        {
+            this.DialogResult = true; // 성공적으로 추가됨을 표시
+            this.Close();
+        }
+        protected override void OnClosed(EventArgs e)
+        {
+            if (_viewModel != null)
+            {
+                _viewModel.RequestClose -= OnRequestClose;
+            }
+            base.OnClosed(e);
+        }
 
         private void SelectImage_Click(object sender, RoutedEventArgs e)
         {
@@ -58,6 +66,19 @@ namespace library_management_system
 
                     // ViewModel에 경로 설정
                     _viewModel.ImagePath = destinationPath;
+
+                    // 이미지 파일을 바이트 배열로 변환하여 저장
+                    try
+                    {
+                        byte[] imageBytes = System.IO.File.ReadAllBytes(selectedFilePath);
+                        _viewModel.BookImageBytes = imageBytes;
+                        
+                        System.Diagnostics.Debug.WriteLine($"이미지 로드 완료: {selectedFilePath}, 크기: {imageBytes.Length} bytes");
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Windows.MessageBox.Show($"이미지 로드 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
             catch (Exception ex)
@@ -110,89 +131,7 @@ namespace library_management_system
 
         private async void AddButton_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                // 버튼 비활성화 (중복 클릭 방지)
-                var addButton = sender as System.Windows.Controls.Button;
-                var cancelButton = this.FindName("CancelButton") as System.Windows.Controls.Button;
-
-                if (addButton != null) addButton.IsEnabled = false;
-                if (cancelButton != null) cancelButton.IsEnabled = false;
-
-                // 입력 검증
-                if (string.IsNullOrWhiteSpace(_viewModel.Title))
-                {
-                    System.Windows.MessageBox.Show("도서 제목을 입력해주세요.", "입력 오류", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                if (string.IsNullOrWhiteSpace(_viewModel.Author))
-                {
-                    System.Windows.MessageBox.Show("저자를 입력해주세요.", "입력 오류", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                if (string.IsNullOrWhiteSpace(_viewModel.Publisher))
-                {
-                    System.Windows.MessageBox.Show("출판사를 입력해주세요.", "입력 오류", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                if (string.IsNullOrWhiteSpace(_viewModel.ISBN))
-                {
-                    System.Windows.MessageBox.Show("ISBN을 입력해주세요.", "입력 오류", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                // 가격 검증
-                if (_viewModel.Price < 0)
-                {
-                    System.Windows.MessageBox.Show("가격은 0 이상이어야 합니다.", "입력 오류", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                // 새 도서 객체 생성
-                var newBook = new Book
-                {
-                    ISBN = _viewModel.ISBN.Trim(),
-                    BookName = _viewModel.Title.Trim(),
-                    Author = _viewModel.Author.Trim(),
-                    Publisher = _viewModel.Publisher.Trim(),
-                    Price = _viewModel.Price,
-                    BookImage = new byte[0], // 이미지 파일을 바이트 배열로 변환 필요
-                    Description = _viewModel.Description?.Trim() ?? "",
-                    BookUrl = _viewModel.ImagePath?.Trim() ?? "",
-                    ImagePath = _viewModel.ImagePath?.Trim() ?? "", // UI용
-                    IsAvailable = true // 기본값으로 대여 가능 설정
-                };
-
-                // 도서 추가
-                var addedBook = await _bookRepository.AddBookAsync(newBook);
-
-                // 메인 뷰모델에 새 도서 추가
-                _mainViewModel.Books.Add(addedBook);
-
-                System.Windows.MessageBox.Show("도서가 성공적으로 추가되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
-                DialogResult = true;
-                if (Application.Current.MainWindow is MainWindow main)
-                {
-                    main.hdgd();
-                }
-                Close();
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show($"도서 추가 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                // 버튼 다시 활성화
-                var addButton = sender as System.Windows.Controls.Button;
-                var cancelButton = this.FindName("CancelButton") as System.Windows.Controls.Button;
-
-                if (addButton != null) addButton.IsEnabled = true;
-                if (cancelButton != null) cancelButton.IsEnabled = true;
-            }
+            
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
@@ -220,7 +159,34 @@ namespace library_management_system
         }
         private void wndqhr_click(object sender, RoutedEventArgs e)
         {
-            System.Windows.MessageBox.Show("이미 등록된 도서입니다", "오류");
+
+            if (this.DataContext is MainViewModel viewModel)
+            {
+
+                string _lsbn = GetNewIsbnFromUI();
+
+                bool isDuplicate = viewModel.Books.Any(book => book.ISBN == _lsbn);
+
+                // 4. 결과에 따라 사용자에게 알림을 줍니다.
+                if (isDuplicate)
+                {
+                    System.Windows.MessageBox.Show("이미 존재하는 ISBN입니다.", "중복 오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    System.Windows.MessageBox.Show("사용 가능한 ISBN입니다.", "확인 완료", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+        }
+
+
+        private string GetNewIsbnFromUI()
+        {
+            // 예를 들어, TextBox의 x:Name이 'isbnTextBox'인 경우
+            TextBox isbntxt = (TextBox)this.FindName("isbntxt");
+            return isbntxt?.Text;
+          
+            return "isbntxt";
         }
     }
 } 

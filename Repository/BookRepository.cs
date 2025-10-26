@@ -37,6 +37,11 @@ namespace library_management_system.Repository
 
         public async Task<Book> AddBookAsync(Book book)
         {
+            // 디버깅을 위한 로그
+            System.Diagnostics.Debug.WriteLine($"AddBookAsync - BookUrl: '{book.BookUrl}'");
+            System.Diagnostics.Debug.WriteLine($"AddBookAsync - ImagePath: '{book.ImagePath}'");
+            System.Diagnostics.Debug.WriteLine($"AddBookAsync - BookImage 길이: {book.BookImage?.Length ?? 0} bytes");
+            
             const string sql = @"
                 INSERT INTO BOOK (
                     ISBN,

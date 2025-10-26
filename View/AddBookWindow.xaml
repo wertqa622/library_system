@@ -7,8 +7,8 @@
         xmlns:mdi="http://materialdesigninxaml.net/winfx/xaml/themes"
         WindowStyle="None"
         mc:Ignorable="d"
-        Title="새 도서 추가" 
-        Height="600" 
+        Title="새 도서 추가"
+        Height="600"
         Width="500"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
@@ -20,12 +20,12 @@
         TextElement.FontFamily="{StaticResource DefaultFontFamily}"
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="Auto">
-    
+
     <Window.Resources>
         <ResourceDictionary>
-            <local:ImagePathConverter x:Key="ImagePathConverter"/>
+            <local:ImagePathConverter x:Key="ImagePathConverter" />
             <ResourceDictionary.MergedDictionaries>
-                
+
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.Teal.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Button.xaml" />
@@ -35,22 +35,22 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
-    
+
     <Grid Margin="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        
+
         <!-- Header -->
-        <mdi:Card Grid.Row="0" Padding="16" Margin="0,0,0,28" mdi:ElevationAssist.Elevation="Dp2">
+        <mdi:Card Grid.Row="0" Padding="16" Margin="0,0,0,36" mdi:ElevationAssist.Elevation="Dp2">
             <StackPanel Orientation="Horizontal">
-                <mdi:PackIcon Kind="BookPlus" Width="32" Height="32" VerticalAlignment="Center" Margin="0,0,16,0"/>
-                <TextBlock Text="새 도서 정보 입력" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
+                <mdi:PackIcon Kind="BookPlus" Width="32" Height="32" VerticalAlignment="Center" Margin="0,0,16,0" />
+                <TextBlock Text="새 도서 정보 입력" FontSize="20" FontWeight="Medium" VerticalAlignment="Center" />
             </StackPanel>
         </mdi:Card>
-        
+
         <!-- Form -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel>
@@ -60,48 +60,51 @@
                          mdi:HintAssist.Hint="도서 제목"
                          Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
                          Margin="0,0,0,16"
-                         FontSize="16"/>
-                
+                         FontSize="16" />
+
                 <!-- 저자 -->
                 <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                          mdi:HintAssist.Hint="저자"
                          Text="{Binding Author, UpdateSourceTrigger=PropertyChanged}"
                          Margin="0,0,0,16"
-                         FontSize="16"/>
-                
+                         FontSize="16" />
+
                 <!-- ISBN -->
                 <Grid>
-                    <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
-         mdi:HintAssist.Hint="ISBN"
-         Text="{Binding ISBN, UpdateSourceTrigger=PropertyChanged}"
-         Margin="0,0,107,16"
-         FontSize="16"/>
+                    <TextBox x:Name="isbntxt"
+                             Style="{DynamicResource MaterialDesignOutlinedTextBox}"
+                             mdi:HintAssist.Hint="ISBN"
+                             IsEnabled="{Binding CheckISBN}"
+                             Text="{Binding ISBN, UpdateSourceTrigger=PropertyChanged}"
+                             Margin="0,0,107,16"
+                             FontSize="16" />
                     <Button Margin="341,16,10,31"
                             Content="중복확인"
-                            Click="wndqhr_click"
-                            Style="{DynamicResource MaterialDesignRaisedButton}">                   
+                            Command="{Binding CheckIsbnCommand}"
+                            Style="{DynamicResource MaterialDesignRaisedButton}">
                     </Button>
                 </Grid>
-                
-                
+
                 <!-- 출판사 -->
                 <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                          mdi:HintAssist.Hint="출판사"
                          Text="{Binding Publisher, UpdateSourceTrigger=PropertyChanged}"
                          Margin="0,0,0,16"
-                         FontSize="16"/>
-                
-                
-                
-                
-                
+                         FontSize="16" />
+
                 <!-- 가격 -->
                 <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                          mdi:HintAssist.Hint="가격"
                          Text="{Binding Price, UpdateSourceTrigger=PropertyChanged}"
                          Margin="0,0,0,16"
-                         FontSize="16"/>
-                
+                         FontSize="16" />
+                <!-- URL -->
+                <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
+                         mdi:HintAssist.Hint="도서 URL"
+                         Text="{Binding BookURL, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,0,16"
+                         FontSize="16" />
+
                 <!-- 설명 -->
                 <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                          mdi:HintAssist.Hint="도서 설명"
@@ -111,52 +114,51 @@
                          AcceptsReturn="True"
                          VerticalScrollBarVisibility="Auto"
                          Margin="0,0,0,16"
-                         FontSize="16"/>
+                         FontSize="16" />
 
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                    <Button Content="이미지 선택" 
+                    <Button Content="이미지 선택"
             Style="{DynamicResource MaterialDesignOutlinedButton}"
-            Width="120" 
-            Height="40" 
+            Width="120"
+            Height="40"
             Margin="0,0,16,0"
-            Click="SelectImage_Click"/>
-                    <TextBlock Text="{Binding ImagePath}" 
-               VerticalAlignment="Center" 
+            Click="SelectImage_Click" />
+                    <TextBlock Text="{Binding ImagePath}"
+               VerticalAlignment="Center"
                Foreground="Gray"
                TextTrimming="CharacterEllipsis"
-               MaxWidth="200"/>
+               MaxWidth="200" />
                 </StackPanel>
 
                 <!-- 이미지 미리보기 -->
-                <Border BorderBrush="Gray" 
-        BorderThickness="1" 
+                <Border BorderBrush="Gray"
+        BorderThickness="1"
         Background="LightGray"
-        Height="150" 
+        Height="150"
         Margin="0,0,0,16">
-                    <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}" 
+                    <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}"
            Stretch="Uniform"
-           RenderOptions.BitmapScalingMode="HighQuality"/>
+           RenderOptions.BitmapScalingMode="HighQuality" />
                 </Border>
-
-
             </StackPanel>
         </ScrollViewer>
-        
+
         <!-- Buttons -->
         <mdi:Card Grid.Row="2" Padding="16" Margin="0,20,0,0" mdi:ElevationAssist.Elevation="Dp2">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button x:Name="CancelButton"
-                        Content="취소" 
+                        Content="취소"
                         Style="{DynamicResource MaterialDesignOutlinedButton}"
-                        Width="100" 
-                        Height="40" 
-                        Margin="0,0,16,0"
-                        Click="CancelButton_Click"/>
-                <Button Content="추가" 
-                        Style="{DynamicResource MaterialDesignRaisedButton}"
-                        Width="100" 
+                        Width="100"
                         Height="40"
-                        Click="AddButton_Click"/>
+                        Margin="0,0,16,0"
+                        Click="CancelButton_Click" />
+                <Button Content="추가"
+                        Style="{DynamicResource MaterialDesignRaisedButton}"
+                        Width="100"
+                        Height="40"
+                        Command ="{Binding AddBookCommand}"
+                        Click="AddButton_Click" />
             </StackPanel>
         </mdi:Card>
     </Grid>

@@ -3,6 +3,7 @@ using library_management_system.Repository;
 using library_management_system.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,13 +23,18 @@ namespace library_management_system.View
     /// </summary>
     public partial class AddMemberWindow : Window
     {
-        private readonly MemberRepository _MemberRepository;
+        private readonly IMemberRepository _MemberRepository;
         private AddMemberViewModel _viewModel;
-        private readonly MainViewModel _mainViewModel;
 
-        public AddMemberWindow()
+        public AddMemberWindow(ObservableCollection<Member> existingMembers, IMemberRepository memberRepository)
         {
             InitializeComponent();
+            
+            _MemberRepository = memberRepository ?? throw new ArgumentNullException(nameof(memberRepository));
+            
+            // AddMemberViewModel 생성 시 기존 멤버 컬렉션과 Repository를 전달
+            _viewModel = new AddMemberViewModel(existingMembers, _MemberRepository);
+            DataContext = _viewModel;
         }
 
         private void wndqhr_click(object sender, RoutedEventArgs e)
@@ -73,8 +79,8 @@ namespace library_management_system.View
                 // 멤버 추가
                 var addedmember = await _MemberRepository.AddMemberAsync(newmember);
 
-                // 메인 뷰모델에 새 도서 추가
-                _mainViewModel.Members.Add(addedmember);
+                // ViewModel의 멤버 컬렉션에 새 멤버 추가
+                _viewModel.Members.Add(addedmember);
 
                 System.Windows.MessageBox.Show("도서가 성공적으로 추가되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
                 DialogResult = true;

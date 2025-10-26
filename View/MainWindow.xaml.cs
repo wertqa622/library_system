@@ -1,20 +1,8 @@
-﻿using System.Text;
-using System;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
 using library_management_system.Repository;
-using library_management_system;
 using library_management_system.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using library_management_system.View;
-using System.Threading.Tasks;
 
 namespace library_management_system
 {
@@ -39,44 +27,10 @@ namespace library_management_system
 
             // ViewModel 초기화 및 DataContext 설정
             _mainViewModel = new MainViewModel(_bookRepository, _memberRepository, _loanRepository);
-            DataContext = _mainViewModel;            
+            DataContext = _mainViewModel;
         }
-
-        
 
         #region 도서 관리
-
-        private void Add_book(object sender, RoutedEventArgs e)
-        {
-            var addBookWindow = new AddBookWindow(_bookRepository, _mainViewModel);
-            addBookWindow.Owner = this;
-            vbgd();
-            addBookWindow.ShowDialog();
-        }
-
-        private void Modify_book(object sender, RoutedEventArgs e)
-        {
-            if (_mainViewModel.SelectedBook == null)
-            {
-                System.Windows.MessageBox.Show("수정할 도서를 먼저 선택하세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-            var modedifyBookWindow = new ModifyBookWindow(_bookRepository, _mainViewModel, _mainViewModel.SelectedBook);
-            vbgd();
-            modedifyBookWindow.ShowDialog();
-        }
-
-        private void Delete_book(object sender, RoutedEventArgs e)
-        {
-            if (_mainViewModel.SelectedBook == null)
-            {
-                System.Windows.MessageBox.Show("삭제할 도서를 먼저 선택하세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-
-            // MainViewModel의 DeleteBook 메서드 호출 (확인 대화상자 포함)
-            _mainViewModel.DeleteBookCommand.Execute(null);
-        }
 
         private void Search_book(object sender, RoutedEventArgs e)
         {
@@ -92,8 +46,14 @@ namespace library_management_system
 
         private void Info_click(object sender, RoutedEventArgs e)
         {
-            Book_Info a = new Book_Info();
-            a.Show();
+            if (_mainViewModel.SelectedBook == null)
+            {
+                System.Windows.MessageBox.Show("도서를 선택해주세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            Book_Info bookInfoWindow = new Book_Info(_mainViewModel.SelectedBook);
+            bookInfoWindow.Show();
         }
 
         #endregion 도서 관리
@@ -113,9 +73,9 @@ namespace library_management_system
 
         private void Add_Member(object sender, RoutedEventArgs e)
         {
-            AddBookWindow addbook = new AddBookWindow(_bookRepository, _mainViewModel);
+            AddMemberWindow addMember = new AddMemberWindow(_mainViewModel.Members, _memberRepository);
             vbgd();
-            addbook.ShowDialog();
+            addMember.ShowDialog();
         }
 
         private void ResignedMember_Click(object sender, RoutedEventArgs e)
@@ -172,10 +132,5 @@ namespace library_management_system
         }
 
         #endregion 화면 부가적 기능 메서드
-
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-
-        }
     }
 }

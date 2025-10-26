@@ -80,22 +80,35 @@
                 <Grid>
                     <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                         mdi:HintAssist.Hint="ISBN"
+                        IsEnabled="False"
                         Text="{Binding ISBN, UpdateSourceTrigger=PropertyChanged}"
-                        Margin="0,0,122,16"
+                        Margin="0,0,0,16"
                         FontSize="16" />
-                    <Button Margin="326,28,10,43"
-                   Content="중복확인"
-                   Click="wndqhr_click"
-                   Style="{DynamicResource MaterialDesignRaisedButton}">
-                    </Button>
                 </Grid>
 
+                <!-- URL -->
+                <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
+                         mdi:HintAssist.Hint="도서 URL"
+                         Text="{Binding BookURL, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,0,16"
+                         FontSize="16" />
                 <!-- 가격 -->
                 <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                          mdi:HintAssist.Hint="가격"
                          Text="{Binding Price, UpdateSourceTrigger=PropertyChanged}"
                          Margin="0,0,0,20"
                          FontSize="16" />
+
+                <!-- 도서 설명 -->
+                <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
+          mdi:HintAssist.Hint="도서 설명"
+          Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+          Height="100"
+          TextWrapping="Wrap"
+          AcceptsReturn="True"
+          VerticalScrollBarVisibility="Auto"
+          Margin="0,0,0,16"
+          FontSize="16" />
 
                 <!-- 이미지 선택 -->
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
@@ -122,17 +135,6 @@
                            Stretch="Uniform"
                            RenderOptions.BitmapScalingMode="HighQuality" />
                 </Border>
-
-                <!-- 도서 설명 -->
-                <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
-                         mdi:HintAssist.Hint="도서 설명"
-                         Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
-                         Height="100"
-                         TextWrapping="Wrap"
-                         AcceptsReturn="True"
-                         VerticalScrollBarVisibility="Auto"
-                         Margin="0,0,0,16"
-                         FontSize="16" />
             </StackPanel>
         </ScrollViewer>
 

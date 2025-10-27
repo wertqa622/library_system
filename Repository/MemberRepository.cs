@@ -21,9 +21,8 @@ namespace library_management_system.Repository
 
         public async Task<IEnumerable<Member>> GetAllMembersAsync()
         {
-            const string sql = @"SELECT * FROM MEMBER ORDER BY NAME";
-            var Member = await _dbHelper.QueryAsync<Member>(sql);
-            return Member;
+            string sql = "SELECT MEMBERID AS Id, NAME, EMAIL, PHONENUMBER AS Phone, BIRTHDATE AS Birthdaydate, GENDER FROM MEMBER WHERE WITHDRAWALSTATUS = 'N' ORDER BY NAME";
+            return await _dbHelper.QueryAsync<Member>(sql);
         }
 
         public Task<Member> GetMemberByIdAsync(int id)
@@ -43,7 +42,7 @@ namespace library_management_system.Repository
             if (string.IsNullOrWhiteSpace(searchTerm))
                 return GetAllMembersAsync();
 
-            var results = _members.Where(m => 
+            var results = _members.Where(m =>
                 m.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                 m.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                 m.Phone.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
@@ -94,6 +93,29 @@ namespace library_management_system.Repository
         {
             // 실제로는 LoanRepository에서 가져와야 하지만, 여기서는 0으로 반환
             return Task.FromResult(0);
+        }
+
+        // 실제 DB에서 대출 중인 회원만 불러오기
+        public async Task<IEnumerable<Member>> GetMembersWithActiveLoansAsync()
+        {
+            const string sql = @"
+                    SELECT DISTINCT
+                        m.MEMBERID AS Id,
+                        m.NAME AS Name,
+                        m.BIRTHDATE AS Birthdaydate,
+                        m.EMAIL AS Email,
+                        m.PHONENUMBER AS Phone,
+                        m.GENDER AS Gender
+                    FROM MEMBER m
+                    JOIN LOAN l ON m.PHONENUMBER = l.PHONENUMBER
+                    WHERE l.RETURNDATE IS NULL";
+
+            var members = await _dbHelper.QueryAsync<Member>(sql);
+
+            // 디버깅용 메시지 — 실제 데이터가 로드되는지 확인
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] 조회된 회원 수: {members.Count()}");
+
+            return members;
         }
 
         private void InitializeSampleData()

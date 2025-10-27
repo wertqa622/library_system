@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using library_management_system.DataBase;
 using library_management_system.Models;
+using library_management_system.ViewModels;
 
 namespace library_management_system.Repository
 {
@@ -198,6 +199,51 @@ namespace library_management_system.Repository
             return currentLoanCount < maxLoans;
         }
 
+        // 회원 정보 + 대출 정보를 함께 조회 (반납되지 않은 건만)
+        public async Task<IEnumerable<Loan>> GetUnreturnedLoansAsync()
+        {
+            const string sql = @"
+        SELECT
+            l.LOAN_ID AS LoanId,
+            l.PHONENUMBER AS PhoneNumber,
+            l.ISBN AS Isbn,
+            l.LOANDATE AS LoanDate,
+            l.DUEDATE AS DueDate,
+            l.RETURNDATE AS ReturnDate
+        FROM LOAN l
+        WHERE l.RETURNDATE IS NULL";
+
+            return await _dbHelper.QueryAsync<Loan>(sql);
+        }
+
+        public async Task<IEnumerable<LoanBookViewModel>> GetActiveLoansByPhoneAsync(string phoneNumber)
+        {
+            const string sql = @"
+        SELECT
+            l.LOAN_ID AS LoanId,
+            b.ISBN AS Isbn,
+            b.BOOKNAME AS BookName,
+            b.AUTHOR AS Author,
+            l.LOANDATE AS LoanDate,
+            l.DUEDATE AS DueDate
+        FROM LOAN l
+        JOIN BOOK b ON l.ISBN = b.ISBN
+        WHERE l.PHONENUMBER = :PhoneNumber
+          AND l.RETURNDATE IS NULL";
+
+            return await _dbHelper.QueryAsync<LoanBookViewModel>(sql, new { PhoneNumber = phoneNumber });
+        }
+
+        public async Task<bool> ReturnBookAsync(int loanId)
+        {
+            const string sql = @"
+        UPDATE LOAN
+        SET RETURNDATE = SYSDATE
+        WHERE LOAN_ID = :LoanId";
+
+            int result = await _dbHelper.ExecuteAsync(sql, new { LoanId = loanId });
+            return result > 0;
+        }
         // ILoanRepository 인터페이스에 정의된 다른 메서드들도
         // 위와 같은 방식으로 SQL 쿼리를 사용하여 구현해야 합니다.
     }

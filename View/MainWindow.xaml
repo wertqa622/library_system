@@ -480,7 +480,22 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
+                            <ToggleButton Content="도서 대출"
+                                          Click="loan_book"
+                                          Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                          Width="120"
+                                          Height="36"
+                                          Margin="0,0,8,0"
+                                          mdi:ButtonAssist.CornerRadius="4" Cursor="Hand" />
+                            <ToggleButton Content="도서 반납"
+                                          Click="return_member"
+                                          Style="{DynamicResource MaterialDesignOutlinedButton}"
+                                          Width="120"
+                                          Height="36"
+                                          Margin="0,0,8,0"
+                                          mdi:ButtonAssist.CornerRadius="4" Cursor="Hand" />
+                            </StackPanel>
                             <Grid x:Name="loangd" Grid.Row="1" Margin="0,0,20,0">
                             </Grid>
                         </Grid>

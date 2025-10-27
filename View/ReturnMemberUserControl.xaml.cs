@@ -1,5 +1,6 @@
-﻿using library_management_system.DataBase;
-using library_management_system.View;
+﻿using library_management_system.Models;
+using library_management_system.Repository;
+using library_management_system.ViewModel;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -24,53 +25,55 @@ namespace library_management_system.View
     /// </summary>
     public partial class ReturnMemberUserControl : System.Windows.Controls.UserControl
     {
-        private readonly OracleDapperHelper _dbHelper;
-        public ObservableCollection<dynamic> Loans { get; set; }
+        private readonly IMemberRepository _memberRepository;
 
-        public ReturnMemberUserControl(OracleDapperHelper dbHelper = null)
+        // 대출 중인 회원 목록
+        public ObservableCollection<Member> Members { get; set; }
+
+        public ReturnMemberUserControl()
         {
             InitializeComponent();
 
-            _dbHelper = App.AppHost!.Services.GetRequiredService<OracleDapperHelper>();
+            _memberRepository = App.AppHost!.Services.GetRequiredService<IMemberRepository>();
 
-            Loans = new ObservableCollection<dynamic>();
+            Members = new ObservableCollection<Member>();
+
             this.DataContext = this;
-
-            LoadLoanMembers(); // 데이터를 따로 로드
         }
 
-        private void LoadLoanMembers()
+        // 컨트롤이 로드될 때 대출 중인 회원 목록 불러오기
+        private async void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            string sql = @"
-                SELECT 
-                    NAME AS Name,
-                    EMAIL AS Email,
-                    PHONENUMBER AS PhoneNumber,
-                    BIRTHDATE AS Birthdate,
-                    GENDER AS Gender
-                FROM MEMBER
-                WHERE LOANSTATUS = 'A'
-                ORDER BY NAME";
+            Members.Clear();
 
-            var members = _dbHelper.Query<dynamic>(sql).ToList();
+            var membersFromDb = await _memberRepository.GetMembersWithActiveLoansAsync();
 
-            Loans.Clear();
-            foreach (var m in members)
+            //System.Windows.MessageBox.Show($"조회된 회원 수: {membersFromDb.Count()}");
+
+            foreach (var member in membersFromDb)
             {
-                Loans.Add(m);
+                Members.Add(member);
             }
         }
 
-        private void return_click(object sender, RoutedEventArgs e)
+        // 선택된 회원의 대출 도서 목록 창 띄우기
+        private void Return_Click(object sender, RoutedEventArgs e)
         {
-            dynamic selectedMember = (sender as FrameworkElement)?.DataContext;
+            var selectedMember = (sender as FrameworkElement)?.DataContext as Member;
             if (selectedMember == null) return;
 
-            string phoneNumber = selectedMember.PhoneNumber; // SQL에서 PHONENUMBER AS Number로 가져왔기 때문
+            Loan_Book window = new Loan_Book(selectedMember.Phone);
 
-            // Loan_Book 생성자도 string phoneNumber를 받도록 구성되어 있어야 함
-            Loan_Book a = new Loan_Book(phoneNumber, _dbHelper);
-            a.Show();
+            // Loan_Book 창에서 도서 반납 완료 시 이벤트 수신
+            window.BookListChanged += async (s, phoneNumber) =>
+            {
+                // DB에서 최신 대출 중 회원 목록 다시 조회
+                var membersFromDb = await _memberRepository.GetMembersWithActiveLoansAsync();
+                Members.Clear();
+                foreach (var member in membersFromDb)
+                    Members.Add(member);
+            };
+            window.ShowDialog();
         }
     }
 }

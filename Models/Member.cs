@@ -13,5 +13,6 @@ namespace library_management_system.Models
         public DateTime RegistrationDate { get; set; } = DateTime.Now;
         public bool IsActive { get; set; } = true;
         public int MaxBooksAllowed { get; set; } = 5;
+        public string Gender { get; set; } = string.Empty;
     }
 }

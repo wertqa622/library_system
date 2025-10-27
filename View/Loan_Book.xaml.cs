@@ -1,9 +1,12 @@
 ﻿using library_management_system.DataBase;
 using library_management_system.Models;
-using library_management_system.ViewModel;
+using library_management_system.Repository;
+using library_management_system.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,71 +27,80 @@ namespace library_management_system.View
     /// </summary>
     public partial class Loan_Book : Window
     {
-        private readonly OracleDapperHelper _dbHelper;
+        private readonly ILoanRepository _loanRepository;
         private readonly string _phoneNumber;
+        public ObservableCollection<LoanBookViewModel> Books { get; set; }
 
-        public Loan_Book(string phoneNumber, OracleDapperHelper dbHelper)
+        // 반납 완료 후 상위 창에 갱신 요청 이벤트
+        public event EventHandler<string>? BookListChanged;
+
+        public Loan_Book(string phoneNumber)
         {
             InitializeComponent();
-            _dbHelper = dbHelper;
+            _loanRepository = App.AppHost!.Services.GetRequiredService<ILoanRepository>();
             _phoneNumber = phoneNumber;
-            LoadLoanBooks();
+            Books = new ObservableCollection<LoanBookViewModel>();
+            this.DataContext = this;
         }
 
-        private void LoadLoanBooks()
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            string sql = @"
-                SELECT 
-                    l.LOAN_ID AS LoanId,
-                    b.BOOKIMAGE AS BookImage,
-                    b.ISBN AS ISBN,
-                    b.BOOKNAME AS BookName,
-                    b.PUBLISHER AS Publisher,
-                    b.AUTHOR AS Author,
-                    l.LOANDATE AS LoanDate,
-                    l.DUEDATE AS DueDate
-                FROM LOAN l
-                JOIN BOOK b ON l.ISBN = b.ISBN
-                JOIN MEMBER m ON l.PHONENUMBER = m.PHONENUMBER
-                WHERE l.PHONENUMBER = :phoneNumber";
+            await LoadLoanBooksAsync();
+        }
 
-            var loanBooks = _dbHelper.Query<dynamic>(sql, new { phoneNumber = _phoneNumber });
-            LoanBooksGrid.ItemsSource = new List<dynamic>(loanBooks);
+        private async Task LoadLoanBooksAsync()
+        {
+            Books.Clear();
+            var booksFromDb = await _loanRepository.GetActiveLoansByPhoneAsync(_phoneNumber);
+            // null 확인 추가
+            if (booksFromDb == null)
+            {
+                System.Windows.MessageBox.Show("조회된 도서가 없습니다.");
+                return;
+            }
+
+            foreach (var item in booksFromDb)
+            {
+                if (item != null)  // 혹시라도 null인 경우 방지
+                    Books.Add(item);
+            }
+
+            //System.Windows.MessageBox.Show($"조회된 도서 수: {Books.Count}");
+        }
+
+        // 반납 버튼 클릭
+        private async void ReturnBook_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as FrameworkElement;
+            var selectedBook = button?.DataContext as LoanBookViewModel;
+
+            if (selectedBook == null)
+            {
+                System.Windows.MessageBox.Show("선택된 도서 정보가 없습니다.");
+                return;
+            }
+
+            bool result = await _loanRepository.ReturnBookAsync(selectedBook.LoanId);
+
+            if (result)
+            {
+                System.Windows.MessageBox.Show($"도서 '{selectedBook.BookName}'이(가) 반납되었습니다.");
+                // DB에서 최신 데이터 다시 불러오기
+                await LoadLoanBooksAsync();
+
+                // 책이 하나도 남지 않으면 상위 창에 알림
+                if (Books.Count == 0)
+                    BookListChanged?.Invoke(this, _phoneNumber);
+            }
+            else
+            {
+                 System.Windows.MessageBox.Show("반납 처리 중 오류가 발생했습니다.");
+            }
         }
 
         private void loanbook_close(object sender, RoutedEventArgs e)
         {
             this.Close();
-        }
-
-        private void returnbook_Click(object sender, RoutedEventArgs e)
-        {
-            var button = sender as System.Windows.Controls.Button;
-            dynamic selectedBook = button?.DataContext;
-
-            if (selectedBook == null)
-            {
-                System.Windows.MessageBox.Show("선택된 도서 정보를 불러올 수 없습니다.");
-                return;
-            }
-
-            try
-            {
-                // DB에서 해당 대출 데이터 삭제
-                string sql = "DELETE FROM LOAN WHERE LOAN_ID = :LoanId";
-                _dbHelper.Execute(sql, new { LoanId = selectedBook.LoanId });
-
-                // 현재 UI 데이터에서 제거
-                var list = LoanBooksGrid.ItemsSource as List<dynamic>;
-                list?.Remove(selectedBook);
-                LoanBooksGrid.Items.Refresh();
-
-                System.Windows.MessageBox.Show("도서가 반납되었습니다.");
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show($"반납 처리 중 오류가 발생했습니다.\n{ex.Message}");
-            }
         }
     }
 }

@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using library_management_system.Models;
+using library_management_system.ViewModels;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using library_management_system.Models;
 
 namespace library_management_system.Repository
 {
@@ -34,6 +35,10 @@ namespace library_management_system.Repository
 
         // 특정 책이 대출 가능한 상태인지 확인 (BookId -> Isbn)
         Task<bool> IsBookAvailableAsync(string isbn);
+
+        Task<bool> ReturnBookAsync(int loanId);
+
+        Task<IEnumerable<LoanBookViewModel>> GetActiveLoansByPhoneAsync(string phoneNumber);
 
         // --- 아래는 필요에 따라 구현할 수 있는 메서드들입니다 ---
         // Task<Loan> GetLoanByIdAsync(int loanId);

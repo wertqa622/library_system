@@ -34,5 +34,10 @@ namespace library_management_system.ViewModels
         {
             _execute(parameter);
         }
+
+        public void RaiseCanExecuteChanged()
+        {
+            CommandManager.InvalidateRequerySuggested();
+        }
     }
 } 

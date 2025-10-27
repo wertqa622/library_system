@@ -39,10 +39,6 @@ namespace library_management_system
         {
         }
 
-        private void Refresh(object sender, RoutedEventArgs e)
-        {
-        }
-
         private void Search_member(object sender, RoutedEventArgs e)
         {
         }
@@ -93,23 +89,7 @@ namespace library_management_system
 
         #endregion 대출관리
 
-        #region 고객 관리
 
-        private void Add_Member(object sender, RoutedEventArgs e)
-        {
-            AddMemberWindow addMember = new AddMemberWindow(_mainViewModel.Members, _memberRepository);
-            vbgd();
-            addMember.ShowDialog();
-        }
-
-        private void ResignedMember_Click(object sender, RoutedEventArgs e)
-        {
-            ResignedMemberWindow aaa = new ResignedMemberWindow();
-            vbgd();
-            aaa.ShowDialog();
-        }
-
-        #endregion 고객 관리
 
         #region 대출관리
 
@@ -141,18 +121,6 @@ namespace library_management_system
         public void hdgd()
         {
             hiddengd.Visibility = Visibility.Collapsed;
-        }
-
-        private void Modify_Member(object sender, RoutedEventArgs e)
-        {
-            if (_mainViewModel.SelectedMember == null)
-            {
-                System.Windows.MessageBox.Show("수정할 회원을 먼저 선택하세요.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
-                return;
-            }
-            var modedifyMemberWindow = new ModifyMemberWindow();
-            vbgd();
-            modedifyMemberWindow.ShowDialog();
         }
 
         #endregion 화면 부가적 기능 메서드

@@ -7,6 +7,7 @@ using library_management_system.Models;
 using library_management_system.ViewModels;
 using Application = System.Windows.Application;
 using library_management_system.Repository;
+using MessageBox = System.Windows.MessageBox;
 
 namespace library_management_system
 {
@@ -26,7 +27,7 @@ namespace library_management_system
 
             _viewModel = new ModifyBookViewModel(bookToEdit, bookRepository);
             DataContext = _viewModel;
-            
+
             // ViewModel의 RequestClose 이벤트 구독
             _viewModel.RequestClose += OnRequestClose;
 
@@ -142,7 +143,6 @@ namespace library_management_system
             }
         }
 
-
         private void wndqhr_click(object sender, RoutedEventArgs e)
         {
             System.Windows.MessageBox.Show("이미 등록된 도서입니다.", "오류");
@@ -156,6 +156,42 @@ namespace library_management_system
             }
             DialogResult = false;
             Close();
+        }
+
+        private void SelectPhoto_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
+                openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif|All Files|*.*";
+                openFileDialog.Title = "사진 선택";
+
+                if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    string selectedFilePath = openFileDialog.FileName;
+
+                    // 선택된 이미지를 Images/members 폴더로 복사
+                    string destinationPath = CopyImageToProjectFolder(selectedFilePath);
+
+                    // ViewModel에 경로 설정
+                    _viewModel.ImagePath = destinationPath;
+
+                    // 이미지 파일을 바이트 배열로 변환하여 저장
+                    try
+                    {
+                        byte[] imageBytes = System.IO.File.ReadAllBytes(selectedFilePath);
+                        _viewModel.PhotoBytes = imageBytes;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"이미지 로드 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"사진 선택 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         // ESC 키로 창 닫기

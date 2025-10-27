@@ -157,4 +157,21 @@ namespace library_management_system
             throw new NotImplementedException();
         }
     }
+
+    public class BooleanToLoanStatusConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool loanStatus)
+            {
+                return loanStatus ? "대출 가능" : "대출 불가";
+            }
+            return "대출 불가";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

@@ -22,6 +22,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <local:ImagePathConverter x:Key="ImagePathConverter" />
+            <local:ImageByteArrayConverter x:Key="ImageByteArrayConverter" />
             <ResourceDictionary.MergedDictionaries>
 
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
@@ -53,69 +54,60 @@
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel>
                 <!-- 이름 -->
-                <TextBox x:Name="TitleTextBox"
+                <TextBox x:Name="NameTextBox"
                          Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                          mdi:HintAssist.Hint="회원 이름"
-                         Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
-                         Margin="0,0,0,16"
+                         Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,16,0,16"
                          FontSize="16" />
 
                 <!-- 생년월일 -->
                 <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                          mdi:HintAssist.Hint="생년월일"
-                         Text="{Binding Author, UpdateSourceTrigger=PropertyChanged}"
-                         Margin="0,0,0,16"
-                         FontSize="16" />
-                <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
-                         mdi:HintAssist.Hint="성별"
-                         Text="{Binding Author, UpdateSourceTrigger=PropertyChanged}"
+                         Text="{Binding Birthdaydate, UpdateSourceTrigger=PropertyChanged}"
                          Margin="0,0,0,16"
                          FontSize="16" />
 
-                <!-- 전번 -->
-                <Grid>
-                    <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
-                         mdi:HintAssist.Hint="전화번호"
-                         Text="{Binding ISBN, UpdateSourceTrigger=PropertyChanged}"
-                         Margin="0,0,107,16"
+                <!-- 성별 -->
+                <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
+                         mdi:HintAssist.Hint="성별"
+                         Text="{Binding Gender, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,0,16"
                          FontSize="16" />
-                    <Button Margin="341,16,10,31"
-                            Content="중복확인"
-                            Click="wndqhr_click"
-                            Style="{DynamicResource MaterialDesignRaisedButton}">
-                    </Button>
-                </Grid>
+
+                <!-- 전화번호 -->
+                <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
+                         mdi:HintAssist.Hint="전화번호"
+                         Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,0,16"
+                         FontSize="16" />
 
                 <!-- 이메일 -->
                 <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                          mdi:HintAssist.Hint="이메일 주소"
-                         Text="{Binding Publisher, UpdateSourceTrigger=PropertyChanged}"
+                         Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
                          Margin="0,0,0,16"
                          FontSize="16" />
 
+                <!-- 사진 선택 -->
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                    <Button Content="이미지 선택"
-            Style="{DynamicResource MaterialDesignOutlinedButton}"
-            Width="120"
-            Height="40"
-            Margin="0,0,16,0"
-            Click="SelectImage_Click" />
-                    <TextBlock Text="{Binding ImagePath}"
-               VerticalAlignment="Center"
-               Foreground="Gray"
-               TextTrimming="CharacterEllipsis"
-               MaxWidth="200" />
+                    <Button Content="사진 선택"
+                            Style="{DynamicResource MaterialDesignOutlinedButton}"
+                            Width="120"
+                            Height="40"
+                            Margin="0,0,16,0"
+                            Click="SelectPhoto_Click" />
                 </StackPanel>
 
-                <!-- 이미지 미리보기 -->
+                <!-- 사진 미리보기 -->
                 <Border BorderBrush="Gray"
-        BorderThickness="1"
-        Background="LightGray"
-        Height="150"
-        Margin="0,0,0,16">
-                    <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}"
-           Stretch="Uniform"
-           RenderOptions.BitmapScalingMode="HighQuality" />
+                        BorderThickness="1"
+                        Background="LightGray"
+                        Height="150"
+                        Margin="0,0,0,16">
+                    <Image Source="{Binding PhotoBytes, Converter={StaticResource ImageByteArrayConverter}}"
+                           Stretch="Uniform"
+                           RenderOptions.BitmapScalingMode="HighQuality" />
                 </Border>
             </StackPanel>
         </ScrollViewer>
@@ -134,7 +126,7 @@
                         Style="{DynamicResource MaterialDesignRaisedButton}"
                         Width="100"
                         Height="40"
-                        Click="AddButton_Click" />
+                        Command="{Binding UpdateMemberCommand}" />
             </StackPanel>
         </mdi:Card>
     </Grid>

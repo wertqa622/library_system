@@ -38,8 +38,8 @@
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" MinHeight="100" />
+            <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
@@ -52,15 +52,15 @@
         </mdi:Card>
 
         <!-- Form -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel>
+        <ScrollViewer Grid.Row="1" Margin="0,10,0,0" VerticalScrollBarVisibility="Auto">
+            <StackPanel Height="976">
                 <!-- 제목 -->
                 <TextBox x:Name="TitleTextBox"
                          Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                          mdi:HintAssist.Hint="도서 제목"
                          Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
-                         Margin="0,0,0,16"
-                         FontSize="16" />
+                         Margin="0,10,0,16"
+                         FontSize="16" Height="90" />
 
                 <!-- 저자 -->
                 <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"

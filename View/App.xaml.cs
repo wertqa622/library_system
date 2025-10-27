@@ -34,6 +34,7 @@ namespace library_management_system
                     });
 
                     services.AddScoped<IUnitOfWork, UnitOfWork>();
+                    services.AddScoped<IReturnRepository, ReturnRepository>();
 
                     services.AddScoped<IBookRepository, BookRepository>();
                     services.AddScoped<IMemberRepository, MemberRepository>();

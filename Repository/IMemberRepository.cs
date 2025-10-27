@@ -15,5 +15,6 @@ namespace library_management_system.Repository
         Task<bool> DeleteMemberAsync(int id);
         Task<bool> IsMemberActiveAsync(int id);
         Task<int> GetCurrentLoanCountAsync(int memberId);
+        Task<IEnumerable<Member>> GetMembersWithActiveLoansAsync();
     }
 }

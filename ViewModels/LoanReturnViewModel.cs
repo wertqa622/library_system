@@ -12,7 +12,7 @@ namespace library_management_system.ViewModel
 {
     public class LoanReturnViewModel : INotifyPropertyChanged
     {
-        public ObservableCollection<LoanBookInfo> Books { get; } = new ObservableCollection<LoanBookInfo>();
+        public ObservableCollection<LoanBookInfo> Books { get; } = new();
 
         private LoanBookInfo _selectedBook;
         public LoanBookInfo SelectedBook
@@ -27,8 +27,6 @@ namespace library_management_system.ViewModel
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

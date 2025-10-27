@@ -18,7 +18,8 @@
             TextElement.FontSize="13"
             TextElement.FontFamily="{StaticResource DefaultFontFamily}"
             TextOptions.TextFormattingMode="Ideal"
-            TextOptions.TextRenderingMode="Auto">
+            TextOptions.TextRenderingMode="Auto"
+            Loaded="Window_Loaded">
 
     <Window.Resources>
         <ResourceDictionary>
@@ -109,7 +110,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Header="ISBN"
-                                                        Binding="{Binding ISBN}"
+                                                        Binding="{Binding Isbn}"
                                                         Width="180"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTextColumn Header="도서명"
@@ -121,20 +122,21 @@
                                                         Width="100"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTextColumn Header="대여일"
-                                                        Binding="{Binding LoanDate}"
+                                                        Binding="{Binding LoanDate, StringFormat={}{0:yyyy-MM-dd}}"
                                                         Width="150"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTextColumn Header="반납예정일"
-                                                        Binding="{Binding DueDate}"
+                                                        Binding="{Binding DueDate, StringFormat={}{0:yyyy-MM-dd}}"
                                                         Width="150"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTemplateColumn Header="반납" Width="80">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <Button Style="{DynamicResource MaterialDesignRaisedButton}"
+                            <Button Content="반납"
+                                    Style="{DynamicResource MaterialDesignRaisedButton}"
                                     Margin="10,10,10,10"
                                     VerticalAlignment="Center"
-                                    Click="returnbook_Click"
+                                    Click="ReturnBook_Click"
                                     ToolTip="반납">
                             </Button>
                         </DataTemplate>

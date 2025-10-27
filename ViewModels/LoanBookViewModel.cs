@@ -4,16 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace library_management_system.Models
+namespace library_management_system.ViewModels
 {
-    public class LoanBookInfo
+    public class LoanBookViewModel
     {
+        public int LoanId { get; set; }
+        public string Isbn { get; set; } = string.Empty;
         public string BookName { get; set; } = string.Empty;
-        public string ISBN { get; set; } = string.Empty;
         public string Author { get; set; } = string.Empty;
         public DateTime LoanDate { get; set; }
         public DateTime DueDate { get; set; }
-        public DateTime? ReturnDate { get; set; }
-        public string LoanStatus { get; set; } = string.Empty;
     }
 }

@@ -62,7 +62,9 @@ namespace library_management_system.View
             var selectedMember = (sender as FrameworkElement)?.DataContext as Member;
             if (selectedMember == null) return;
 
-            Loan_Book window = new Loan_Book(selectedMember.Phone);
+                // 현재 창을 부모로 설정하여 모달 대화상자로 엽니다.
+                loanWindow.Owner = Window.GetWindow(this);
+                loanWindow.ShowDialog();
 
             // Loan_Book 창에서 도서 반납 완료 시 이벤트 수신
             window.BookListChanged += async (s, phoneNumber) =>

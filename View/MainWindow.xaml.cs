@@ -29,6 +29,7 @@ namespace library_management_system
         private ILoanRepository _loanRepository;
         private LoanBookUserControl _loanBookControl;
         private ReturnMemberUserControl _returnMemberControl;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -45,8 +46,6 @@ namespace library_management_system
             _loanBookControl = new LoanBookUserControl();
             _returnMemberControl = new ReturnMemberUserControl();
         }
-
-
 
         #region 도서 관리
 
@@ -104,8 +103,9 @@ namespace library_management_system
 
         #region 대출관리
 
-        private void loan_book(object sender, RoutedEventArgs e)
+        private async void loan_book(object sender, RoutedEventArgs e)
         {
+            await _loanBookControl.LoadAllMembersAsync();
             // loangd의 컨텐츠를 모두 지우고
             loangd.Children.Clear();
             // 도서 대출 UserControl을 추가
@@ -137,6 +137,7 @@ namespace library_management_system
         #region 대출관리
 
         private LoanManagementUsercontrol _loanManagementControl;
+
         private void LoanHeader_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             // UserControl이 아직 생성되지 않았다면 새로 만듭니다. (최초 한 번만 실행됨)
@@ -150,6 +151,7 @@ namespace library_management_system
             // 준비된 UserControl을 Grid에 추가하여 화면에 보여줍니다.
             loangd.Children.Add(_loanManagementControl);
         }
+
         private void return_member(object sender, RoutedEventArgs e)
         {
             // loangd의 컨텐츠를 모두 지우고
@@ -157,7 +159,6 @@ namespace library_management_system
             // 도서 반납 UserControl을 추가
             loangd.Children.Add(_returnMemberControl);
         }
-
 
         #endregion 대출관리
 
@@ -198,7 +199,6 @@ namespace library_management_system
 
         private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-
         }
     }
 }

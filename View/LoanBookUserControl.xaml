@@ -82,8 +82,8 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <DataGrid ItemsSource="{Binding Loans}"
-          SelectedItem="{Binding SelectedLoan}"
+        <DataGrid ItemsSource="{Binding Members}"
+          SelectedItem="{Binding SelectedMember}"
           AutoGenerateColumns="False"
           CanUserAddRows="False"
           CanUserDeleteRows="False"
@@ -100,20 +100,28 @@
                             Width="300"
                             ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTextColumn Header="전화번호"
-                            Binding="{Binding Number}"
+                            Binding="{Binding Phone}"
                             Width="350"
                             ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTextColumn Header="생년월일"
-                            Binding="{Binding Birthdate }"
+                            Binding="{Binding Birthdaydate }"
                             Width="270"
                             ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTextColumn Header="성별"
                             Binding="{Binding Gender}"
                             Width="220"
                             ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
-                <DataGridTextColumn Header="선택"
-                            Width="220"
-                            ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                <DataGridTemplateColumn Header="선택">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button
+                                Content="대출"
+                                Style="{DynamicResource MaterialDesignRaisedButton}"
+                                Margin="10,10,10,10"
+                                Click="StartLoan_Click" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

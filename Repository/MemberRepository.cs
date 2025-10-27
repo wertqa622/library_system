@@ -21,9 +21,8 @@ namespace library_management_system.Repository
 
         public async Task<IEnumerable<Member>> GetAllMembersAsync()
         {
-            const string sql = @"SELECT * FROM MEMBER ORDER BY NAME";
-            var Member = await _dbHelper.QueryAsync<Member>(sql);
-            return Member;
+            string sql = "SELECT MEMBERID AS Id, NAME, EMAIL, PHONENUMBER AS Phone, BIRTHDATE AS Birthdaydate, GENDER FROM MEMBER WHERE WITHDRAWALSTATUS = 'N' ORDER BY NAME";
+            return await _dbHelper.QueryAsync<Member>(sql);
         }
 
         public Task<Member> GetMemberByIdAsync(int id)
@@ -43,7 +42,7 @@ namespace library_management_system.Repository
             if (string.IsNullOrWhiteSpace(searchTerm))
                 return GetAllMembersAsync();
 
-            var results = _members.Where(m => 
+            var results = _members.Where(m =>
                 m.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                 m.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
                 m.Phone.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||

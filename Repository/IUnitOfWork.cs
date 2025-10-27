@@ -8,10 +8,14 @@ namespace library_management_system.Repository
         IBookRepository Books { get; }
         IMemberRepository Members { get; }
         ILoanRepository Loans { get; }
+        IReturnRepository Returns { get; }
 
         Task<int> SaveChangesAsync();
+
         Task BeginTransactionAsync();
+
         Task CommitTransactionAsync();
+
         Task RollbackTransactionAsync();
     }
 }

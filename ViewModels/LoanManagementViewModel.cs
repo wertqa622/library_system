@@ -4,7 +4,7 @@ using library_management_system.Models;
 using library_management_system.Repository;
 
 // ViewModelBase가 있는 네임스페이스를 using 해야 합니다.
-// 예를 들어: using library_management_system.ViewModels.Base; 
+// 예를 들어: using library_management_system.ViewModels.Base;
 
 namespace library_management_system.ViewModels
 {
@@ -27,6 +27,7 @@ namespace library_management_system.ViewModels
                 OnPropertyChanged(nameof(SelectedLoan));
             }
         }
+
         // 생성자: ILoanRepository를 외부에서 주입받습니다.
         public LoanManagementViewModel(ILoanRepository loanRepository)
         {

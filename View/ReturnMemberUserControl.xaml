@@ -82,7 +82,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <DataGrid ItemsSource="{Binding Loans}"
+        <DataGrid ItemsSource="{Binding MembersWithLoans}"
           SelectedItem="{Binding SelectedLoan}"
           AutoGenerateColumns="False"
           CanUserAddRows="False"

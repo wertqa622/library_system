@@ -33,6 +33,12 @@ namespace library_management_system.Repository
         // 특정 책이 대출 가능한 상태인지 확인 (BookId -> Isbn)
         Task<bool> IsBookAvailableAsync(string isbn);
 
+        Task<IEnumerable<Member>> GetMembersWithActiveLoansAsync();
+
+        Task<IEnumerable<Loan>> GetActiveLoansWithBookDetailsAsync(string phoneNumber);
+
+        Task ReturnBookAsync(int loanId);
+
         // --- 아래는 필요에 따라 구현할 수 있는 메서드들입니다 ---
         // Task<Loan> GetLoanByIdAsync(int loanId);
         // Task<decimal> CalculateFineAsync(int loanId);

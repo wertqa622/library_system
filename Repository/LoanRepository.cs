@@ -39,6 +39,57 @@ namespace library_management_system.Repository
             return loan;
         }
 
+        /// <summary>
+        /// 현재 도서를 대출 중인 모든 회원 정보를 조회합니다. (중복 제거)
+        /// </summary>
+        /// <returns>대출 중인 회원 목록</returns>
+        public async Task<IEnumerable<Member>> GetMembersWithActiveLoansAsync()
+        {
+            // RETURNDATE가 NULL인 대출 기록이 있는 회원을 중복 없이 조회하는 쿼리
+            // Member 모델의 속성 이름과 일치하도록 AS를 사용합니다.
+            const string sql = @"
+        SELECT DISTINCT
+            m.NAME AS Name,
+            m.EMAIL AS Email,
+            m.PHONENUMBER AS Phone,
+            m.BIRTHDATE AS Birthdaydate
+        FROM
+            MEMBER m
+        INNER JOIN
+            LOAN l ON m.PHONENUMBER = l.PHONENUMBER
+        WHERE
+            l.RETURNDATE IS NULL";
+
+            return await _dbHelper.QueryAsync<Member>(sql);
+        }
+
+        public async Task<IEnumerable<Loan>> GetActiveLoansWithBookDetailsAsync(string phoneNumber)
+        {
+            const string sql = @"
+        SELECT
+            l.ISBN,
+            l.LOANDATE AS LoanDate,
+            l.DUEDATE AS DueDate,
+            b.BOOKNAME AS BookName,
+            b.AUTHOR AS Author,
+            b.BOOKIMAGE AS BookImage
+        FROM LOAN l
+        INNER JOIN BOOK b ON l.ISBN = b.ISBN
+        WHERE l.PHONENUMBER = :PhoneNumber AND l.RETURNDATE IS NULL";
+
+            return await _dbHelper.QueryAsync<Loan>(sql, new { PhoneNumber = phoneNumber });
+        }
+
+        public async Task ReturnBookAsync(int loanId)
+        {
+            const string sql = @"
+        UPDATE LOAN
+        SET RETURNDATE = SYSDATE
+        WHERE LOAN_ID = :LoanId";
+
+            await _dbHelper.ExecuteAsync(sql, new { LoanId = loanId });
+        }
+
         // 특정 회원의 대출 기록 조회
         public async Task<IEnumerable<Loan>> GetLoansByPhoneNumberAsync(string phoneNumber)
         {

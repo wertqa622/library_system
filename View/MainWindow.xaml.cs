@@ -70,12 +70,25 @@ namespace library_management_system
             loangd.Children.Add(loan);
         }
 
-        private void return_member(object sender, RoutedEventArgs e)
+        private async void return_member(object sender, RoutedEventArgs e)
         {
             // loangd의 컨텐츠를 모두 지우고
             loangd.Children.Clear();
-            // 도서 반납 UserControl을 추가
-            loangd.Children.Add(_returnMemberControl);
+
+            // 1. ReturnMemberUserControl의 ViewModel을 생성합니다.
+            var viewModel = new ReturnMemberViewModel(_loanRepository);
+
+            // 2. ViewModel을 통해 데이터를 비동기적으로 로드합니다.
+            await viewModel.LoadMembersAsync();
+
+            // 3. UserControl을 생성하고 ViewModel을 DataContext로 설정합니다.
+            var returnControl = new ReturnMemberUserControl
+            {
+                DataContext = viewModel
+            };
+
+            // 4. loangd 그리드에 UserControl을 추가합니다.
+            loangd.Children.Add(returnControl);
         }
 
         #endregion 대출관리

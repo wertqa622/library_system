@@ -1,4 +1,5 @@
 ﻿using library_management_system.DataBase;
+using library_management_system.Models;
 using library_management_system.View;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -64,14 +65,14 @@ namespace library_management_system.View
 
         private void return_click(object sender, RoutedEventArgs e)
         {
-            dynamic selectedMember = (sender as FrameworkElement)?.DataContext;
+            var selectedMember = (sender as FrameworkElement)?.DataContext as Member;
             if (selectedMember == null) return;
 
-            string phoneNumber = selectedMember.PhoneNumber; // SQL에서 PHONENUMBER AS Number로 가져왔기 때문
+            string phoneNumber = selectedMember.Phone;
 
-            // Loan_Book 생성자도 string phoneNumber를 받도록 구성되어 있어야 함
-            Loan_Book a = new Loan_Book(phoneNumber, _dbHelper);
-            a.Show();
+            // Loan_Book 생성자에 전화번호(string)만 전달하도록 수정
+            Loan_Book returnWindow = new Loan_Book(phoneNumber);
+            returnWindow.ShowDialog();
         }
     }
 }

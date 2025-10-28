@@ -7,6 +7,7 @@ using library_management_system.Models;
 using library_management_system.ViewModels;
 using Application = System.Windows.Application;
 using library_management_system.Repository;
+using MessageBox = System.Windows.MessageBox;
 
 namespace library_management_system
 {
@@ -19,15 +20,19 @@ namespace library_management_system
 
         public ModifyBookWindow(IBookRepository bookRepository, MainViewModel mainViewModel, Book bookToEdit)
         {
-            InitializeComponent();            
+            InitializeComponent();
+            _bookRepository = bookRepository;
             _mainViewModel = mainViewModel;
             _originalBook = bookToEdit;
-            
-            _viewModel = new ModifyBookViewModel(bookToEdit);
+
+            _viewModel = new ModifyBookViewModel(bookToEdit, bookRepository);
             DataContext = _viewModel;
-            
+
+            // ViewModel의 RequestClose 이벤트 구독
+            _viewModel.RequestClose += OnRequestClose;
+
             // 창이 로드될 때 첫 번째 입력 필드에 포커스
-            Loaded += (s, e) => 
+            Loaded += (s, e) =>
             {
                 // 제목 TextBox에 포커스
                 var titleTextBox = this.FindName("TitleTextBox") as System.Windows.Controls.TextBox;
@@ -35,10 +40,31 @@ namespace library_management_system
             };
         }
 
+        private void OnRequestClose(bool result)
+        {
+            this.DialogResult = result;
+            this.Close();
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            if (_viewModel != null)
+            {
+                _viewModel.RequestClose -= OnRequestClose;
+            }
+            base.OnClosed(e);
+        }
+
         private void SelectImage_Click(object sender, RoutedEventArgs e)
         {
             try
             {
+                if (_viewModel == null)
+                {
+                    System.Windows.MessageBox.Show("ViewModel이 초기화되지 않았습니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
                 var openFileDialog = new System.Windows.Forms.OpenFileDialog
                 {
                     Title = "도서 이미지 선택",
@@ -50,12 +76,23 @@ namespace library_management_system
                 if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {
                     string selectedFilePath = openFileDialog.FileName;
-                    
+
                     // 선택된 이미지를 Images/books 폴더로 복사
                     string destinationPath = CopyImageToProjectFolder(selectedFilePath);
-                    
+
                     // ViewModel에 경로 설정
                     _viewModel.ImagePath = destinationPath;
+
+                    // 이미지 파일을 바이트 배열로 변환하여 저장
+                    try
+                    {
+                        byte[] imageBytes = System.IO.File.ReadAllBytes(selectedFilePath);
+                        _viewModel.BookImageBytes = imageBytes;
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Windows.MessageBox.Show($"이미지 로드 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
             catch (Exception ex)
@@ -70,7 +107,7 @@ namespace library_management_system
             {
                 // 프로젝트의 Images/books 폴더 경로
                 string projectImagesFolder = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Images", "books");
-                
+
                 // 폴더가 없으면 생성
                 if (!System.IO.Directory.Exists(projectImagesFolder))
                 {
@@ -81,9 +118,9 @@ namespace library_management_system
                 string fileName = System.IO.Path.GetFileName(sourceFilePath);
                 string fileNameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(fileName);
                 string extension = System.IO.Path.GetExtension(fileName);
-                
+
                 string destinationPath = System.IO.Path.Combine(projectImagesFolder, fileName);
-                
+
                 // 파일명이 중복되면 번호 추가
                 int counter = 1;
                 while (System.IO.File.Exists(destinationPath))
@@ -95,7 +132,7 @@ namespace library_management_system
 
                 // 파일 복사
                 System.IO.File.Copy(sourceFilePath, destinationPath, true);
-                
+
                 // 상대 경로 반환 (Images/books/파일명)
                 return $"Images/books/{System.IO.Path.GetFileName(destinationPath)}";
             }
@@ -106,97 +143,11 @@ namespace library_management_system
             }
         }
 
-        private async void UpdateButton_Click(object sender, RoutedEventArgs e)
-        {
-            
-            try
-            {
-                // 버튼 비활성화 (중복 클릭 방지)
-                var updateButton = sender as System.Windows.Controls.Button;
-                var cancelButton = this.FindName("CancelButton") as System.Windows.Controls.Button;
-                
-                if (updateButton != null) updateButton.IsEnabled = false;
-                if (cancelButton != null) cancelButton.IsEnabled = false;
-
-                // 입력 검증
-                if (string.IsNullOrWhiteSpace(_viewModel.Title))
-                {
-                    System.Windows.MessageBox.Show("도서 제목을 입력해주세요.", "입력 오류", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                if (string.IsNullOrWhiteSpace(_viewModel.Author))
-                {
-                    System.Windows.MessageBox.Show("저자를 입력해주세요.", "입력 오류", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                if (string.IsNullOrWhiteSpace(_viewModel.Publisher))
-                {
-                    System.Windows.MessageBox.Show("출판사를 입력해주세요.", "입력 오류", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                if (string.IsNullOrWhiteSpace(_viewModel.ISBN))
-                {
-                    System.Windows.MessageBox.Show("ISBN을 입력해주세요.", "입력 오류", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                // 가격 검증
-                if (_viewModel.Price < 0)
-                {
-                    System.Windows.MessageBox.Show("가격은 0 이상이어야 합니다.", "입력 오류", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                // 수정된 도서 객체 생성
-                var updatedBook = new Book
-                {
-                    ISBN = _viewModel.ISBN.Trim(),
-                    BookName = _viewModel.Title.Trim(),
-                    Author = _viewModel.Author.Trim(),
-                    Publisher = _viewModel.Publisher.Trim(),
-                    Price = _viewModel.Price,
-                    BookImage = new byte[0], // 이미지 파일을 바이트 배열로 변환 필요
-                    Description = _viewModel.Description?.Trim() ?? "",
-                    BookUrl = _viewModel.ImagePath?.Trim() ?? "",
-                    ImagePath = _viewModel.ImagePath?.Trim() ?? "", // UI용
-                    IsAvailable = true // 기본값으로 대여 가능 설정
-                };
-
-                // 도서 수정
-                var result = await _bookRepository.UpdateBookAsync(updatedBook);
-                
-                // 메인 뷰모델에서 해당 도서 업데이트
-                var index = _mainViewModel.Books.IndexOf(_originalBook);
-                if (index >= 0)
-                {
-                    _mainViewModel.Books[index] = result;
-                }
-
-                System.Windows.MessageBox.Show("도서가 성공적으로 수정되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
-                DialogResult = true;
-                Close();
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show($"도서 수정 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                // 버튼 다시 활성화
-                var updateButton = sender as System.Windows.Controls.Button;
-                var cancelButton = this.FindName("CancelButton") as System.Windows.Controls.Button;
-                
-                if (updateButton != null) updateButton.IsEnabled = true;
-                if (cancelButton != null) cancelButton.IsEnabled = true;
-            }
-        }
         private void wndqhr_click(object sender, RoutedEventArgs e)
         {
-            System.Windows.MessageBox.Show("이미 등록된 도서입니다.","오류");
+            System.Windows.MessageBox.Show("이미 등록된 도서입니다.", "오류");
         }
+
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {
             if (Application.Current.MainWindow is MainWindow main)
@@ -205,6 +156,42 @@ namespace library_management_system
             }
             DialogResult = false;
             Close();
+        }
+
+        private void SelectPhoto_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                System.Windows.Forms.OpenFileDialog openFileDialog = new System.Windows.Forms.OpenFileDialog();
+                openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif|All Files|*.*";
+                openFileDialog.Title = "사진 선택";
+
+                if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    string selectedFilePath = openFileDialog.FileName;
+
+                    // 선택된 이미지를 Images/members 폴더로 복사
+                    string destinationPath = CopyImageToProjectFolder(selectedFilePath);
+
+                    // ViewModel에 경로 설정
+                    _viewModel.ImagePath = destinationPath;
+
+                    // 이미지 파일을 바이트 배열로 변환하여 저장
+                    try
+                    {
+                        byte[] imageBytes = System.IO.File.ReadAllBytes(selectedFilePath);
+                        _viewModel.PhotoBytes = imageBytes;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"이미지 로드 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"사진 선택 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         // ESC 키로 창 닫기
@@ -218,4 +205,4 @@ namespace library_management_system
             base.OnKeyDown(e);
         }
     }
-} 
+}

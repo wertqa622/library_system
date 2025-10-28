@@ -15,10 +15,11 @@ namespace library_management_system.Repository
         {
             _dbHelper = dbHelper ?? throw new ArgumentNullException(nameof(dbHelper));
         }
+
         public async Task<IEnumerable<Book>> GetAllBooksAsync()
         {
             const string sql = @"
-                SELECT 
+                SELECT
                     ISBN,
                     BOOKIMAGE,
                     BOOKNAME,
@@ -27,16 +28,19 @@ namespace library_management_system.Repository
                     DESCRIPTION,
                     PRICE,
                     BOOKURL
-                FROM BOOK 
+                FROM BOOK
                 ORDER BY BOOKNAME";
             var books = await _dbHelper.QueryAsync<Book>(sql);
             return books;
         }
 
-       
-
         public async Task<Book> AddBookAsync(Book book)
         {
+            // 디버깅을 위한 로그
+            System.Diagnostics.Debug.WriteLine($"AddBookAsync - BookUrl: '{book.BookUrl}'");
+            System.Diagnostics.Debug.WriteLine($"AddBookAsync - ImagePath: '{book.ImagePath}'");
+            System.Diagnostics.Debug.WriteLine($"AddBookAsync - BookImage 길이: {book.BookImage?.Length ?? 0} bytes");
+
             const string sql = @"
                 INSERT INTO BOOK (
                     ISBN,
@@ -65,6 +69,9 @@ namespace library_management_system.Repository
 
         public async Task<Book> UpdateBookAsync(Book book)
         {
+            if (book == null)
+                throw new ArgumentNullException(nameof(book));
+
             const string sql = @"
                 UPDATE BOOK SET
                     BOOKIMAGE = :BookImage,
@@ -75,7 +82,13 @@ namespace library_management_system.Repository
                     PRICE = :Price,
                     BOOKURL = :BookUrl
                 WHERE ISBN = :ISBN";
-            
+
+            // BookImage가 null이면 빈 배열로 설정
+            if (book.BookImage == null)
+            {
+                book.BookImage = new byte[0];
+            }
+
             await _dbHelper.ExecuteAsync(sql, book);
             return book;
         }
@@ -86,7 +99,5 @@ namespace library_management_system.Repository
             var result = await _dbHelper.ExecuteAsync(sql, new { ISBN = isbn });
             return result > 0;
         }
-
-        
     }
 }

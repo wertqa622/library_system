@@ -29,6 +29,8 @@
             </ResourceDictionary.MergedDictionaries>
 
             <local:ImagePathConverter x:Key="ImagePathConverter" />
+            <local:ImageByteArrayConverter x:Key="ImageByteArrayConverter" />
+            <local:BooleanToLoanStatusConverter x:Key="BooleanToLoanStatusConverter" />
 
             <!-- 커스텀 TabControl 스타일 -->
             <Style x:Key="CustomTabControlStyle" TargetType="TabControl">
@@ -100,8 +102,8 @@
                 <Setter Property="Background" Value="White" />
                 <Setter Property="BorderBrush" Value="#E0E0E0" />
                 <Setter Property="BorderThickness" Value="1" />
-                <Setter Property="GridLinesVisibility" Value="Horizontal" />
-                <Setter Property="HorizontalGridLinesBrush" Value="#F0F0F0" />
+                <Setter Property="GridLinesVisibility" Value="None" />
+                <Setter Property="HorizontalGridLinesBrush" Value="Transparent" />
                 <Setter Property="RowBackground" Value="White" />
                 <Setter Property="AlternatingRowBackground" Value="#FAFAFA" />
                 <Setter Property="SelectionMode" Value="Single" />
@@ -109,9 +111,10 @@
                 <Setter Property="CanUserSortColumns" Value="True" />
                 <Setter Property="AutoGenerateColumns" Value="False" />
                 <Setter Property="HeadersVisibility" Value="Column" />
-                <Setter Property="RowHeight" Value="48" />
+                <Setter Property="RowHeight" Value="100" />
                 <Setter Property="ColumnHeaderHeight" Value="56" />
                 <Setter Property="SelectionUnit" Value="FullRow" />
+                <Setter Property="AlternationCount" Value="2" />
             </Style>
 
             <!-- 커스텀 DataGridColumnHeader 스타일 -->
@@ -122,39 +125,90 @@
                 <Setter Property="BorderThickness" Value="0,0,1,0" />
                 <Setter Property="Foreground" Value="#495057" />
                 <Setter Property="FontWeight" Value="Medium" />
-                <Setter Property="FontSize" Value="14" />
+                <Setter Property="FontSize" Value="15" />
                 <Setter Property="Padding" Value="12,16" />
                 <Setter Property="VerticalContentAlignment" Value="Center" />
+            </Style>
+
+            <!-- 커스텀 DataGridRow 스타일 - 선택된 행 강조 -->
+            <Style x:Key="CustomDataGridRowStyle" TargetType="DataGridRow">
+                <Setter Property="Background" Value="White" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Margin" Value="0" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Style.Triggers>
+                    <!-- 홀수 행 배경색 -->
+                    <Trigger Property="AlternationIndex" Value="0">
+                        <Setter Property="Background" Value="White" />
+                    </Trigger>
+                    <!-- 짝수 행 배경색 -->
+                    <Trigger Property="AlternationIndex" Value="1">
+                        <Setter Property="Background" Value="#F5F6F7" />
+                    </Trigger>
+                    <!-- 마우스 오버 효과 -->
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Foreground" Value="#212529" />
+                        <Setter Property="Background" Value="#BBDEFB" />
+                    </Trigger>
+                    <!-- 선택된 행 효과 -->
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Foreground" Value="#212529" />
+                        <Setter Property="Background" Value="#E3F2FD" />
+                    </Trigger>
+                    <!-- 선택된 행 + 마우스 오버 효과 -->
+                    <MultiTrigger>
+                        <MultiTrigger.Conditions>
+                            <Condition Property="IsSelected" Value="True" />
+                            <Condition Property="IsMouseOver" Value="True" />
+                        </MultiTrigger.Conditions>
+                        <Setter Property="Foreground" Value="#212529" />
+                        <Setter Property="Background" Value="#BBDEFB" />
+                    </MultiTrigger>
+                </Style.Triggers>
             </Style>
 
             <!-- 커스텀 DataGridCell 스타일 -->
             <Style x:Key="CustomDataGridCellStyle" TargetType="DataGridCell">
                 <Setter Property="Background" Value="Transparent" />
-                <Setter Property="BorderBrush" Value="Transparent" />
-                <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="Padding" Value="12,8" />
+                <Setter Property="BorderBrush" Value="#E0E0E0" />
+                <Setter Property="BorderThickness" Value="0,0,1,0" />
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="Foreground" Value="#212529" />
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="DataGridCell">
                             <Border Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    Padding="{TemplateBinding Padding}">
-                                <ContentPresenter VerticalAlignment="{TemplateBinding VerticalAlignment}" />
+                                    BorderBrush="#E0E0E0"
+                                    BorderThickness="0,0,1,0"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch">
+                                <Border Background="{TemplateBinding Background}"
+                                        BorderBrush="Transparent"
+                                        Height="100"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter VerticalAlignment="{TemplateBinding VerticalAlignment}" />
+                                </Border>
                             </Border>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Foreground" Value="#212529" />
+                    </Trigger>
+                </Style.Triggers>
             </Style>
 
             <!-- 커스텀 DataGridTextColumn 스타일 -->
             <Style x:Key="CustomDataGridTextColumnStyle" TargetType="TextBlock">
                 <Setter Property="Foreground" Value="#212529" />
-                <Setter Property="FontSize" Value="14" />
+
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                <Setter Property="FontSize" Value="14" />
                 <Setter Property="Margin" Value="0" />
+                <Setter Property="TextDecorations" Value="{x:Null}" />
             </Style>
         </ResourceDictionary>
     </Window.Resources>
@@ -265,7 +319,7 @@
                                                  mdi:HintAssist.Hint="{Binding HintText}"
                                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}">
                                             <TextBox.InputBindings>
-                                                <KeyBinding Key="Enter" Command="{Binding SearchBookCommand}"/>
+                                                <KeyBinding Key="Enter" Command="{Binding SearchBookCommand}" />
                                             </TextBox.InputBindings>
                                         </TextBox>
                                         <Button Grid.Column="2"
@@ -280,7 +334,7 @@
                                 </mdi:Card>
                                 <Button Grid.Column="2"
                                         Style="{DynamicResource MaterialDesignIconButton}"
-                                        Click="Refresh"
+                                        Command="{Binding RefrashBookCommand}"
                                         Width="36"
                                         Height="36"
                                         Margin="300,0,0,0">
@@ -295,14 +349,17 @@
                                       CanUserDeleteRows="False"
                                       IsReadOnly="True"
                                       Style="{DynamicResource CustomDataGridStyle}"
-                                      ColumnHeaderStyle="{DynamicResource CustomDataGridColumnHeaderStyle}">
+                                      ColumnHeaderStyle="{DynamicResource CustomDataGridColumnHeaderStyle}"
+                                      RowStyle="{DynamicResource CustomDataGridRowStyle}"
+                                      CellStyle="{DynamicResource CustomDataGridCellStyle}">
                                 <DataGrid.Columns>
-                                    <DataGridTemplateColumn Header="사진" Width="150">
+                                    <DataGridTemplateColumn Header="사진" Width="100">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <Border BorderBrush="LightGray" BorderThickness="1" Margin="2">
-                                                    <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}"
-                                                           Height="60"
+                                                <Border BorderBrush="LightGray" BorderThickness="1">
+                                                    <Image Source="{Binding BookImage, Converter={StaticResource ImageByteArrayConverter}}"
+                                                           Height="100"
+                                                           Width="80"
                                                            Stretch="Uniform"
                                                            RenderOptions.BitmapScalingMode="HighQuality" />
                                                 </Border>
@@ -311,37 +368,39 @@
                                     </DataGridTemplateColumn>
                                     <DataGridTextColumn Header="ISBN"
                                                         Binding="{Binding ISBN}"
-                                                        Width="180"
+                                                        Width="250"
+
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="도서명"
                                                         Binding="{Binding BookName}"
-                                                        Width="150"
+                                                        Width="240"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="저자"
                                                         Binding="{Binding Author}"
-                                                        Width="100"
+                                                        Width="150"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="가격"
                                                         Binding="{Binding Price}"
-                                                        Width="120"
+                                                        Width="200"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="Url"
                                                         Binding="{Binding BookUrl}"
-                                                        Width="150"
+                                                        Width="200"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="출판사"
                                                         Binding="{Binding Publisher}"
-                                                        Width="120"
+                                                        Width="170"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="대출 여부"
                                                         Binding="{Binding IsAvailable}"
                                                         Width="100"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
-                                    <DataGridTemplateColumn Header="정보">
+                                    <DataGridTemplateColumn Header="정보" Width="108">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <Button Style="{DynamicResource MaterialDesignRaisedButton}"
                                                         Margin="10,10,10,10"
+                                                        Content="정보"
                                                         Click="Info_click" />
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
@@ -360,7 +419,7 @@
                                         Orientation="Horizontal"
                                         Margin="0,0,0,16">
                                 <Button Content="새 회원 추가"
-                                        Click="Add_Member"
+                                        Command="{Binding AddMemberCommand}"
                                         Style="{DynamicResource MaterialDesignRaisedButton}"
                                         Width="120"
                                         Height="36"
@@ -368,12 +427,13 @@
                                         mdi:ButtonAssist.CornerRadius="4" />
                                 <Button Content="회원 수정"
                                         Style="{DynamicResource MaterialDesignOutlinedButton}"
-                                        Click="Modify_Member"
+                                        Command="{Binding EditMemberCommand}"
                                         Width="100"
                                         Height="36"
                                         Margin="0,0,8,0"
                                         mdi:ButtonAssist.CornerRadius="4" />
-                                <Button Content="회원 삭제"
+                                <Button Content="회원 탈퇴"
+                                        Command="{Binding WithdrawMemberCommand}"
                                         Style="{DynamicResource MaterialDesignOutlinedButton}"
                                         Width="100"
                                         Height="36"
@@ -381,7 +441,7 @@
                                         mdi:ButtonAssist.CornerRadius="4" />
                                 <Button Content="탈퇴 회원 조회"
                                         Style="{DynamicResource MaterialDesignOutlinedButton}"
-                                        Click="ResignedMember_Click"
+                                        Command="{Binding ViewResignedMembersCommand}"
                                         Foreground="Red"
                                         BorderBrush="red"
                                         Width="144"
@@ -417,7 +477,7 @@
                                                  mdi:HintAssist.Hint="{Binding HintText_1}"
                                                  Text="{Binding SearchText_Person, UpdateSourceTrigger=PropertyChanged}">
                                             <TextBox.InputBindings>
-                                                <KeyBinding Key="Enter" Command="{Binding SearchMemberCommand}"/>
+                                                <KeyBinding Key="Enter" Command="{Binding SearchMemberCommand}" />
                                             </TextBox.InputBindings>
                                         </TextBox>
                                         <Button Grid.Column="2"
@@ -430,6 +490,14 @@
                                         </Button>
                                     </Grid>
                                 </mdi:Card>
+                                <Button Grid.Column="2"
+                                                Style="{DynamicResource MaterialDesignIconButton}"
+                                                Command="{Binding RefrashBookCommand}"
+                                                Width="36"
+                                                Height="36"
+                                                Margin="300,0,0,0">
+                                    <mdi:PackIcon Kind="Refresh" Width="20" Height="20" />
+                                </Button>
                             </StackPanel>
 
                             <DataGrid Grid.Row="1"
@@ -440,30 +508,45 @@
                                       CanUserDeleteRows="False"
                                       IsReadOnly="True"
                                       Style="{DynamicResource CustomDataGridStyle}"
-                                      ColumnHeaderStyle="{DynamicResource CustomDataGridColumnHeaderStyle}">
+                                      ColumnHeaderStyle="{DynamicResource CustomDataGridColumnHeaderStyle}"
+                                      RowStyle="{DynamicResource CustomDataGridRowStyle}"
+                                      CellStyle="{DynamicResource CustomDataGridCellStyle}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="사진"
-                                                        Binding="{Binding PersonImage}"
-                                                        Width="60"
-                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    <DataGridTemplateColumn Header="사진" Width="100">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="LightGray" BorderThickness="1">
+                                                    <Image Source="{Binding Photo, Converter={StaticResource ImageByteArrayConverter}}"
+                                                           Height="100"
+                                                           Width="80"
+                                                           Stretch="Uniform"
+                                                           RenderOptions.BitmapScalingMode="HighQuality" />
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
                                     <DataGridTextColumn Header="이름"
                                                         Binding="{Binding Name}"
-                                                        Width="150"
+                                                        Width="228"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="생년월일"
-                                                        Binding="{Binding brithdate}"
+                                                        Binding="{Binding Birthdaydate}"
                                                         Width="200"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="이메일"
                                                         Binding="{Binding Email}"
-                                                        Width="120"
+                                                        Width="300"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="전화번호"
-                                                        Binding="{Binding PhoneNumber}"
-                                                        Width="250"
+                                                        Binding="{Binding Phone}"
+                                                        Width="270"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="성별"
-                                                        Binding="{Binding gender}"
+                                                        Binding="{Binding Gender}"
+                                                        Width="200"
+                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    <DataGridTextColumn Header="대출 가능 여부"
+                                                        Binding="{Binding LoanStatus, Converter={StaticResource BooleanToLoanStatusConverter}}"
                                                         Width="250"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                 </DataGrid.Columns>
@@ -473,7 +556,7 @@
 
                     <TabItem  Style="{DynamicResource CustomTabItemStyle}" HorizontalAlignment="Center" Width="130">
                         <TabItem.Header>
-                            <Label Content="대출 관리" Width="78" MouseLeftButtonDown="LoanHeader_Click" />
+                            <Label Content="대출 관리" Height="80" Width="100" MouseLeftButtonDown="LoanHeader_Click" />
                         </TabItem.Header>
                         <Grid Margin="16,23,0,0">
                             <Grid.RowDefinitions>
@@ -492,6 +575,7 @@
                                               Margin="0,0,8,0"
                                               mdi:ButtonAssist.CornerRadius="4" Cursor="Hand" />
                                 <ToggleButton Content="도서 반납"
+                                              Click="return_member"
                                               Style="{DynamicResource MaterialDesignOutlinedButton}"
                                               Width="120"
                                               Height="36"
@@ -507,4 +591,3 @@
         </Grid>
     </Grid>
 </Window>
-

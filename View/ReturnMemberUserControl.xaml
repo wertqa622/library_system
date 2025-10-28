@@ -82,7 +82,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
-        <DataGrid ItemsSource="{Binding Loans}"
+        <DataGrid ItemsSource="{Binding MembersWithLoans}"
           SelectedItem="{Binding SelectedLoan}"
           AutoGenerateColumns="False"
           CanUserAddRows="False"
@@ -100,7 +100,7 @@
                             Width="300"
                             ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTextColumn Header="전화번호"
-                            Binding="{Binding Number}"
+                            Binding="{Binding PhoneNumber}"
                             Width="350"
                             ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTextColumn Header="생년월일"

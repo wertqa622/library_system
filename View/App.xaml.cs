@@ -56,6 +56,9 @@ namespace library_management_system
         {
             try
             {
+                // Noto Sans KR 폰트 로드
+                LoadCustomFont();
+                
                 await AppHost!.StartAsync();
 
                 var logger = AppHost.Services.GetRequiredService<ILogger<App>>();
@@ -79,6 +82,21 @@ namespace library_management_system
             {
                 System.Windows.MessageBox.Show($"예외: {ex.Message}");
                 throw;
+            }
+        }
+
+        private void LoadCustomFont()
+        {
+            try
+            {
+                // Pack URI로 폰트를 로드
+                var fontUri = new Uri("pack://application:,,,/Fonts/NotoSansKR-Regular.ttf");
+                
+                System.Diagnostics.Debug.WriteLine("Noto Sans KR 폰트 로드 성공");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"폰트 로드 실패: {ex.Message}");
             }
         }
 

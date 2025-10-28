@@ -1,4 +1,4 @@
-﻿<Window x:Class="library_management_system.View.Loan_Book"
+﻿<Window x:Class="library_management_system.View.Return_Book"
             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -80,14 +80,14 @@
         <mdi:Card Grid.Row="0" Padding="16" Margin="0,0,0,28" mdi:ElevationAssist.Elevation="Dp2">
             <StackPanel Orientation="Horizontal">
                 <mdi:PackIcon Kind="BookOpen" Width="32" Height="32" VerticalAlignment="Center" Margin="0,0,16,0" />
-                <TextBlock Text="반납도서" FontSize="20" FontWeight="Medium" VerticalAlignment="Center" />
+                <TextBlock Text="대출도서" FontSize="20" FontWeight="Medium" VerticalAlignment="Center" />
             </StackPanel>
         </mdi:Card>
 
         <!-- Book Information DataGrid -->
         <DataGrid x:Name="LoanBooksGrid"
                   Grid.Row="1"
-                  ItemsSource="{Binding LoanedBooks}"
+                  ItemsSource="{Binding Books}"
                   SelectedItem="{Binding SelectedBook}"
                   AutoGenerateColumns="False"
                   CanUserAddRows="False"
@@ -116,27 +116,44 @@
                                                         Binding="{Binding BookName}"
                                                         Width="150"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                <DataGridTextColumn Header="출판사"
+                                                        Binding="{Binding Publisher}"
+                                                        Width="150"
+                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTextColumn Header="저자"
                                                         Binding="{Binding Author}"
                                                         Width="100"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
-                <DataGridTextColumn Header="대여일"
-                                                        Binding="{Binding LoanDate}"
+                <DataGridTextColumn Header="도서 설명"
+                                                        Binding="{Binding Description}"
+                                                        Width="100"
+                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                <DataGridTextColumn Header="가격"
+                                                        Binding="{Binding Price}"
                                                         Width="150"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
-                <DataGridTextColumn Header="반납예정일"
-                                                        Binding="{Binding DueDate}"
+                <DataGridTextColumn Header="URL"
+                                                        Binding="{Binding BookUrl}"
                                                         Width="150"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
-                <DataGridTemplateColumn Header="반납" Width="80">
+                <DataGridTemplateColumn Header="대출" Width="80">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Button Style="{DynamicResource MaterialDesignRaisedButton}"
                                     Margin="10,10,10,10"
                                     VerticalAlignment="Center"
                                     Click="returnbook_Click"
-                                    ToolTip="반납">
+                                    ToolTip="대출">
                             </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="선택">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button
+                                Style="{DynamicResource MaterialDesignRaisedButton}"
+                                Margin="10,10,10,10"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -150,7 +167,8 @@
                         Style="{DynamicResource MaterialDesignRaisedButton}"
                         Click="loanbook_close"
                         Width="100"
-                        Height="40" />
+                        Height="40" 
+                        />
             </StackPanel>
         </mdi:Card>
     </Grid>

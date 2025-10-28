@@ -21,6 +21,13 @@ namespace library_management_system.DataBase
             _connection = new OracleConnection(_connectionString);
         }
 
+        public OracleConnection GetConnection()
+        {
+            var conn = new OracleConnection(_connectionString);
+            conn.Open();
+            return conn;
+        }
+
         private void EnsureOpen()
         {
             try

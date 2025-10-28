@@ -11,6 +11,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using library_management_system.Models;
+using library_management_system.Repository;
 
 namespace library_management_system.View
 {
@@ -19,13 +21,24 @@ namespace library_management_system.View
     /// </summary>
     public partial class Book_Info : Window
     {
+        private Book _selectedBook;
+
         public Book_Info()
         {
             InitializeComponent();
         }
 
+        public Book_Info(Book selectedBook)
+        {
+            InitializeComponent();
+            _selectedBook = selectedBook;
+            DataContext = _selectedBook;
+        }
+
         private void bookinfo_close(object sender, RoutedEventArgs e)
         {
+            MainWindow main = System.Windows.Application.Current.MainWindow as MainWindow;
+            main.hdgd();
             this.Close();
         }
     }

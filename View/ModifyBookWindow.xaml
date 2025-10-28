@@ -33,6 +33,7 @@
 
             <!-- 이미지 경로 변환기 -->
             <local:ImagePathConverter x:Key="ImagePathConverter" />
+            <local:ImageByteArrayConverter x:Key="ImageByteArrayConverter" />
         </ResourceDictionary>
     </Window.Resources>
 
@@ -53,7 +54,7 @@
 
         <!-- Form -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel Height="893">
+            <StackPanel Height="auto">
                 <!-- 제목 -->
                 <TextBox x:Name="TitleTextBox"
                          Style="{DynamicResource MaterialDesignOutlinedTextBox}"
@@ -80,22 +81,35 @@
                 <Grid>
                     <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                         mdi:HintAssist.Hint="ISBN"
+                        IsEnabled="False"
                         Text="{Binding ISBN, UpdateSourceTrigger=PropertyChanged}"
-                        Margin="0,0,122,16"
+                        Margin="0,0,0,16"
                         FontSize="16" />
-                    <Button Margin="326,28,10,43"
-                   Content="중복확인"
-                   Click="wndqhr_click"
-                   Style="{DynamicResource MaterialDesignRaisedButton}">
-                    </Button>
                 </Grid>
 
+                <!-- URL -->
+                <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
+                         mdi:HintAssist.Hint="도서 URL"
+                         Text="{Binding BookUrl, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,0,16"
+                         FontSize="16" />
                 <!-- 가격 -->
                 <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                          mdi:HintAssist.Hint="가격"
                          Text="{Binding Price, UpdateSourceTrigger=PropertyChanged}"
                          Margin="0,0,0,20"
                          FontSize="16" />
+
+                <!-- 도서 설명 -->
+                <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
+          mdi:HintAssist.Hint="도서 설명"
+          Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+          Height="100"
+          TextWrapping="Wrap"
+          AcceptsReturn="True"
+          VerticalScrollBarVisibility="Auto"
+          Margin="0,0,0,16"
+          FontSize="16" />
 
                 <!-- 이미지 선택 -->
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
@@ -118,21 +132,10 @@
                         Background="LightGray"
                         Height="150"
                         Margin="0,0,0,16">
-                    <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}"
+                    <Image Source="{Binding BookImageBytes, Converter={StaticResource ImageByteArrayConverter}}"
                            Stretch="Uniform"
                            RenderOptions.BitmapScalingMode="HighQuality" />
                 </Border>
-
-                <!-- 도서 설명 -->
-                <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
-                         mdi:HintAssist.Hint="도서 설명"
-                         Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
-                         Height="100"
-                         TextWrapping="Wrap"
-                         AcceptsReturn="True"
-                         VerticalScrollBarVisibility="Auto"
-                         Margin="0,0,0,16"
-                         FontSize="16" />
             </StackPanel>
         </ScrollViewer>
 
@@ -150,7 +153,7 @@
                         Style="{DynamicResource MaterialDesignRaisedButton}"
                         Width="100"
                         Height="40"
-                        Click="UpdateButton_Click" />
+                        Command="{Binding UpdateBookCommand}" />
             </StackPanel>
         </mdi:Card>
     </Grid>

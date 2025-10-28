@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,23 +12,42 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using library_management_system.Models;
+using library_management_system.Repository;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace library_management_system.View
 {
     public partial class ResignedMemberWindow : Window
     {
+        private readonly IMemberRepository _memberRepository;
+        public ObservableCollection<Member> WithdrawnMembers { get; set; }
+
         public ResignedMemberWindow()
         {
             InitializeComponent();
+            DataContext = this;
+            WithdrawnMembers = new ObservableCollection<Member>();
+
+            // DI 컨테이너에서 리포지토리 인스턴스 가져오기
+            _memberRepository = App.AppHost!.Services.GetRequiredService<IMemberRepository>();
+
+            // 창이 로드될 때 비동기적으로 데이터 로드
+            Loaded += async (s, e) => await LoadDataAsync();
+        }
+
+        private async Task LoadDataAsync()
+        {
+            var members = await _memberRepository.GetWithdrawnMembersAsync();
+            WithdrawnMembers.Clear();
+            foreach (var member in members)
+            {
+                WithdrawnMembers.Add(member);
+            }
         }
 
         private void ResignedMember_close(object sender, RoutedEventArgs e)
         {
-            if (System.Windows.Application.Current.MainWindow is MainWindow main)
-            {
-                main.hdgd();
-            }
-            DialogResult = false;
             this.Close();
         }
     }

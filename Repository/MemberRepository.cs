@@ -41,6 +41,7 @@ namespace library_management_system.Repository
                     PHOTO AS ""Photo"",
                     CASE LOANSTATUS WHEN 'T' THEN 1 ELSE 0 END AS ""LoanStatus""
                 FROM MEMBER
+                WHERE WITHDRAWALSTATUS = 'F'
                 ORDER BY NAME";
 
             var members = await _dbHelper.QueryAsync<Member>(sql);
@@ -69,29 +70,35 @@ namespace library_management_system.Repository
 
         public async Task UpdateWithdrawalStatusAsync(int memberId, bool withdrawalStatus)
         {
+            // _dbHelper.GetConnection()는 이미 Open된 OracleConnection을 반환하므로
+            // 여기서 추가로 OpenAsync를 호출하지 않고, 트랜잭션은 한 번만 생성해서 사용합니다.
             using (var connection = _dbHelper.GetConnection())
+            using (var transaction = connection.BeginTransaction())
             {
-                var transaction = connection.BeginTransaction(); // 트랜잭션 변수 선언
                 try
                 {
-                    await connection.OpenAsync(); // OracleConnection의 OpenAsync 호출
-                    using (transaction = connection.BeginTransaction()) // 트랜잭션 시작
-                    {
-                        const string query = @"
-                    UPDATE Members
-                    SET WithdrawalStatus = :WithdrawalStatus
-                    WHERE MemberID = :MemberID";
+                    const string query = @"
+                UPDATE MEMBER
+                SET WITHDRAWALSTATUS = :WithdrawalStatus
+                WHERE MEMBERID = :MemberID";
 
-                        await connection.ExecuteAsync(query, new { MemberID = memberId, WithdrawalStatus = withdrawalStatus }, transaction);
+                    // DB에는 'T'/'F'로 저장되는 것으로 가정하여 변환
+                    var parameters = new { MemberID = memberId, WithdrawalStatus = withdrawalStatus ? 'T' : 'F' };
 
-                        // 트랜잭션 커밋
-                        transaction.Commit();
-                    }
+                    await connection.ExecuteAsync(query, parameters, transaction);
+
+                    transaction.Commit();
                 }
                 catch
                 {
-                    // 트랜잭션 롤백
-                    transaction.Rollback();
+                    try
+                    {
+                        transaction.Rollback();
+                    }
+                    catch
+                    {
+                        // 롤백 중 예외는 로깅 등으로 처리해도 되나, 여기서는 무시하고 원래 예외를 던집니다.
+                    }
                     throw;
                 }
             }
@@ -184,6 +191,31 @@ namespace library_management_system.Repository
 
             await _dbHelper.ExecuteAsync(sql, parameters);
             return true;
+        }
+
+        public async Task<IEnumerable<Member>> GetWithdrawnMembersAsync()
+        {
+            // WITHDRAWALSTATUS가 'T'인 회원만 조회합니다.
+            const string sql = @"
+            SELECT
+                MEMBERID AS ""MemberID"",
+                NAME AS ""Name"",
+                TO_CHAR(BIRTHDATE, 'YYYY-MM-DD') AS ""Birthdaydate"",
+                EMAIL AS ""Email"",
+                PHONENUMBER AS ""Phone"",
+                '' AS ""Address"",
+                SYSDATE AS ""RegistrationDate"",
+                CASE WITHDRAWALSTATUS WHEN 'F' THEN 1 ELSE 0 END AS ""IsActive"",
+                5 AS ""MaxBooksAllowed"",
+                GENDER AS ""Gender"",
+                PHOTO AS ""Photo"",
+                CASE LOANSTATUS WHEN 'T' THEN 1 ELSE 0 END AS ""LoanStatus""
+            FROM MEMBER
+            WHERE WITHDRAWALSTATUS = 'T'  -- 이 부분이 핵심입니다!
+            ORDER BY NAME";
+
+            var members = await _dbHelper.QueryAsync<Member>(sql);
+            return members ?? Enumerable.Empty<Member>();
         }
     }
 }

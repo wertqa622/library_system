@@ -19,5 +19,7 @@ namespace library_management_system.Repository
         Task<bool> DeleteMemberAsync(int id);
 
         Task UpdateWithdrawalStatusAsync(int memberId, bool withdrawalStatus);
+
+        Task<IEnumerable<Member>> GetWithdrawnMembersAsync();
     }
 }

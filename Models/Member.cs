@@ -5,6 +5,7 @@ namespace library_management_system.Models
     public class Member
     {
         public int MemberID { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Birthdaydate { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;

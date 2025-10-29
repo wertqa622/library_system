@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using library_management_system.Models;
+using library_management_system.ViewModels;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using library_management_system.Models;
 
 namespace library_management_system.Repository
 {
@@ -8,6 +9,8 @@ namespace library_management_system.Repository
     {
         // 모든 대출 기록 가져오기
         Task<IEnumerable<Loan>> GetAllLoansAsync();
+
+        Task<IEnumerable<Loan>> SearchLoansAsync(string filter, string searchText);
 
         // 특정 회원의 대출 기록 가져오기 (MemberId -> PhoneNumber)
         Task<IEnumerable<Loan>> GetLoansByPhoneNumberAsync(string phoneNumber);
@@ -35,9 +38,9 @@ namespace library_management_system.Repository
 
         Task<IEnumerable<Member>> GetMembersWithActiveLoansAsync();
 
-        Task<IEnumerable<Loan>> GetActiveLoansWithBookDetailsAsync(string phoneNumber);
+        Task<bool> ReturnBookAsync(int loanId);
 
-        Task ReturnBookAsync(int loanId);
+        Task<IEnumerable<LoanBookViewModel>> GetActiveLoansByPhoneAsync(string phoneNumber);
 
         // --- 아래는 필요에 따라 구현할 수 있는 메서드들입니다 ---
         // Task<Loan> GetLoanByIdAsync(int loanId);

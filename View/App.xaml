@@ -30,6 +30,9 @@
             <Style TargetType="DataGridCell">
                 <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}" />
             </Style>
+            <Style TargetType="Control">
+                <Setter Property="FontFamily" Value="{StaticResource DefaultFontFamily}" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

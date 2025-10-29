@@ -34,6 +34,7 @@ namespace library_management_system
                     });
 
                     services.AddScoped<IUnitOfWork, UnitOfWork>();
+                    services.AddScoped<IReturnRepository, ReturnRepository>();
 
                     services.AddScoped<IBookRepository, BookRepository>();
                     services.AddScoped<IMemberRepository, MemberRepository>();
@@ -58,7 +59,7 @@ namespace library_management_system
             {
                 // Noto Sans KR 폰트 로드
                 LoadCustomFont();
-                
+
                 await AppHost!.StartAsync();
 
                 var logger = AppHost.Services.GetRequiredService<ILogger<App>>();
@@ -91,7 +92,7 @@ namespace library_management_system
             {
                 // Pack URI로 폰트를 로드
                 var fontUri = new Uri("pack://application:,,,/Fonts/NotoSansKR-Regular.ttf");
-                
+
                 System.Diagnostics.Debug.WriteLine("Noto Sans KR 폰트 로드 성공");
             }
             catch (Exception ex)

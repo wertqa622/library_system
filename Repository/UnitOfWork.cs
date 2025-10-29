@@ -17,11 +17,13 @@ namespace library_management_system.Repository
             Books = new BookRepository(_dbHelper);
             Members = new MemberRepository(_dbHelper);
             Loans = new LoanRepository(_dbHelper);
+            Returns = new ReturnRepository(_dbHelper);
         }
 
         public IBookRepository Books { get; private set; }
         public IMemberRepository Members { get; private set; }
         public ILoanRepository Loans { get; private set; }
+        public IReturnRepository Returns { get; private set; }
 
         public async Task<int> SaveChangesAsync()
         {

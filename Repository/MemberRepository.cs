@@ -48,6 +48,26 @@ namespace library_management_system.Repository
             return members ?? Enumerable.Empty<Member>();
         }
 
+        // 실제 DB에서 대출 중인 회원만 불러오기
+        public async Task<IEnumerable<Member>> GetMembersWithActiveLoansAsync()
+        {
+            const string sql = @"
+                    SELECT DISTINCT
+                        m.MEMBERID AS Id,
+                        m.NAME AS Name,
+                        m.BIRTHDATE AS Birthdaydate,
+                        m.EMAIL AS Email,
+                        m.PHONENUMBER AS Phone,
+                        m.GENDER AS Gender
+                    FROM MEMBER m
+                    JOIN LOAN l ON m.PHONENUMBER = l.PHONENUMBER
+                    WHERE l.RETURNDATE IS NULL";
+
+            var members = await _dbHelper.QueryAsync<Member>(sql);
+
+            return members;
+        }
+
         public Task<Member> GetMemberByEmailAsync(string email)
         {
             var member = _members.FirstOrDefault(m => m.Email == email);

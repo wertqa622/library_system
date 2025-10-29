@@ -21,5 +21,7 @@ namespace library_management_system.Repository
         Task UpdateWithdrawalStatusAsync(int memberId, bool withdrawalStatus);
 
         Task<IEnumerable<Member>> GetWithdrawnMembersAsync();
+
+        Task<IEnumerable<Member>> GetMembersWithActiveLoansAsync();
     }
 }

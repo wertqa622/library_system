@@ -14,5 +14,8 @@ namespace library_management_system.ViewModels
         public string Author { get; set; } = string.Empty;
         public DateTime LoanDate { get; set; }
         public DateTime DueDate { get; set; }
+
+        // DB의 BOOKIMAGE 컬럼 매핑용
+        public byte[]? BookImage { get; set; }
     }
 }

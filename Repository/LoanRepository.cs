@@ -269,6 +269,27 @@ namespace library_management_system.Repository
             return result > 0;
         }
 
+        public async Task<IEnumerable<LoanBookViewModel>> SearchActiveLoansAsync(string phoneNumber, string keyword)
+        {
+            // 1. Oracle 문법에 맞게 SQL 쿼리 수정
+            const string sql = @"
+        SELECT
+            l.LOAN_ID       AS LoanId,
+            b.BOOKNAME      AS BookName,
+            b.AUTHOR        AS Author,
+            b.BOOKIMAGE     AS BookImage,
+            l.LOANDATE      AS LoanDate,
+            l.DUEDATE       AS DueDate
+        FROM LOAN l
+        INNER JOIN BOOK b ON l.ISBN = b.ISBN
+        WHERE l.PHONENUMBER = :PhoneNumber
+          AND l.RETURNDATE IS NULL
+          AND (b.BOOKNAME LIKE :Keyword OR b.AUTHOR LIKE :Keyword OR b.PUBLISHER LIKE :Keyword)";
+
+            // 2. _context 대신 _dbHelper를 사용하여 쿼리 실행
+            return await _dbHelper.QueryAsync<LoanBookViewModel>(sql, new { PhoneNumber = phoneNumber, Keyword = $"%{keyword}%" });
+        }
+
         // ILoanRepository 인터페이스에 정의된 다른 메서드들도
         // 위와 같은 방식으로 SQL 쿼리를 사용하여 구현해야 합니다.
     }

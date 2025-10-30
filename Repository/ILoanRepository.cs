@@ -42,6 +42,8 @@ namespace library_management_system.Repository
 
         Task<IEnumerable<LoanBookViewModel>> GetActiveLoansByPhoneAsync(string phoneNumber);
 
+        Task<IEnumerable<LoanBookViewModel>> SearchActiveLoansAsync(string phoneNumber, string keyword);
+
         // --- 아래는 필요에 따라 구현할 수 있는 메서드들입니다 ---
         // Task<Loan> GetLoanByIdAsync(int loanId);
         // Task<decimal> CalculateFineAsync(int loanId);

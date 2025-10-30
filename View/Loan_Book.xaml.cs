@@ -98,6 +98,42 @@ namespace library_management_system.View
             }
         }
 
+        private async void SearchButton_Click(object sender, RoutedEventArgs e)
+        {
+            string keyword = SearchTextBox.Text.Trim();
+
+            // 검색어가 비어 있으면 전체 목록을 다시 로드
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                await LoadLoanBooksAsync();
+                return;
+            }
+
+            try
+            {
+                Books.Clear();
+                // 특정 회원의 대출 목록 내에서 검색하는 리포지토리 메서드 호출
+                var searchResult = await _loanRepository.SearchActiveLoansAsync(_phoneNumber, keyword);
+
+                if (searchResult != null)
+                {
+                    foreach (var book in searchResult)
+                    {
+                        Books.Add(book);
+                    }
+                }
+
+                if (Books.Count == 0)
+                {
+                    System.Windows.MessageBox.Show("검색 결과가 없습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"도서 검색 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void loanbook_close(object sender, RoutedEventArgs e)
         {
             this.Close();

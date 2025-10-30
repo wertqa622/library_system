@@ -21,6 +21,12 @@ namespace library_management_system.View
             InitializeComponent();
         }
 
+        // 공개 갱신 메서드: 외부에서 호출하여 목록 재로딩 가능
+        public async Task RefreshAsync()
+        {
+            await LoadDataAsync();
+        }
+
         private void ResignedMember_close(object sender, RoutedEventArgs e)
         {
             if (System.Windows.Application.Current.MainWindow is MainWindow main)

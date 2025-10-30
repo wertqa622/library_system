@@ -23,7 +23,10 @@
 
     <Window.Resources>
         <ResourceDictionary>
+            <!-- 기존 문자열 경로용 컨버터 유지 -->
             <local:ImagePathConverter x:Key="ImagePathConverter" />
+            <!-- 추가: DB의 byte[](Photo)를 처리하는 컨버터 등록 -->
+            <local:ImageByteArrayConverter x:Key="ImageByteArrayConverter" />
 
             <Style x:Key="CustomDataGridStyle" TargetType="DataGrid">
                 <Setter Property="Background" Value="White" />

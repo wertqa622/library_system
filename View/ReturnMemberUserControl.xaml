@@ -115,6 +115,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Button
+                                Content="선택"
                                 Style="{DynamicResource MaterialDesignRaisedButton}"
                                 Margin="10,10,10,10"
                                 Click="Return_Click" />

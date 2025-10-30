@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using library_management_system.DataBase;
 using library_management_system.Models;
+using System.Data;
+using Dapper;
 
 namespace library_management_system.Repository
 {
@@ -87,6 +89,28 @@ namespace library_management_system.Repository
             return result > 0;
         }
 
-        
+        // 트랜잭션으로 LOAN(자식) 먼저 삭제한 다음 BOOK(부모) 삭제
+        public async Task<bool> DeleteBookAndLoansAsync(string isbn)
+        {
+            using var conn = _dbHelper.GetConnection();
+            // GetConnection() 이미 내부에서 Open() 하므로 중복 Open 호출 제거
+            using var tran = conn.BeginTransaction();
+            try
+            {
+                const string deleteLoans = "DELETE FROM LOAN WHERE ISBN = :Isbn";
+                await conn.ExecuteAsync(deleteLoans, new { Isbn = isbn }, transaction: tran);
+
+                const string deleteBook = "DELETE FROM BOOK WHERE ISBN = :Isbn";
+                int affected = await conn.ExecuteAsync(deleteBook, new { Isbn = isbn }, transaction: tran);
+
+                tran.Commit();
+                return affected > 0;
+            }
+            catch
+            {
+                try { tran.Rollback(); } catch { /* ignore */ }
+                throw;
+            }
+        }
     }
 }

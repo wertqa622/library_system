@@ -143,8 +143,9 @@ namespace library_management_system.Repository
         public async Task<bool> IsBookAvailableAsync(string isbn)
         {
             const string sql = "SELECT COUNT(*) FROM LOAN WHERE ISBN = :Isbn AND RETURNDATE IS NULL";
-            var loanCount = await _dbHelper.ExecuteAsync(sql, new { Isbn = isbn });
-            return loanCount == 0; // 대출 기록이 없으면(0) 대출 가능(true)
+            // QuerySingleAsync<int>로 정확한 카운트를 받아옵니다.
+            var loanCount = await _dbHelper.QuerySingleAsync<int>(sql, new { Isbn = isbn });
+            return loanCount == 0; // 0이면 대출중인 레코드 없음(삭제 가능 기준)
         }
 
         // --- 여기에 누락된 메서드 3개 추가 ---

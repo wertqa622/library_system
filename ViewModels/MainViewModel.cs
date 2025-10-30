@@ -252,27 +252,58 @@ namespace library_management_system.ViewModels
         {
             if (SelectedBook == null) return;
 
-            var result = System.Windows.MessageBox.Show(
+            var result = MessageBox.Show(
                 $"정말로 '{SelectedBook.BookName}' 도서를 삭제하시겠습니까?",
                 "도서 삭제 확인",
-                System.Windows.MessageBoxButton.YesNo,
-                System.Windows.MessageBoxImage.Question);
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
 
-            if (result == System.Windows.MessageBoxResult.Yes)
+            if (result != MessageBoxResult.Yes) return;
+
+            try
             {
-                try
+                // 활성 대출(반납되지 않음) 체크
+                var isAvailable = await _loanRepository.IsBookAvailableAsync(SelectedBook.ISBN);
+                if (!isAvailable)
                 {
+                    MessageBox.Show("현재 대출 중인 도서는 삭제할 수 없습니다. 먼저 반납 처리해 주세요.", "삭제 불가", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                // 과거 대출 이력 존재 여부 확인
+                var childLoans = await _loan_repository().GetLoansByIsbnAsync(SelectedBook.ISBN);
+                bool hasHistory = childLoans != null && childLoans.Any();
+
+                if (hasHistory)
+                {
+                    var confirm = MessageBox.Show(
+                        "이 도서의 과거 대출 이력까지 모두 삭제하면 복구할 수 없습니다. 과거 이력까지 모두 삭제하시겠습니까?",
+                        "과거 이력 삭제 확인",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning);
+
+                    if (confirm != MessageBoxResult.Yes) return;
+
+                    // 과거 이력까지 함께 삭제 (트랜잭션 내부 처리)
+                    await _bookRepository.DeleteBookAndLoansAsync(SelectedBook.ISBN);
+                }
+                else
+                {
+                    // 이력 없으면 단순 삭제
                     await _bookRepository.DeleteBookAsync(SelectedBook.ISBN);
-                    Books.Remove(SelectedBook);
-                    _allBooks.Remove(SelectedBook); // 원본 리스트에서도 제거
-                    System.Windows.MessageBox.Show("도서가 성공적으로 삭제되었습니다.", "성공", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
                 }
-                catch (System.Exception ex)
-                {
-                    System.Windows.MessageBox.Show($"도서 삭제 중 오류가 발생했습니다: {ex.Message}", "오류", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-                }
+
+                await RefreshBooksFromDatabase();
+                MessageBox.Show("도서가 성공적으로 삭제되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"도서 삭제 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        // helper to avoid typo when pasting; original field name kept in file
+        private ILoanRepository _loan_repository() => _loanRepository;
 
         private bool CanDeleteBook()
         {

@@ -225,6 +225,7 @@ namespace library_management_system.Repository
             b.ISBN AS Isbn,
             b.BOOKNAME AS BookName,
             b.AUTHOR AS Author,
+            b.BOOKIMAGE AS BookImage,
             l.LOANDATE AS LoanDate,
             l.DUEDATE AS DueDate
         FROM LOAN l

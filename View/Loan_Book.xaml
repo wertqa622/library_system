@@ -34,6 +34,8 @@
             </ResourceDictionary.MergedDictionaries>
 
             <local:ImagePathConverter x:Key="ImagePathConverter" />
+            <!-- 바이트[] -> BitmapImage 컨버터 등록 -->
+            <local:ImageByteArrayConverter x:Key="ImageByteArrayConverter" />
             <!--디자인-->
             <Style x:Key="CustomDataGridStyle" TargetType="DataGrid">
                 <Setter Property="Background" Value="White" />
@@ -101,10 +103,11 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Border BorderBrush="LightGray" BorderThickness="1" Margin="2">
-                                <Image Source="{Binding BookImage}"
-                       Height="60"
-                       Stretch="Uniform"
-                       RenderOptions.BitmapScalingMode="HighQuality" />
+                                <!-- 바이트[] 바인딩 시 컨버터 필요 -->
+                                <Image Source="{Binding BookImage, Converter={StaticResource ImageByteArrayConverter}}"
+                                       Height="60"
+                                       Stretch="Uniform"
+                                       RenderOptions.BitmapScalingMode="HighQuality" />
                             </Border>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>

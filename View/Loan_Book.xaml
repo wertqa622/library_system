@@ -75,21 +75,28 @@
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <mdi:Card Grid.Row="0" Padding="16" Margin="0,0,0,28" mdi:ElevationAssist.Elevation="Dp2">
+        <mdi:Card Grid.Row="0" Padding="16" Margin="0,0,0,20" mdi:ElevationAssist.Elevation="Dp2">
             <StackPanel Orientation="Horizontal">
                 <mdi:PackIcon Kind="BookOpen" Width="32" Height="32" VerticalAlignment="Center" Margin="0,0,16,0" />
                 <TextBlock Text="반납도서" FontSize="20" FontWeight="Medium" VerticalAlignment="Center" />
             </StackPanel>
         </mdi:Card>
-
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,20">
+            <TextBox x:Name="SearchTextBox" Width="400" Margin="0,0,10,0"
+                 mdi:HintAssist.Hint="대출한 도서명, 저자, 출판사로 검색"
+                 Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                 VerticalAlignment="Center" />
+            <Button Content="검색" Width="100" Click="SearchButton_Click" Style="{StaticResource MaterialDesignRaisedButton}" />
+        </StackPanel>
         <!-- Book Information DataGrid -->
         <DataGrid x:Name="LoanBooksGrid"
-                  Grid.Row="1"
+                  Grid.Row="2"
                   ItemsSource="{Binding Books}"
                   SelectedItem="{Binding SelectedBook}"
                   AutoGenerateColumns="False"
@@ -149,7 +156,7 @@
         </DataGrid>
 
         <!-- Buttons -->
-        <mdi:Card Grid.Row="2" Padding="16" Margin="0,20,0,0" mdi:ElevationAssist.Elevation="Dp2">
+        <mdi:Card Grid.Row="3" Padding="16" Margin="0,20,0,0" mdi:ElevationAssist.Elevation="Dp2">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="닫기"
                         Style="{DynamicResource MaterialDesignRaisedButton}"

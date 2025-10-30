@@ -104,7 +104,7 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
                 <DataGridTextColumn Header="ISBN"
-                                    Binding="{Binding Isbn}"
+                                    Binding="{Binding ISBN}"
                                     Width="140"
                                     ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                 <DataGridTextColumn Header="도서명"

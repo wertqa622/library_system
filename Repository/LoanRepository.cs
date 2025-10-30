@@ -40,6 +40,29 @@ namespace library_management_system.Repository
             return loan;
         }
 
+        // 실제 DB에서 대출 중인 회원만 불러오기
+        public async Task<IEnumerable<Member>> GetMembersWithActiveLoansAsync()
+        {
+            const string sql = @"
+                    SELECT DISTINCT
+                        m.MEMBERID AS Id,
+                        m.NAME AS Name,
+                        m.BIRTHDATE AS Birthdaydate,
+                        m.EMAIL AS Email,
+                        m.PHONENUMBER AS Phone,
+                        m.GENDER AS Gender
+                    FROM MEMBER m
+                    JOIN LOAN l ON m.PHONENUMBER = l.PHONENUMBER
+                    WHERE l.RETURNDATE IS NULL";
+
+            var members = await _dbHelper.QueryAsync<Member>(sql);
+
+            // 디버깅용 메시지 — 실제 데이터가 로드되는지 확인
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] 조회된 회원 수: {members.Count()}");
+
+            return members;
+        }
+
         public async Task<IEnumerable<Loan>> SearchLoansAsync(string filter, string searchText)
         {
             // 기본 쿼리문
@@ -225,7 +248,6 @@ namespace library_management_system.Repository
             b.ISBN AS Isbn,
             b.BOOKNAME AS BookName,
             b.AUTHOR AS Author,
-            b.BOOKIMAGE AS BookImage,
             l.LOANDATE AS LoanDate,
             l.DUEDATE AS DueDate
         FROM LOAN l
@@ -246,6 +268,28 @@ namespace library_management_system.Repository
             int result = await _dbHelper.ExecuteAsync(sql, new { LoanId = loanId });
             return result > 0;
         }
+
+        public async Task<IEnumerable<LoanBookViewModel>> SearchActiveLoansAsync(string phoneNumber, string keyword)
+        {
+            // 1. Oracle 문법에 맞게 SQL 쿼리 수정
+            const string sql = @"
+        SELECT
+            l.LOAN_ID       AS LoanId,
+            b.BOOKNAME      AS BookName,
+            b.AUTHOR        AS Author,
+            b.BOOKIMAGE     AS BookImage,
+            l.LOANDATE      AS LoanDate,
+            l.DUEDATE       AS DueDate
+        FROM LOAN l
+        INNER JOIN BOOK b ON l.ISBN = b.ISBN
+        WHERE l.PHONENUMBER = :PhoneNumber
+          AND l.RETURNDATE IS NULL
+          AND (b.BOOKNAME LIKE :Keyword OR b.AUTHOR LIKE :Keyword OR b.PUBLISHER LIKE :Keyword)";
+
+            // 2. _context 대신 _dbHelper를 사용하여 쿼리 실행
+            return await _dbHelper.QueryAsync<LoanBookViewModel>(sql, new { PhoneNumber = phoneNumber, Keyword = $"%{keyword}%" });
+        }
+
         // ILoanRepository 인터페이스에 정의된 다른 메서드들도
         // 위와 같은 방식으로 SQL 쿼리를 사용하여 구현해야 합니다.
     }

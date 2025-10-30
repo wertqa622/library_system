@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
+using System.Windows.Input;
 using library_management_system.Models;
 using library_management_system.Repository;
 using MessageBox = System.Windows.MessageBox;
@@ -20,6 +21,8 @@ namespace library_management_system.ViewModels
         public List<string> YearOptions { get; private set; }
         public List<string> MonthOptions { get; private set; }
         public List<string> DayOptions { get; private set; }
+
+        public long phone { get; set; }
 
         private string _name;
         private string _selectedYear;
@@ -93,15 +96,17 @@ namespace library_management_system.ViewModels
             }
         }
 
-        private string _number;
+        private string _Phone;
 
-        public string Number
+        public string Phone
         {
-            get => _number;
+            get => _Phone;
             set
             {
-                _number = value;
-                OnPropertyChanged();
+                if (SetProperty(ref _Phone, value))
+                {
+                    CheckPhoneFlag = true;
+                }
             }
         }
 
@@ -141,16 +146,26 @@ namespace library_management_system.ViewModels
             }
         }
 
+        private bool _checkPhoneFlag;
+
+        public bool CheckPhoneFlag
+        {
+            get => _checkPhoneFlag;
+            private set => SetProperty(ref _checkPhoneFlag, value);
+        }
+
         public ObservableCollection<Member> Members => _members;
 
         public RelayCommand AddMemberCommand { get; private set; }
+        public ICommand CheckPhoneCommand { get; }
 
         public AddMemberViewModel(ObservableCollection<Member> existingMembers, IMemberRepository memberRepository)
         {
             _members = existingMembers;
             _memberRepository = memberRepository ?? throw new ArgumentNullException(nameof(memberRepository));
             AddMemberCommand = new RelayCommand(async () => await AddMember());
-
+            CheckPhoneCommand = new RelayCommand(CheckPhone);
+            CheckPhoneFlag = true;
             // 성별 옵션 초기화
             GenderOptions = new List<string> { "남자", "여자" };
 
@@ -179,6 +194,39 @@ namespace library_management_system.ViewModels
             }
         }
 
+        private void CheckPhone(object parameter)
+        {
+            string phone = this.Phone?.Trim();
+
+            if (string.IsNullOrWhiteSpace(phone))
+            {
+                MessageBox.Show("휴대폰 번호를 입력해주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            var normalizedInputPhone = new string(phone.Where(char.IsDigit).ToArray());
+            bool isDuplicate = _members.Any(member =>
+            {
+                // DB에 있는 번호가 null이 아닐 경우에만 정규화 진행
+                if (string.IsNullOrEmpty(member.Phone))
+                {
+                    return false;
+                }
+                var normalizedExistingPhone = new string(member.Phone.Where(char.IsDigit).ToArray());
+                return normalizedExistingPhone == normalizedInputPhone;
+            });
+
+            if (isDuplicate)
+            {
+                MessageBox.Show("이미 존재하는 휴대폰 번호입니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CheckPhoneFlag = true;
+            }
+            else
+            {
+                MessageBox.Show("사용 가능한 휴대폰 번호입니다.", "확인", MessageBoxButton.OK, MessageBoxImage.Information);
+                CheckPhoneFlag = false;
+            }
+        }
+
         private void UpdateBirthdaydate()
         {
             if (!string.IsNullOrWhiteSpace(SelectedYear) &&
@@ -189,39 +237,42 @@ namespace library_management_system.ViewModels
             }
         }
 
+        /// <summary>
+        /// 회원 추가 로직
+        /// </summary>
         private async Task AddMember()
         {
+            // --- 입력 검증 ---
+            if (CheckPhoneFlag) // 중복 확인을 통과했는지 먼저 검사
+            {
+                MessageBox.Show("휴대폰 번호 중복 체크를 확인해주세요.", "중복 확인 필요", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(Phone))
+            {
+                MessageBox.Show("필수 항목(이름, 휴대폰 번호)을 모두 입력해주세요.", "입력 오류", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             try
             {
-                // 입력 검증
-                if (string.IsNullOrWhiteSpace(Name))
+                var newMember = new Member
                 {
-                    MessageBox.Show("회원명을 입력해주세요.", "입력 오류", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
-                }
-
-                // 새 멤버 객체 생성
-                var newmember = new Member
-                {
-                    Name = Name?.Trim() ?? "",
-                    Birthdaydate = Birthdaydate?.Trim() ?? "",
-                    Gender = Gender?.Trim() ?? "",
-                    Phone = Number?.Trim() ?? "",
-                    Email = Email?.Trim() ?? "",
-                    Photo = PhotoBytes ?? new byte[0],
-                    IsActive = true // WITHDRAWALSTATUS = 'F' (false)
+                    Name = this.Name.Trim(),
+                    Birthdaydate = this.Birthdaydate?.Trim() ?? "",
+                    Gender = this.Gender?.Trim() ?? "",
+                    Phone = this.Phone.Trim(),
+                    Email = this.Email?.Trim() ?? "",
+                    Photo = this.PhotoBytes ?? new byte[0],
+                    IsActive = true
                 };
 
-                // 멤버 추가
-                var addedMember = await _memberRepository.AddMemberAsync(newmember);
-
-                // 데이터베이스에서 추가된 회원의 MemberID를 포함한 정보를 다시 가져옴
-                _members.Add(addedMember);
+                var addedMember = await _memberRepository.AddMemberAsync(newMember);
+                _members.Add(addedMember); // UI 목록에 추가
 
                 MessageBox.Show("회원이 성공적으로 추가되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                // 창 닫기 요청
-                RequestClose?.Invoke();
+                RequestClose?.Invoke(); // 창 닫기 요청
             }
             catch (Exception ex)
             {

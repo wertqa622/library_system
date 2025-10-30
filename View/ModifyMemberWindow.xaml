@@ -61,6 +61,7 @@
                          FontSize="16" />
 
                 <!-- 생년월일 -->
+<<<<<<< HEAD
                 <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                          mdi:HintAssist.Hint="생년월일"
                          Text="{Binding Author, UpdateSourceTrigger=PropertyChanged}"
@@ -71,6 +72,38 @@
                          Text="{Binding Author, UpdateSourceTrigger=PropertyChanged}"
                          Margin="0,0,0,16"
                          FontSize="16" />
+=======
+                <ComboBox Style="{DynamicResource MaterialDesignOutlinedComboBox}"
+          mdi:HintAssist.Hint="성별"
+          SelectedItem="{Binding Gender, UpdateSourceTrigger=PropertyChanged}"
+          ItemsSource="{Binding GenderOptions}"
+          Margin="0,0,0,16"
+          FontSize="16" />
+
+                <!-- 성별 -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                    <ComboBox Style="{DynamicResource MaterialDesignOutlinedComboBox}"
+              mdi:HintAssist.Hint="년"
+              SelectedItem="{Binding SelectedYear, UpdateSourceTrigger=PropertyChanged}"
+              ItemsSource="{Binding YearOptions}"
+              Width="170"
+              Margin="0,0,8,0"
+              FontSize="16" />
+                    <ComboBox Style="{DynamicResource MaterialDesignOutlinedComboBox}"
+              mdi:HintAssist.Hint="월"
+              SelectedItem="{Binding SelectedMonth, UpdateSourceTrigger=PropertyChanged}"
+              ItemsSource="{Binding MonthOptions}"
+              Width="120"
+              Margin="0,0,8,0"
+              FontSize="16" />
+                    <ComboBox Style="{DynamicResource MaterialDesignOutlinedComboBox}"
+              mdi:HintAssist.Hint="일"
+              SelectedItem="{Binding SelectedDay, UpdateSourceTrigger=PropertyChanged}"
+              ItemsSource="{Binding DayOptions}"
+              Width="120"
+              FontSize="16" />
+                </StackPanel>
+>>>>>>> 495170c ([홍서진] 회원수정)
 
                 <!-- 전번 -->
                 <Grid>

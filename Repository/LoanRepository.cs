@@ -21,20 +21,20 @@ namespace library_management_system.Repository
         public async Task<IEnumerable<Loan>> GetAllLoansAsync()
         {
             const string sql = @"
-                   SELECT
+                    SELECT
                         m.NAME,
                         l.PHONENUMBER,
                         l.ISBN,
                         l.LOANDATE,
                         l.DUEDATE,
                         l.RETURNDATE,
-                        CASE
-                            WHEN l.RETURNDATE IS NULL THEN '대출 중'
-                            ELSE '반납 완료'
-                    END AS LoanStatus
+                    CASE
+                        WHEN l.RETURNDATE IS NULL THEN '대출 중'
+                        ELSE '반납 완료'
+                        END AS LoanStatus
                     FROM LOAN l
-                    LEFT JOIN
-                    MEMBER m ON l.PHONENUMBER = m.PHONENUMBER";
+                    INNER JOIN MEMBER m ON l.PHONENUMBER = m.PHONENUMBER
+                    WHERE m.LOANSTATUS = 'T'";
 
             var loan = await _dbHelper.QueryAsync<Loan>(sql);
             return loan;

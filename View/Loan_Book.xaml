@@ -101,7 +101,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <Border BorderBrush="LightGray" BorderThickness="1" Margin="2">
-                                <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}"
+                                <Image Source="{Binding BookImage}"
                        Height="60"
                        Stretch="Uniform"
                        RenderOptions.BitmapScalingMode="HighQuality" />

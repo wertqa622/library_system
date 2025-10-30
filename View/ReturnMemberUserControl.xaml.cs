@@ -63,6 +63,19 @@ namespace library_management_system.View
 
             Loan_Book window = new Loan_Book(selectedMember.Phone);
 
+            // 창을 화면 가운데에 띄우도록 소유자/시작 위치 설정
+            var ownerWindow = Window.GetWindow(this);
+            if (ownerWindow != null)
+            {
+                window.Owner = ownerWindow;
+                window.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            }
+            else
+            {
+                // 소유자를 찾을 수 없는 경우 화면 중앙에 띄움
+                window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            }
+
             // Loan_Book 창에서 도서 반납 완료 시 이벤트 수신
             window.BookListChanged += async (s, phoneNumber) =>
             {

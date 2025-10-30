@@ -61,7 +61,7 @@
                          Margin="0,16,0,16"
                          FontSize="16" />
 
-                <!-- 생년월일 -->
+                <!-- 성별 -->
                 <ComboBox Style="{DynamicResource MaterialDesignOutlinedComboBox}"
           mdi:HintAssist.Hint="성별"
           SelectedItem="{Binding Gender, UpdateSourceTrigger=PropertyChanged}"
@@ -69,7 +69,7 @@
           Margin="0,0,0,16"
           FontSize="16" />
 
-                <!-- 성별 -->
+                <!-- 생년월일 -->
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                     <ComboBox Style="{DynamicResource MaterialDesignOutlinedComboBox}"
               mdi:HintAssist.Hint="년"

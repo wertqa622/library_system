@@ -59,17 +59,25 @@ namespace library_management_system.Repository
         {
             const string sql = @"
                 SELECT
-                    MEMBERID AS Id,
-                    NAME AS Name,
-                    TO_CHAR(BIRTHDATE, 'YYYY-MM-DD') AS Birthdaydate,
-                    EMAIL AS Email,
-                    PHONENUMBER AS Phone,
-                    GENDER AS Gender,
-                    PHOTO AS Photo,
-                    CASE LOANSTATUS WHEN 'T' THEN 1 ELSE 0 END AS LoanStatus,
-                    CASE WITHDRAWALSTATUS WHEN 'F' THEN 1 ELSE 0 END AS IsActive
-                FROM MEMBER
-                WHERE MEMBERID = :Id";
+                    m.MEMBERID AS Id,
+                    m.NAME AS Name,
+                    TO_CHAR(m.BIRTHDATE, 'YYYY-MM-DD') AS Birthdaydate,
+                    m.EMAIL AS Email,
+                    m.PHONENUMBER AS Phone,
+                    m.GENDER AS Gender,
+                    m.PHOTO AS Photo,
+                    CASE m.LOANSTATUS WHEN 'T' THEN 1 ELSE 0 END AS LoanStatus,
+                    CASE m.WITHDRAWALSTATUS WHEN 'F' THEN 1 ELSE 0 END AS IsActive,
+                    CASE 
+                        WHEN (SELECT COUNT(*) FROM LOAN l WHERE l.PHONENUMBER = m.PHONENUMBER AND l.RETURNDATE IS NULL) < 5 THEN 1
+                        ELSE 0
+                    END AS CanBorrow,
+                    CASE 
+                        WHEN (SELECT COUNT(*) FROM LOAN l2 WHERE l2.PHONENUMBER = m.PHONENUMBER AND l2.RETURNDATE IS NULL) > 0 THEN 1
+                        ELSE 0
+                    END AS HasActiveLoans
+                FROM MEMBER m
+                WHERE m.MEMBERID = :Id";
             var members = await _dbHelper.QueryAsync<Member>(sql, new { Id = memberId });
             return members.FirstOrDefault();
 >>>>>>> 4343ef4 ([홍서진] 전체 예외처리 및 오류 수정)
@@ -77,8 +85,40 @@ namespace library_management_system.Repository
 
         public async Task<IEnumerable<Member>> GetAllMembersAsync()
         {
+<<<<<<< HEAD
             string sql = "SELECT MEMBERID AS Id, NAME, EMAIL, PHONENUMBER AS Phone, BIRTHDATE AS Birthdaydate, GENDER FROM MEMBER WHERE WITHDRAWALSTATUS = 'N' ORDER BY NAME";
             return await _dbHelper.QueryAsync<Member>(sql);
+=======
+            // Oracle 대소문자 구분을 위해 명시적으로 컬럼명 매핑
+            const string sql = @"
+                SELECT
+     m.MEMBERID AS MemberID,
+     m.NAME AS Name,
+     TO_CHAR(m.BIRTHDATE, 'YYYY-MM-DD') AS Birthdaydate,
+     m.EMAIL AS Email,
+     m.PHONENUMBER AS Phone,
+     '' AS Address,
+     SYSDATE AS RegistrationDate,
+     CASE m.WITHDRAWALSTATUS WHEN 'F' THEN 1 ELSE 0 END AS IsActive,
+     5 AS MaxBooksAllowed,
+     m.GENDER AS Gender,
+     m.PHOTO AS Photo,
+     CASE m.LOANSTATUS WHEN 'T' THEN 1 ELSE 0 END AS LoanStatus,
+     CASE
+         WHEN (SELECT COUNT(*) FROM LOAN l WHERE l.PHONENUMBER = m.PHONENUMBER AND l.RETURNDATE IS NULL) < 5 THEN 1
+         ELSE 0
+     END AS CanBorrow,
+     CASE 
+         WHEN (SELECT COUNT(*) FROM LOAN l2 WHERE l2.PHONENUMBER = m.PHONENUMBER AND l2.RETURNDATE IS NULL) > 0 THEN 1
+         ELSE 0
+     END AS HasActiveLoans
+ FROM MEMBER m
+ WHERE m.WITHDRAWALSTATUS = 'F'
+ ORDER BY m.NAME";
+
+            var members = await _dbHelper.QueryAsync<Member>(sql);
+            return members ?? Enumerable.Empty<Member>();
+>>>>>>> 4c71f2c ([홍서진] 전체 수정)
         }
 
         public Task<Member> GetMemberByIdAsync(int id)
@@ -116,18 +156,26 @@ namespace library_management_system.Repository
             {
                 const string sql = @"
                 SELECT
-                    MEMBERID AS Id,
-                    NAME AS Name,
-                    TO_CHAR(BIRTHDATE, 'YYYY-MM-DD') AS Birthdaydate,
-                    EMAIL AS Email,
-                    PHONENUMBER AS Phone,
-                    GENDER AS Gender,
-                    PHOTO AS Photo,
-                    CASE WHEN LOANSTATUS = 'T' THEN 1 ELSE 0 END AS LoanStatus,
-                    CASE WHEN WITHDRAWALSTATUS = 'F' THEN 1 ELSE 0 END AS IsActive,
-                    WITHDRAWALSTATUS AS WithdrawalStatus
-                FROM MEMBER
-                WHERE PHONENUMBER = :Phone";
+                    m.MEMBERID AS Id,
+                    m.NAME AS Name,
+                    TO_CHAR(m.BIRTHDATE, 'YYYY-MM-DD') AS Birthdaydate,
+                    m.EMAIL AS Email,
+                    m.PHONENUMBER AS Phone,
+                    m.GENDER AS Gender,
+                    m.PHOTO AS Photo,
+                    CASE WHEN m.LOANSTATUS = 'T' THEN 1 ELSE 0 END AS LoanStatus,
+                    CASE WHEN m.WITHDRAWALSTATUS = 'F' THEN 1 ELSE 0 END AS IsActive,
+                    m.WITHDRAWALSTATUS AS WithdrawalStatus,
+                    CASE 
+                        WHEN (SELECT COUNT(*) FROM LOAN l WHERE l.PHONENUMBER = m.PHONENUMBER AND l.RETURNDATE IS NULL) < 5 THEN 1
+                        ELSE 0
+                    END AS CanBorrow,
+                    CASE 
+                        WHEN (SELECT COUNT(*) FROM LOAN l2 WHERE l2.PHONENUMBER = m.PHONENUMBER AND l2.RETURNDATE IS NULL) > 0 THEN 1
+                        ELSE 0
+                    END AS HasActiveLoans
+                FROM MEMBER m
+                WHERE m.PHONENUMBER = :Phone";
 
                 var members = await _dbHelper.QueryAsync<Member>(sql, new { Phone = phone });
                 return members.FirstOrDefault();

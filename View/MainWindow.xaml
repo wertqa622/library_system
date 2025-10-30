@@ -467,16 +467,27 @@
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="이메일"
                                                         Binding="{Binding Email}"
+<<<<<<< HEAD
                                                         Width="120"
+=======
+                                                        Width="*"
+>>>>>>> 4c71f2c ([홍서진] 전체 수정)
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="전화번호"
                                                         Binding="{Binding PhoneNumber}"
                                                         Width="250"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="성별"
+<<<<<<< HEAD
                                                         Binding="{Binding gender}"
                                                         Width="250"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+=======
+                                                        Binding="{Binding Gender}"
+                                                        Width="200"
+                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    
+>>>>>>> 4c71f2c ([홍서진] 전체 수정)
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>

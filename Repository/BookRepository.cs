@@ -22,6 +22,7 @@ namespace library_management_system.Repository
         public async Task<IEnumerable<Book>> GetAllBooksAsync()
         {
             const string sql = @"
+<<<<<<< HEAD
                 SELECT 
                     ISBN,
                     BOOKIMAGE,
@@ -33,6 +34,23 @@ namespace library_management_system.Repository
                     BOOKURL
                 FROM BOOK 
                 ORDER BY BOOKNAME";
+=======
+                SELECT
+                    b.ISBN,
+                    b.BOOKIMAGE,
+                    b.BOOKNAME,
+                    b.PUBLISHER,
+                    b.AUTHOR,
+                    b.DESCRIPTION,
+                    b.PRICE,
+                    b.BOOKURL,
+                    CASE WHEN EXISTS (
+                        SELECT 1 FROM LOAN l
+                        WHERE l.ISBN = b.ISBN AND l.RETURNDATE IS NULL
+                    ) THEN 0 ELSE 1 END AS IsAvailable
+                FROM BOOK b
+                ORDER BY b.BOOKNAME";
+>>>>>>> 4c71f2c ([홍서진] 전체 수정)
             var books = await _dbHelper.QueryAsync<Book>(sql);
             return books;
         }

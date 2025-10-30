@@ -535,7 +535,7 @@
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="이메일"
                                                         Binding="{Binding Email}"
-                                                        Width="300"
+                                                        Width="*"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
                                     <DataGridTextColumn Header="전화번호"
                                                         Binding="{Binding Phone}"
@@ -545,10 +545,7 @@
                                                         Binding="{Binding Gender}"
                                                         Width="200"
                                                         ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
-                                    <DataGridTextColumn Header="대출 가능 여부"
-                                                        Binding="{Binding LoanStatus, Converter={StaticResource BooleanToLoanStatusConverter}}"
-                                                        Width="250"
-                                                        ElementStyle="{DynamicResource CustomDataGridTextColumnStyle}" />
+                                    
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>

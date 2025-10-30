@@ -24,5 +24,11 @@ namespace library_management_system.Models
         {
             get { return WithdrawalStatus == "F"; }
         }
+
+        // UI 대출 가능 여부 (현재 대출 권수 < MaxBooksAllowed)
+        public bool CanBorrow { get; set; }
+
+        // 현재 대출 중 여부 (하나라도 대출 중이면 true)
+        public bool HasActiveLoans { get; set; }
     }
 }

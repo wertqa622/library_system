@@ -128,6 +128,12 @@ namespace library_management_system.View
                         // 4. 대출 성공 이벤트를 발생시켜 부모 창에 알립니다.
                         BookLoaned?.Invoke(this, EventArgs.Empty);
 
+                        // 5. 메인 화면의 회원 목록도 최신화 (대출 가능 여부 반영)
+                        if (System.Windows.Application.Current?.MainWindow?.DataContext is library_management_system.ViewModels.MainViewModel vm)
+                        {
+                            await vm.RefreshMembersAsync();
+                        }
+
                         this.Close();
                     }
                     catch (Exception ex)

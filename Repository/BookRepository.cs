@@ -24,16 +24,20 @@ namespace library_management_system.Repository
         {
             const string sql = @"
                 SELECT
-                    ISBN,
-                    BOOKIMAGE,
-                    BOOKNAME,
-                    PUBLISHER,
-                    AUTHOR,
-                    DESCRIPTION,
-                    PRICE,
-                    BOOKURL
-                FROM BOOK
-                ORDER BY BOOKNAME";
+                    b.ISBN,
+                    b.BOOKIMAGE,
+                    b.BOOKNAME,
+                    b.PUBLISHER,
+                    b.AUTHOR,
+                    b.DESCRIPTION,
+                    b.PRICE,
+                    b.BOOKURL,
+                    CASE WHEN EXISTS (
+                        SELECT 1 FROM LOAN l
+                        WHERE l.ISBN = b.ISBN AND l.RETURNDATE IS NULL
+                    ) THEN 0 ELSE 1 END AS IsAvailable
+                FROM BOOK b
+                ORDER BY b.BOOKNAME";
             var books = await _dbHelper.QueryAsync<Book>(sql);
             return books;
         }

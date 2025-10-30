@@ -101,7 +101,8 @@ namespace library_management_system.ViewModels
         //}
         private bool CanWithdrawMember()
         {
-            return SelectedMember != null;
+            // 활성 회원이면서 대출 중이 아닐 때만 탈퇴 가능
+            return SelectedMember != null && SelectedMember.IsActive && !SelectedMember.HasActiveLoans;
         }
 
         #region Public Properties
@@ -558,63 +559,63 @@ namespace library_management_system.ViewModels
         {
             if (SelectedMember == null) return;
 
-            if (SelectedMember.LoanStatus)
+            // 대출 중인 회원은 탈퇴 불가
+            if (SelectedMember.HasActiveLoans)
             {
-                var result = MessageBox.Show(
-                    "정말로 탈퇴 처리하시겠습니까?",
-                    "회원 탈퇴 확인",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Warning);
+                MessageBox.Show("반납되지 않은 도서가 있어 탈퇴할 수 없습니다.", "탈퇴 불가", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
-                if (result == MessageBoxResult.Yes)
+            var result = MessageBox.Show(
+                "정말로 탈퇴 처리하시겠습니까?",
+                "회원 탈퇴 확인",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
                 {
+                    await _memberRepository.UpdateWithdrawalStatusAsync(SelectedMember.MemberID, true);
+
+                    // UI에서 즉시 제거(사용자 체감용)
+                    var removedMember = SelectedMember;
+                    if (removedMember != null && Members.Contains(removedMember))
+                    {
+                        Members.Remove(removedMember);
+                    }
+
+                    // DB 기준으로 전체 목록 동기화
+                    await RefreshMembersAsync();
+
+                    // 선택 해제 및 커맨드 상태 갱신
+                    SelectedMember = null;
+                    (WithdrawMemberCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                    (EditMemberCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                    (DeleteMemberCommand as RelayCommand)?.RaiseCanExecuteChanged();
+
+                    MessageBox.Show("회원이 성공적으로 탈퇴 처리되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                    // 열린 ResignedMemberWindow가 있으면 즉시 갱신
                     try
                     {
-                        await _memberRepository.UpdateWithdrawalStatusAsync(SelectedMember.MemberID, true);
-
-                        // UI에서 즉시 제거(사용자 체감용)
-                        var removedMember = SelectedMember;
-                        if (removedMember != null && Members.Contains(removedMember))
+                        var resignedWindow = System.Windows.Application.Current.Windows
+                            .OfType<library_management_system.View.ResignedMemberWindow>()
+                            .FirstOrDefault();
+                        if (resignedWindow != null)
                         {
-                            Members.Remove(removedMember);
-                        }
-
-                        // DB 기준으로 전체 목록 동기화
-                        await RefreshMembersAsync();
-
-                        // 선택 해제 및 커맨드 상태 갱신
-                        SelectedMember = null;
-                        (WithdrawMemberCommand as RelayCommand)?.RaiseCanExecuteChanged();
-                        (EditMemberCommand as RelayCommand)?.RaiseCanExecuteChanged();
-                        (DeleteMemberCommand as RelayCommand)?.RaiseCanExecuteChanged();
-
-                        MessageBox.Show("회원이 성공적으로 탈퇴 처리되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                        // 열린 ResignedMemberWindow가 있으면 즉시 갱신
-                        try
-                        {
-                            var resignedWindow = System.Windows.Application.Current.Windows
-                                .OfType<library_management_system.View.ResignedMemberWindow>()
-                                .FirstOrDefault();
-                            if (resignedWindow != null)
-                            {
-                                await resignedWindow.RefreshAsync();
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine($"ResignedMemberWindow 갱신 실패: {ex}");
+                            await resignedWindow.RefreshAsync();
                         }
                     }
-                    catch (System.Exception ex)
+                    catch (Exception ex)
                     {
-                        MessageBox.Show($"회원 탈퇴 처리 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                        System.Diagnostics.Debug.WriteLine($"ResignedMemberWindow 갱신 실패: {ex}");
                     }
                 }
-            }
-            else
-            {
-                MessageBox.Show("회원의 대출 상태가 비활성화되어 있어 탈퇴 처리가 불가능합니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Warning);
+                catch (System.Exception ex)
+                {
+                    MessageBox.Show($"회원 탈퇴 처리 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 

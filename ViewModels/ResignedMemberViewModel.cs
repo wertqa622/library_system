@@ -17,14 +17,14 @@ namespace library_management_system.ViewModels
             _memberRepository = memberRepository;
         }
 
-        public async Task LoadAsync()
-        {
-            Members.Clear();
-            var all = await _memberRepository.GetAllMembersAsync();
-            foreach (var m in all.Where(x => x.WithdrawalStatus))
-            {
-                Members.Add(m);
-            }
-        }
+        //public async Task LoadAsync()
+        //{
+        //    Members.Clear();
+        //    var all = await _memberRepository.GetAllMembersAsync();
+        //    foreach (var m in all.Where(x => x.WithdrawalStatus))
+        //    {
+        //        Members.Add(m);
+        //    }
+        //}
     }
 }

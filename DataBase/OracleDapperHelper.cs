@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using System.Threading;
 using Oracle.ManagedDataAccess.Client;
 using Dapper;
 using Microsoft.Extensions.Logging;
@@ -133,6 +134,33 @@ namespace library_management_system.DataBase
                 _logger.LogError(ex, $"Error executing async command: {sql}");
                 throw;
             }
+        }
+
+        public async Task<T> ExecuteScalarAsync<T>(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null)
+        {
+            try
+            {
+                EnsureOpen();
+                _logger.LogDebug($"Executing scalar async: {sql}");
+                return await _connection.ExecuteScalarAsync<T>(sql, param, transaction, commandTimeout, commandType);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error executing scalar async: {sql}");
+                throw;
+            }
+        }
+
+        public async Task<int?> ExecuteScalarAsyncNullable(string sql, object param = null, IDbTransaction transaction = null, int? commandTimeout = null, CommandType? commandType = null, CancellationToken cancellationToken = default)
+        {
+            EnsureOpen();
+            var result = await _connection.ExecuteScalarAsync<object>(
+                sql,
+                param,
+                transaction,
+                commandTimeout,
+                commandType);
+            return result as int?;
         }
 
         public void Dispose()

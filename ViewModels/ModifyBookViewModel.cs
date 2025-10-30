@@ -141,9 +141,9 @@ namespace library_management_system.ViewModels
                 // 성공적으로 수정되었음을 알림
                 RequestClose?.Invoke(true);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                MessageBox.Show($"도서 수정 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"도서 수정 중 오류가 발생했습니다: 입력한 값을 확인해주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

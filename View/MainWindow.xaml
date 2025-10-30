@@ -492,7 +492,7 @@
                                 </mdi:Card>
                                 <Button Grid.Column="2"
                                                 Style="{DynamicResource MaterialDesignIconButton}"
-                                                Command="{Binding RefrashBookCommand}"
+                                                Command="{Binding RefrashMemberCommand}"
                                                 Width="36"
                                                 Height="36"
                                                 Margin="300,0,0,0">

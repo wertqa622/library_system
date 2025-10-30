@@ -68,6 +68,7 @@ namespace library_management_system.ViewModels
             SearchBookCommand = new RelayCommand(SearchBooks);
             SearchMemberCommand = new RelayCommand(SearchMembers);
             RefrashBookCommand = new RelayCommand(RefrashBook);
+            RefrashMemberCommand = new RelayCommand(RefrashMember);
             AddMemberCommand = new RelayCommand(AddMember);
             EditMemberCommand = new RelayCommand(EditMember, CanEditMember);
             DeleteMemberCommand = new RelayCommand(DeleteMember, CanDeleteMember);
@@ -85,6 +86,7 @@ namespace library_management_system.ViewModels
         public ICommand SearchBookCommand { get; }
         public ICommand SearchMemberCommand { get; }
         public ICommand RefrashBookCommand { get; }
+        public ICommand RefrashMemberCommand { get; }
         public ICommand AddMemberCommand { get; }
         public ICommand EditMemberCommand { get; }
         public ICommand DeleteMemberCommand { get; }
@@ -93,9 +95,13 @@ namespace library_management_system.ViewModels
 
         // --- Public 속성들 ---
 
+        //private bool CanWithdrawMember()
+        //{
+        //    return SelectedMember != null && !SelectedMember.WithdrawalStatus;
+        //}
         private bool CanWithdrawMember()
         {
-            return SelectedMember != null && !SelectedMember.WithdrawalStatus;
+            return SelectedMember != null;
         }
 
         #region Public Properties
@@ -153,6 +159,7 @@ namespace library_management_system.ViewModels
                 // Command 상태 업데이트
                 (EditMemberCommand as RelayCommand)?.RaiseCanExecuteChanged();
                 (DeleteMemberCommand as RelayCommand)?.RaiseCanExecuteChanged();
+                (WithdrawMemberCommand as RelayCommand)?.RaiseCanExecuteChanged();
             }
         }
 
@@ -200,6 +207,13 @@ namespace library_management_system.ViewModels
         private async void RefrashBook()
         {
             await RefreshBooksFromDatabase();
+            MessageBox.Show("새로고침 되었습니다", "새로고침");
+        }
+
+        private async void RefrashMember()
+        {
+            await RefreshMembersFromDatabase();
+            MessageBox.Show("새로고침 되었습니다", "새로고침");
         }
 
         private async void LoadData()
@@ -267,7 +281,25 @@ namespace library_management_system.ViewModels
                     Books.Add(book);
                 }
                 _allBooks = books.ToList();
-                System.Diagnostics.Debug.WriteLine($"도서 목록 갱신 완료: {Books.Count}개 도서");
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"도서 목록 갱신 중 오류가 발생했습니다: {ex.Message}", "오류", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+
+        private async Task RefreshMemberFromDatabase()
+        {
+            try
+            {
+                var members = await _memberRepository.GetAllMembersAsync();
+                Books.Clear();
+                foreach (var member in members)
+                {
+                    Members.Add(member);
+                }
+                _allMembers = members.ToList();
+                System.Diagnostics.Debug.WriteLine($"도서 목록 갱신 완료: {Members.Count}개 도서");
             }
             catch (Exception ex)
             {
@@ -461,7 +493,6 @@ namespace library_management_system.ViewModels
                     Members.Add(member);
                 }
                 _allMembers = members.ToList();
-                System.Diagnostics.Debug.WriteLine($"회원 목록 갱신 완료: {Members.Count}명 회원");
             }
             catch (Exception ex)
             {

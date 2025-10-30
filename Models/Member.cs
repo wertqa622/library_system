@@ -17,6 +17,12 @@ namespace library_management_system.Models
         public string Gender { get; set; } = string.Empty;
         public byte[] Photo { get; set; }
         public bool LoanStatus { get; set; } = true;
-        public bool WithdrawalStatus { get; set; }
+        public string WithdrawalStatus { get; set; } 
+
+        // UI 탈퇴 가능 여부 판단용 (DB 저장용 아님)
+        public bool CanWithdraw
+        {
+            get { return WithdrawalStatus == "F"; }
+        }
     }
 }

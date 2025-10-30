@@ -176,7 +176,7 @@ namespace library_management_system.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"회원 수정 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("회원 수정 중 오류가 발생했습니다: 입력한 값을 확인해주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

@@ -12,11 +12,15 @@ namespace library_management_system.Repository
 
         Task<IEnumerable<Member>> SearchMembersAsync(string searchTerm);
 
+        Task<Member> GetMemberByPhoneAsync(string phone);
+
         Task<Member> AddMemberAsync(Member member);
 
         Task<Member> UpdateMemberAsync(Member member);
 
         Task<bool> DeleteMemberAsync(int id);
+
+        Task DeleteByPhoneAsync(string phone);
 
         Task UpdateWithdrawalStatusAsync(int memberId, bool withdrawalStatus);
 

@@ -151,6 +151,7 @@ namespace library_management_system.ViewModels
 
         private async void UpdateMember()
         {
+            InitializeBirthday(Birthdaydate);
             try
             {
                 if (string.IsNullOrWhiteSpace(Name))

@@ -123,9 +123,9 @@ namespace library_management_system.ViewModels
                     _selectedDay = int.Parse(parts[2]).ToString();
 
                     // UI에 변경사항을 알리기 위해 OnPropertyChanged 호출
-                    OnPropertyChanged(nameof(SelectedYear));
-                    OnPropertyChanged(nameof(SelectedMonth));
-                    OnPropertyChanged(nameof(SelectedDay));
+                    //OnPropertyChanged(nameof(SelectedYear));
+                    //OnPropertyChanged(nameof(SelectedMonth));
+                    //OnPropertyChanged(nameof(SelectedDay));
                 }
             }
             catch
@@ -151,7 +151,8 @@ namespace library_management_system.ViewModels
 
         private async void UpdateMember()
         {
-            InitializeBirthday(Birthdaydate);
+            UpdateBirthdaydate();
+            //InitializeBirthday(Birthdaydate);
             try
             {
                 if (string.IsNullOrWhiteSpace(Name))

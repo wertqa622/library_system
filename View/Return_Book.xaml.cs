@@ -115,6 +115,13 @@ namespace library_management_system.View
                 {
                     try
                     {
+                        bool canBorrow = await _repository.CanMemberBorrowAsync(_selectedMember.Phone);
+
+                        if (!canBorrow)
+                        {
+                            System.Windows.MessageBox.Show("대출 한도(5권)를 초과하여 더 이상 대출할 수 없습니다.", "대출 불가", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            return; // 대출 절차 중단
+                        }
                         await _repository.LoanBookAsync(_selectedMember.Phone, selectedBook.ISBN);
                         System.Windows.MessageBox.Show("대출이 완료되었습니다.", "알림", MessageBoxButton.OK, MessageBoxImage.Information);
 

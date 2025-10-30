@@ -77,6 +77,7 @@
                              IsEnabled="{Binding CheckISBN}"
                              Text="{Binding ISBN, UpdateSourceTrigger=PropertyChanged}"
                              Margin="0,0,107,16"
+                             PreviewTextInput="IsbnTextBox_PreviewTextInput"
                              FontSize="16" />
                     <Button Margin="341,16,10,31"
                             Content="중복확인"

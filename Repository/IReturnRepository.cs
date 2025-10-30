@@ -20,5 +20,7 @@ namespace library_management_system.Repository
         Task<int> LoanBookAsync(string phoneNumber, string isbn);
 
         Task<IEnumerable<Book>> GetAvailableBooksAsync();
+
+        Task<bool> CanMemberBorrowAsync(string phoneNumber);
     }
 }

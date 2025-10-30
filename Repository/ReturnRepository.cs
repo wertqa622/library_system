@@ -110,6 +110,24 @@ namespace library_management_system.Repository
             return result.ToList();
         }
 
+        public async Task<bool> CanMemberBorrowAsync(string phoneNumber)
+        {
+            // 한 사람이 최대 5권까지 빌릴 수 있도록 설정
+            const int maxLoans = 5;
+
+            const string sql = @"
+        SELECT COUNT(*)
+        FROM LOAN
+        WHERE PHONENUMBER = :PhoneNumber AND RETURNDATE IS NULL";
+
+            // ⭐ 핵심 수정: ExecuteAsync 대신 QuerySingleAsync<int>를 사용하여
+            // SELECT COUNT(*)의 결과(숫자)를 직접 가져옵니다.
+            var currentLoanCount = await _dbHelper.QuerySingleAsync<int>(sql, new { PhoneNumber = phoneNumber });
+
+            // 현재 대출 건수가 5권 미만일 때만 true를 반환합니다.
+            return currentLoanCount < maxLoans;
+        }
+
         /// <summary>
         /// 대출 가능한 (현재 대출 중이 아닌) 모든 도서 목록을 조회합니다.
         /// </summary>

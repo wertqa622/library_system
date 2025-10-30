@@ -102,10 +102,14 @@ namespace library_management_system.Repository
                 DESCRIPTION,
                 PRICE,
                 BOOKURL
-            FROM BOOK
-            WHERE BOOKNAME LIKE :Keyword OR AUTHOR LIKE :Keyword OR PUBLISHER LIKE :Keyword";
+            FROM BOOK b
+            WHERE (b.BOOKNAME LIKE :Keyword OR b.AUTHOR LIKE :Keyword OR b.PUBLISHER LIKE :Keyword)
+              AND NOT EXISTS (
+                  SELECT 1 FROM LOAN l
+                  WHERE l.ISBN = b.ISBN
+                    AND l.RETURNDATE IS NULL
+              )";
 
-            // Book 모델의 프로퍼티 이름이 테이블 컬럼과 일치해야 합니다.
             var result = await _dbHelper.QueryAsync<Book>(sql, new { Keyword = $"%{keyword}%" });
             return result.ToList();
         }

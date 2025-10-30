@@ -292,5 +292,16 @@ namespace library_management_system.Repository
 
         // ILoanRepository 인터페이스에 정의된 다른 메서드들도
         // 위와 같은 방식으로 SQL 쿼리를 사용하여 구현해야 합니다.
+
+        public async Task<bool> HasActiveLoansAsync(string phoneNumber)
+        {
+            const string sql = "SELECT COUNT(*) FROM LOAN WHERE PHONENUMBER = :PhoneNumber AND RETURNDATE IS NULL";
+
+            // QuerySingleAsync를 사용해 COUNT 결과를 하나의 숫자로 가져옵니다.
+            var count = await _dbHelper.QuerySingleAsync<int>(sql, new { PhoneNumber = phoneNumber });
+
+            // 카운트가 0보다 크면 대출 중인 책이 있다는 의미입니다.
+            return count > 0;
+        }
     }
 }

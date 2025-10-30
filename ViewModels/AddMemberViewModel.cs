@@ -193,37 +193,59 @@ namespace library_management_system.ViewModels
             }
         }
 
-        private void CheckPhone(object parameter)
+        private async void CheckPhone(object parameter)
         {
-            string phone = this.Phone?.Trim();
+            string phone = this.Phone?.Trim(); //데이터가 null일 경우 대비
 
             if (string.IsNullOrWhiteSpace(phone))
             {
                 MessageBox.Show("휴대폰 번호를 입력해주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            var normalizedInputPhone = new string(phone.Where(char.IsDigit).ToArray());
-            bool isDuplicate = _members.Any(member =>
-            {
-                // DB에 있는 번호가 null이 아닐 경우에만 정규화 진행
-                if (string.IsNullOrEmpty(member.Phone))
-                {
-                    return false;
-                }
-                var normalizedExistingPhone = new string(member.Phone.Where(char.IsDigit).ToArray());
-                return normalizedExistingPhone == normalizedInputPhone;
-            });
 
-            if (isDuplicate)
+            try
             {
-                MessageBox.Show("이미 존재하는 휴대폰 번호입니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                var existingMember = await _memberRepository.GetMemberByPhoneAsync(phone);
+                if (existingMember == null)
+                {
+                    // DB에 없음 → 진행 가능
+                    MessageBox.Show("사용 가능한 휴대폰 번호입니다.", "사용 가능", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CheckPhoneFlag = false;
+                    return;
+                }
+
+                // existingMember가 있고, WithdrawalStatus가 'T'인 경우 → 우리 모델에서 IsActive == false
+                if (!existingMember.IsActive)
+                {
+                    MessageBox.Show("사용가능한 번호입니다.", "안내", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CheckPhoneFlag = false;
+                    return;
+                }
+
+                // existingMember가 있고, WithdrawalStatus가 'F'(활성) → 중복으로 간주
+                MessageBox.Show("중복값입니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                CheckPhoneFlag = true;
+            }
+            catch
+            {
+                MessageBox.Show("휴대폰 번호 확인 중 오류가 발생했습니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async Task<AddMemberViewModel> checkdbphone(AddMemberViewModel phone)
+        {
+            var existingMember = await _memberRepository.GetMemberByPhoneAsync(phone.Phone);
+            if (existingMember != null)
+            {
+                MessageBox.Show("이미 존재하는 휴대폰 번호입니다.", "중복 오류", MessageBoxButton.OK, MessageBoxImage.Error);
                 CheckPhoneFlag = true;
             }
             else
             {
-                MessageBox.Show("사용 가능한 휴대폰 번호입니다.", "확인", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("사용 가능한 휴대폰 번호입니다.", "사용 가능", MessageBoxButton.OK, MessageBoxImage.Information);
                 CheckPhoneFlag = false;
             }
+            return default;
         }
 
         private void UpdateBirthdaydate()
@@ -256,12 +278,16 @@ namespace library_management_system.ViewModels
 
             try
             {
+                // 최종 저장 시: 해당 전화번호로 기존 레코드 무조건 삭제 후 재삽입
+                var trimmedPhone = this.Phone.Trim();
+                await _memberRepository.DeleteByPhoneAsync(trimmedPhone);
+
                 var newMember = new Member
                 {
                     Name = this.Name.Trim(),
                     Birthdaydate = this.Birthdaydate?.Trim() ?? "",
                     Gender = this.Gender?.Trim() ?? "",
-                    Phone = this.Phone.Trim(),
+                    Phone = trimmedPhone,
                     Email = this.Email?.Trim() ?? "",
                     Photo = this.PhotoBytes ?? new byte[0],
                     IsActive = true
@@ -273,9 +299,9 @@ namespace library_management_system.ViewModels
                 MessageBox.Show("회원이 성공적으로 추가되었습니다.", "성공", MessageBoxButton.OK, MessageBoxImage.Information);
                 RequestClose?.Invoke(); // 창 닫기 요청
             }
-            catch (Exception ex)
+            catch
             {
-                MessageBox.Show($"회원 추가 중 오류가 발생했습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("회원 추가 중 오류가 발생했습니다: 입력한 값을 확인해주세요.", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }

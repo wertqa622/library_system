@@ -430,6 +430,17 @@
                                         </Button>
                                     </Grid>
                                 </mdi:Card>
+<<<<<<< HEAD
+=======
+                                <Button Grid.Column="2"
+                                                Style="{DynamicResource MaterialDesignIconButton}"
+                                                Command="{Binding RefrashMemberCommand}"
+                                                Width="36"
+                                                Height="36"
+                                                Margin="300,0,0,0">
+                                    <mdi:PackIcon Kind="Refresh" Width="20" Height="20" />
+                                </Button>
+>>>>>>> 4343ef4 ([홍서진] 전체 예외처리 및 오류 수정)
                             </StackPanel>
 
                             <DataGrid Grid.Row="1"

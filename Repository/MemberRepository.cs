@@ -11,12 +11,68 @@ namespace library_management_system.Repository
     {
         private readonly OracleDapperHelper _dbHelper;
         private readonly List<Member> _members = new List<Member>();
+        private readonly ILoanRepository _loanRepository;
         private int _nextId = 1;
+
+        public MemberRepository(OracleDapperHelper dbHelper, ILoanRepository loanRepository)
+        {
+            _dbHelper = dbHelper ?? throw new ArgumentNullException(nameof(dbHelper));
+            _loanRepository = loanRepository;
+        }
 
         public MemberRepository(OracleDapperHelper dbHelper)
         {
+<<<<<<< HEAD
             _dbHelper = dbHelper ?? throw new ArgumentNullException(nameof(dbHelper));
             InitializeSampleData();
+=======
+            _dbHelper = dbHelper;
+        }
+
+        /// <summary>
+        /// 회원을 탈퇴 처리합니다. 대출 중인 도서가 있으면 실패합니다.
+        /// </summary>
+        /// <param name="memberId">탈퇴시킬 회원의 ID</param>
+        /// <returns>성공 시 true, 실패(대출 도서 존재) 시 false</returns>
+        public async Task<bool> WithdrawMemberAsync(int memberId)
+        {
+            var member = await GetMemberByIdAsync(memberId);
+            if (member == null || string.IsNullOrEmpty(member.Phone))
+            {
+                throw new Exception("회원 정보를 찾을 수 없습니다.");
+            }
+
+            // 대출 중인 도서가 있는지 확인
+            bool hasActiveLoans = await _loanRepository.HasActiveLoansAsync(member.Phone);
+            if (hasActiveLoans)
+            {
+                return false; // 대출 중이면 탈퇴 실패
+            }
+
+            // WITHDRAWALSTATUS를 'T'로 변경하여 탈퇴 처리
+            const string sql = "UPDATE MEMBER SET WITHDRAWALSTATUS = 'T' WHERE MEMBERID = :Id";
+            var affectedRows = await _dbHelper.ExecuteAsync(sql, new { Id = memberId });
+            return affectedRows > 0;
+        }
+
+        public async Task<Member> GetMemberByIdAsync(int memberId)
+        {
+            const string sql = @"
+                SELECT
+                    MEMBERID AS Id,
+                    NAME AS Name,
+                    TO_CHAR(BIRTHDATE, 'YYYY-MM-DD') AS Birthdaydate,
+                    EMAIL AS Email,
+                    PHONENUMBER AS Phone,
+                    GENDER AS Gender,
+                    PHOTO AS Photo,
+                    CASE LOANSTATUS WHEN 'T' THEN 1 ELSE 0 END AS LoanStatus,
+                    CASE WITHDRAWALSTATUS WHEN 'F' THEN 1 ELSE 0 END AS IsActive
+                FROM MEMBER
+                WHERE MEMBERID = :Id";
+            var members = await _dbHelper.QueryAsync<Member>(sql, new { Id = memberId });
+            return members.FirstOrDefault();
+>>>>>>> 4343ef4 ([홍서진] 전체 예외처리 및 오류 수정)
         }
 
         public async Task<IEnumerable<Member>> GetAllMembersAsync()
@@ -51,7 +107,39 @@ namespace library_management_system.Repository
             return Task.FromResult(results);
         }
 
+<<<<<<< HEAD
         public Task<Member> AddMemberAsync(Member member)
+=======
+        public async Task<Member> GetMemberByPhoneAsync(string phone)
+        {
+            try
+            {
+                const string sql = @"
+                SELECT
+                    MEMBERID AS Id,
+                    NAME AS Name,
+                    TO_CHAR(BIRTHDATE, 'YYYY-MM-DD') AS Birthdaydate,
+                    EMAIL AS Email,
+                    PHONENUMBER AS Phone,
+                    GENDER AS Gender,
+                    PHOTO AS Photo,
+                    CASE WHEN LOANSTATUS = 'T' THEN 1 ELSE 0 END AS LoanStatus,
+                    CASE WHEN WITHDRAWALSTATUS = 'F' THEN 1 ELSE 0 END AS IsActive,
+                    WITHDRAWALSTATUS AS WithdrawalStatus
+                FROM MEMBER
+                WHERE PHONENUMBER = :Phone";
+
+                var members = await _dbHelper.QueryAsync<Member>(sql, new { Phone = phone });
+                return members.FirstOrDefault();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task UpdateWithdrawalStatusAsync(int memberId, bool withdrawalStatus)
+>>>>>>> 4343ef4 ([홍서진] 전체 예외처리 및 오류 수정)
         {
             member.Id = _nextId++;
             member.RegistrationDate = DateTime.Now;
@@ -89,6 +177,7 @@ namespace library_management_system.Repository
             return Task.FromResult(member?.IsActive ?? false);
         }
 
+<<<<<<< HEAD
         public Task<int> GetCurrentLoanCountAsync(int memberId)
         {
             // 실제로는 LoanRepository에서 가져와야 하지만, 여기서는 0으로 반환
@@ -97,6 +186,17 @@ namespace library_management_system.Repository
 
         // 실제 DB에서 대출 중인 회원만 불러오기
         public async Task<IEnumerable<Member>> GetMembersWithActiveLoansAsync()
+=======
+        public async Task DeleteByPhoneAsync(string phone)
+        {
+            const string sql = @"
+                DELETE FROM MEMBER
+                WHERE PHONENUMBER = :Phone";
+            await _dbHelper.ExecuteAsync(sql, new { Phone = phone });
+        }
+
+        public async Task<IEnumerable<Member>> GetWithdrawnMembersAsync()
+>>>>>>> 4343ef4 ([홍서진] 전체 예외처리 및 오류 수정)
         {
             const string sql = @"
                     SELECT DISTINCT

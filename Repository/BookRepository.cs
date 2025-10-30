@@ -6,6 +6,8 @@ using library_management_system.DataBase;
 using library_management_system.Models;
 using System.Data;
 using Dapper;
+using System.Windows;
+using MessageBox = System.Windows.MessageBox;
 
 namespace library_management_system.Repository
 {

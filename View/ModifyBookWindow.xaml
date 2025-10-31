@@ -81,10 +81,15 @@
                 <Grid>
                     <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                         mdi:HintAssist.Hint="ISBN"
-                        IsEnabled="False"
+                        IsEnabled="{Binding IsIsbnEnabled}"
                         Text="{Binding ISBN, UpdateSourceTrigger=PropertyChanged}"
-                        Margin="0,0,0,16"
+                        Margin="0,0,107,16"
                         FontSize="16" />
+                    <Button Margin="341,16,10,31"
+                            Content="중복확인"
+                            Command="{Binding CheckIsbnCommand}"
+                            Style="{DynamicResource MaterialDesignRaisedButton}">
+                    </Button>
                 </Grid>
 
                 <!-- URL -->

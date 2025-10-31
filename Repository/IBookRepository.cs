@@ -16,5 +16,10 @@ namespace library_management_system.Repository
 
         // 부모(BOOK) 삭제 시 관련 LOAN(대출 이력)도 함께 삭제하는 메서드 추가
         Task<bool> DeleteBookAndLoansAsync(string isbn);
+
+        /// <summary>
+        /// ISBN으로 도서를 조회합니다. ISBN 중복 확인에 사용됩니다.
+        /// </summary>
+        Task<Book> GetBookByIsbnAsync(string isbn);
     }
 }

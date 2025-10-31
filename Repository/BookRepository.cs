@@ -36,6 +36,7 @@ namespace library_management_system.Repository
                 ORDER BY BOOKNAME";
 =======
                 SELECT
+                    b.BOOKID AS BookID,
                     b.ISBN,
                     b.BOOKIMAGE,
                     b.BOOKNAME,
@@ -89,6 +90,7 @@ namespace library_management_system.Repository
         {
             const string sql = @"
                 UPDATE BOOK SET
+                    ISBN = :ISBN,
                     BOOKIMAGE = :BookImage,
                     BOOKNAME = :BookName,
                     PUBLISHER = :Publisher,
@@ -96,10 +98,57 @@ namespace library_management_system.Repository
                     DESCRIPTION = :Description,
                     PRICE = :Price,
                     BOOKURL = :BookUrl
+<<<<<<< HEAD
                 WHERE ISBN = :ISBN";
             
+=======
+                WHERE BOOKID = :BookID";
+
+            // BookImage가 null이면 빈 배열로 설정
+            if (book.BookImage == null)
+            {
+                book.BookImage = new byte[0];
+            }
+
+>>>>>>> ca40a71 ([홍서진] 최종 수정 완료)
             await _dbHelper.ExecuteAsync(sql, book);
             return book;
+        }
+
+        /// <summary>
+        /// ISBN으로 도서를 조회합니다. ISBN 중복 확인에 사용됩니다.
+        /// </summary>
+        /// <param name="isbn">조회할 ISBN</param>
+        /// <returns>도서 정보, 없으면 null</returns>
+        public async Task<Book> GetBookByIsbnAsync(string isbn)
+        {
+            try
+            {
+                const string sql = @"
+                SELECT
+                    b.BOOKID AS BookID,
+                    b.ISBN,
+                    b.BOOKIMAGE,
+                    b.BOOKNAME,
+                    b.PUBLISHER,
+                    b.AUTHOR,
+                    b.DESCRIPTION,
+                    b.PRICE,
+                    b.BOOKURL,
+                    CASE WHEN EXISTS (
+                        SELECT 1 FROM LOAN l
+                        WHERE l.ISBN = b.ISBN AND l.RETURNDATE IS NULL
+                    ) THEN 0 ELSE 1 END AS IsAvailable
+                FROM BOOK b
+                WHERE b.ISBN = :ISBN";
+
+                var books = await _dbHelper.QueryAsync<Book>(sql, new { ISBN = isbn });
+                return books.FirstOrDefault();
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public async Task<bool> DeleteBookAsync(string isbn)

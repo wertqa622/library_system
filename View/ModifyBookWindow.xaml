@@ -80,6 +80,7 @@
                 <Grid>
                     <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                         mdi:HintAssist.Hint="ISBN"
+<<<<<<< HEAD
                         Text="{Binding ISBN, UpdateSourceTrigger=PropertyChanged}"
                         Margin="0,0,122,16"
                         FontSize="16" />
@@ -87,6 +88,16 @@
                    Content="중복확인"
                    Click="wndqhr_click"
                    Style="{DynamicResource MaterialDesignRaisedButton}">
+=======
+                        IsEnabled="{Binding IsIsbnEnabled}"
+                        Text="{Binding ISBN, UpdateSourceTrigger=PropertyChanged}"
+                        Margin="0,0,107,16"
+                        FontSize="16" />
+                    <Button Margin="341,16,10,31"
+                            Content="중복확인"
+                            Command="{Binding CheckIsbnCommand}"
+                            Style="{DynamicResource MaterialDesignRaisedButton}">
+>>>>>>> ca40a71 ([홍서진] 최종 수정 완료)
                     </Button>
                 </Grid>
 

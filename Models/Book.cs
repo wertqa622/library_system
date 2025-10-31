@@ -4,6 +4,7 @@ namespace library_management_system.Models
 {
     public class Book
     {
+        public int BookID { get; set; }
         public string ISBN { get; set; } = string.Empty;
         public byte[] BookImage { get; set; } = new byte[0];
         public string BookName { get; set; } = string.Empty;

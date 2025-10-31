@@ -75,7 +75,7 @@
                     <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
                 mdi:HintAssist.Hint="도서 설명"
                 Text="{Binding Description}"
-                Height="100"
+                Height="180"
                 TextWrapping="Wrap"
                 AcceptsReturn="True"
                 VerticalScrollBarVisibility="Auto"

@@ -83,6 +83,47 @@
                 <TextBlock Text="도서 정보" FontSize="20" FontWeight="Medium" VerticalAlignment="Center" />
             </StackPanel>
         </mdi:Card>
+<<<<<<< HEAD
+=======
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="23*" />
+                <ColumnDefinition Width="57*" />
+            </Grid.ColumnDefinitions>
+            <Border BorderBrush="LightGray" BorderThickness="1">
+                <Image Source="{Binding BookImage, Converter={StaticResource ImageByteArrayConverter}}"
+    Stretch="Uniform"
+    RenderOptions.BitmapScalingMode="HighQuality" />
+            </Border>
+            <ScrollViewer Grid.Row="1" Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- 제목 -->
+                    <TextBox x:Name="TitleTextBox"
+                 Style="{DynamicResource MaterialDesignOutlinedTextBox}"
+                 mdi:HintAssist.Hint="도서 제목"
+                 IsReadOnly="True"
+                 Text="{Binding BookName}"
+                 Margin="0,10,0,16"
+                 FontSize="16" />
+                    <!-- 설명 -->
+                    <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
+                mdi:HintAssist.Hint="도서 설명"
+                Text="{Binding Description}"
+                Height="180"
+                TextWrapping="Wrap"
+                AcceptsReturn="True"
+                VerticalScrollBarVisibility="Auto"
+                Margin="0,0,0,16"
+                IsReadOnly="True"
+                FontSize="16" />
+                    <!-- 저자 -->
+                    <TextBox Style="{DynamicResource MaterialDesignOutlinedTextBox}"
+                 mdi:HintAssist.Hint="저자"
+                 Text="{Binding Author}"
+                 Margin="0,0,0,16"
+                 IsReadOnly="True"
+                 FontSize="16" />
+>>>>>>> 201061c ([홍서진] 최종 수정)
 
         <!-- Book Information DataGrid -->
         <DataGrid Grid.Row="1"
